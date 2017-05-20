@@ -83,7 +83,7 @@ public class MainController implements Window {
     initializePluginList();
 
     config = new Config(
-      new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
+        new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
     );
     builder = new MusicBot.Builder(config);
 
@@ -122,9 +122,9 @@ public class MainController implements Window {
   }
 
   private <P extends NamedPlugin> void loadPlugins(File pluginFolder,
-    Class<P> pluginClass,
-    Map<String, PluginWrapper<P>> names,
-    List<PluginWrapper<P>> plugins) {
+      Class<P> pluginClass,
+      Map<String, PluginWrapper<P>> names,
+      List<PluginWrapper<P>> plugins) {
     PluginLoader<P> loader = new PluginLoader<>(pluginFolder, pluginClass);
     for (P plugin : loader.load()) {
       PluginWrapper<P> wrapper = new PluginWrapper<>(config, plugin);
@@ -135,34 +135,34 @@ public class MainController implements Window {
 
   private void initializePluginList() {
     pluginList.setCellFactory(
-      TextFieldListCell.forListView(new StringConverter<PluginWrapper<?>>() {
-        @Override
-        public String toString(PluginWrapper<?> provider) {
-          return provider.getPlugin().getReadableName();
-        }
+        TextFieldListCell.forListView(new StringConverter<PluginWrapper<?>>() {
+          @Override
+          public String toString(PluginWrapper<?> provider) {
+            return provider.getPlugin().getReadableName();
+          }
 
-        @Override
-        public PluginWrapper<?> fromString(String string) {
-          return null;
-        }
-      })
+          @Override
+          public PluginWrapper<?> fromString(String string) {
+            return null;
+          }
+        })
     );
 
     pluginList.getSelectionModel().selectedItemProperty().addListener(
-      (observable, oldValue, newValue) -> {
-        pluginConfig.getChildren().clear();
-        if (newValue == null) {
-          pluginName.setText("General");
-          findDefaultSuggester();
-          pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
-        } else {
-          pluginName.setText(newValue.getPlugin().getReadableName());
-          pluginConfig.getChildren().add(
-            new ProviderConfigController(config, newValue).createProviderConfig()
-          );
+        (observable, oldValue, newValue) -> {
+          pluginConfig.getChildren().clear();
+          if (newValue == null) {
+            pluginName.setText("General");
+            findDefaultSuggester();
+            pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
+          } else {
+            pluginName.setText(newValue.getPlugin().getReadableName());
+            pluginConfig.getChildren().add(
+                new ProviderConfigController(config, newValue).createProviderConfig()
+            );
+          }
+          closeButton.setVisible(newValue != null);
         }
-        closeButton.setVisible(newValue != null);
-      }
     );
 
     pluginList.setItems(new CompositeObservableList<>(suggesters, providers));

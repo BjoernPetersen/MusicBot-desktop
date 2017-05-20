@@ -40,8 +40,8 @@ public class BaseConfigController {
   @FXML
   private void initialize() {
     configPane.getChildren().add(new ConfigController(
-      config,
-      FXCollections.observableList(DefaultConfigEntry.get(config).getEntries())
+        config,
+        FXCollections.observableList(DefaultConfigEntry.get(config).getEntries())
     ).createConfigNode());
   }
 }

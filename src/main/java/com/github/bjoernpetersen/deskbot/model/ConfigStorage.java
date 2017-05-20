@@ -39,13 +39,13 @@ public final class ConfigStorage implements ConfigStorageAdapter {
       Properties properties = new Properties();
       properties.load(new FileInputStream(file));
       return properties.entrySet().stream()
-        .collect(Collectors.toMap(
-          e -> String.valueOf(e.getKey()),
-          e -> String.valueOf(e.getValue())
-        ));
+          .collect(Collectors.toMap(
+              e -> String.valueOf(e.getKey()),
+              e -> String.valueOf(e.getValue())
+          ));
     } catch (IOException e) {
       log.severe(
-        String.format("Could not load config entries from file '%s': %s", file.getName(), e)
+          String.format("Could not load config entries from file '%s': %s", file.getName(), e)
       );
       return Collections.emptyMap();
     }
@@ -70,7 +70,7 @@ public final class ConfigStorage implements ConfigStorageAdapter {
       properties.store(new FileOutputStream(file, false), null);
     } catch (IOException e) {
       log.severe(
-        String.format("Could not store config entries in file '%s': %s", file.getName(), e)
+          String.format("Could not store config entries in file '%s': %s", file.getName(), e)
       );
     }
   }

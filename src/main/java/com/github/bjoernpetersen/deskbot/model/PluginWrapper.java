@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.deskbot.model;
 
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
-import com.github.bjoernpetersen.jmusicbot.Plugin;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
@@ -29,10 +28,10 @@ public class PluginWrapper<P extends NamedPlugin> {
   public PluginWrapper(@Nonnull Config config, @Nonnull P plugin) {
     this.config = config;
     this.activeConfig = config.booleanEntry(
-      plugin.getClass(),
-      "enable",
-      "Enables plugin: " + plugin.getReadableName(),
-      false
+        plugin.getClass(),
+        "enable",
+        "Enables plugin: " + plugin.getReadableName(),
+        false
     );
 
     this.plugin = plugin;

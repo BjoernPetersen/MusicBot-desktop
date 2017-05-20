@@ -43,7 +43,7 @@ public final class CompositeObservableList<T> extends ObservableListBase<T> {
    * @param list2 the second list
    */
   public CompositeObservableList(ObservableList<? extends T> list1,
-    ObservableList<? extends T> list2) {
+      ObservableList<? extends T> list2) {
     this.list1 = list1;
     this.list2 = list2;
     listener = this::fireChange;

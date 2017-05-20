@@ -41,11 +41,11 @@ public class PlayerController implements Window {
     BotHolder.getInstance().botProperty().addListener(botListener = observable -> exit(null));
 
     player.addListener(new UiThreadPlayerStateListener(
-      state -> {
-        autoPause = true;
-        pauseToggle.setSelected(state.getState() == State.PAUSE);
-        autoPause = false;
-      }
+        state -> {
+          autoPause = true;
+          pauseToggle.setSelected(state.getState() == State.PAUSE);
+          autoPause = false;
+        }
     ));
     pauseToggle.selectedProperty().addListener((observable, oldValue, newValue) -> {
       if (!autoPause) {

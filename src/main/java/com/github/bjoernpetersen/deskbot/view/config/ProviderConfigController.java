@@ -1,7 +1,7 @@
 package com.github.bjoernpetersen.deskbot.view.config;
 
-import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
+import com.github.bjoernpetersen.jmusicbot.config.Config;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import javafx.fxml.FXML;
@@ -45,7 +45,7 @@ public class ProviderConfigController {
   @FXML
   private void initialize() {
     configPane.getChildren().add(
-      new ConfigController(config, pluginWrapper.getConfigEntries()).createConfigNode()
+        new ConfigController(config, pluginWrapper.getConfigEntries()).createConfigNode()
     );
     configPane.visibleProperty().bind(pluginWrapper.activeProperty());
     activateCheckbox.selectedProperty().set(pluginWrapper.isActive());
