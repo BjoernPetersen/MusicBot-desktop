@@ -1,25 +1,24 @@
 package com.github.bjoernpetersen.deskbot.view;
 
 import com.github.bjoernpetersen.deskbot.model.BotHolder;
-import com.github.bjoernpetersen.deskbot.model.CompositeObservableList;
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.ProviderConfigController;
+import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
-import com.github.bjoernpetersen.jmusicbot.Plugin;
-import com.github.bjoernpetersen.jmusicbot.PluginLoader;
+import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
+import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
-import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -29,6 +28,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.cell.TextFieldListCell;
@@ -38,6 +41,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MainController implements Window {
 
@@ -56,40 +60,38 @@ public class MainController implements Window {
   private StackPane pluginConfig;
 
   @FXML
-  private ListView<PluginWrapper<?>> pluginList;
+  private ListView<PluginWrapper<NamedPlugin>> pluginList;
+  private ObservableList<PluginWrapper<NamedPlugin>> plugins;
 
   @FXML
   private Button startButton;
 
   private Stage stage;
-  private final Map<String, PluginWrapper<Provider>> providerNames;
-  private final ObservableList<PluginWrapper<Provider>> providers;
-  private final Map<String, PluginWrapper<Suggester>> suggesterNames;
-  private final ObservableList<PluginWrapper<Suggester>> suggesters;
-
 
   private Config config;
+  private PlaybackFactoryManager playbackFactoryManager;
+  private ProviderManager providerManager;
   private MusicBot.Builder builder;
 
   public MainController() {
-    providerNames = new HashMap<>();
-    providers = FXCollections.observableArrayList();
-    suggesterNames = new HashMap<>();
-    suggesters = FXCollections.observableArrayList();
   }
 
   @FXML
   private void initialize() {
+    plugins = FXCollections.observableArrayList();
     initializePluginList();
 
     config = new Config(
         new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
     );
-    builder = new MusicBot.Builder(config);
 
-    loadPlugins();
-    // TODO dirty hack
-    findDefaultSuggester();
+    playbackFactoryManager = loadPlaybackFactories();
+    providerManager = loadProviderManager();
+    addPlugins(providerManager.getProviders().values());
+    addPlugins(providerManager.getSuggesters().values());
+    builder = new MusicBot.Builder(config)
+        .playbackFactoryManager(playbackFactoryManager)
+        .providerManager(providerManager);
 
     startButton.setOnMouseClicked(this::start);
 
@@ -99,50 +101,31 @@ public class MainController implements Window {
     closeButton.setOnMouseClicked(event -> pluginList.getSelectionModel().select(null));
   }
 
-  private void findDefaultSuggester() {
-    Config.StringEntry suggester = DefaultConfigEntry.get(config).suggester;
-    if (!suggester.get().isPresent()) {
-      for (PluginWrapper wrapper : providers) {
-        if (wrapper.isActive() && wrapper.getPlugin() instanceof Suggester) {
-          suggester.set(wrapper.getPlugin().getName());
-        }
-      }
-    }
+  private PlaybackFactoryManager loadPlaybackFactories() {
+    return new PlaybackFactoryManager(config, Collections.emptyList());
   }
 
-  private void loadPlugins() {
-    providerNames.clear();
-    suggesterNames.clear();
-    providers.clear();
-    suggesters.clear();
-
-    File pluginFolder = new File(DefaultConfigEntry.get(config).pluginFolder.getOrDefault());
-    loadPlugins(pluginFolder, Provider.class, providerNames, providers);
-    loadPlugins(pluginFolder, Suggester.class, suggesterNames, suggesters);
+  private ProviderManager loadProviderManager() {
+    return new ProviderManager(config, playbackFactoryManager);
   }
 
-  private <P extends NamedPlugin> void loadPlugins(File pluginFolder,
-      Class<P> pluginClass,
-      Map<String, PluginWrapper<P>> names,
-      List<PluginWrapper<P>> plugins) {
-    PluginLoader<P> loader = new PluginLoader<>(pluginFolder, pluginClass);
-    for (P plugin : loader.load()) {
-      PluginWrapper<P> wrapper = new PluginWrapper<>(config, plugin);
-      names.put(plugin.getName(), wrapper);
-      plugins.add(wrapper);
+  private void addPlugins(Collection<? extends NamedPlugin> plugins) {
+    for (NamedPlugin plugin : plugins) {
+      PluginWrapper<NamedPlugin> wrapper = new PluginWrapper<>(config, providerManager, plugin);
+      this.plugins.add(wrapper);
     }
   }
 
   private void initializePluginList() {
     pluginList.setCellFactory(
-        TextFieldListCell.forListView(new StringConverter<PluginWrapper<?>>() {
+        TextFieldListCell.forListView(new StringConverter<PluginWrapper<NamedPlugin>>() {
           @Override
-          public String toString(PluginWrapper<?> provider) {
-            return provider.getPlugin().getReadableName();
+          public String toString(PluginWrapper<NamedPlugin> wrapper) {
+            return wrapper.getPlugin().getReadableName();
           }
 
           @Override
-          public PluginWrapper<?> fromString(String string) {
+          public PluginWrapper<NamedPlugin> fromString(String string) {
             return null;
           }
         })
@@ -153,7 +136,6 @@ public class MainController implements Window {
           pluginConfig.getChildren().clear();
           if (newValue == null) {
             pluginName.setText("General");
-            findDefaultSuggester();
             pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
           } else {
             pluginName.setText(newValue.getPlugin().getReadableName());
@@ -165,7 +147,7 @@ public class MainController implements Window {
         }
     );
 
-    pluginList.setItems(new CompositeObservableList<>(suggesters, providers));
+    pluginList.setItems(this.plugins);
   }
 
   @Override
@@ -175,25 +157,57 @@ public class MainController implements Window {
     stage.setScene(scene);
   }
 
+  @Nullable
+  private Suggester askForDefaultSuggesters() {
+    Dialog<Suggester> dialog = new Dialog<>();
+    DialogPane pane = new DialogPane();
+    ChoiceBox<Suggester> choiceBox = new ChoiceBox<>();
+    choiceBox.setConverter(new StringConverter<Suggester>() {
+      @Override
+      public String toString(Suggester object) {
+        return object.getReadableName();
+      }
+
+      @Override
+      public Suggester fromString(String string) {
+        return null;
+      }
+    });
+    choiceBox.setItems(FXCollections.observableList(getActiveSuggesters()));
+    pane.setHeaderText("Which suggester should be used if the queue is empty?");
+    pane.setContent(choiceBox);
+    pane.getButtonTypes().add(ButtonType.OK);
+    pane.getButtonTypes().add(ButtonType.CANCEL);
+    dialog.setDialogPane(pane);
+    dialog.setResultConverter(param -> {
+      if (param.equals(ButtonType.OK)) {
+        return choiceBox.getValue();
+      } else {
+        return null;
+      }
+    });
+    return dialog.showAndWait().orElse(null);
+  }
+
+  @Nonnull
+  private List<Suggester> getActiveSuggesters() {
+    List<Suggester> result = new LinkedList<>();
+    for (PluginWrapper<NamedPlugin> wrapper : plugins) {
+      NamedPlugin plugin = wrapper.getPlugin();
+      if (plugin instanceof Suggester && wrapper.isActive()) {
+        result.add((Suggester) plugin);
+      }
+    }
+    return result;
+  }
+
   @FXML
   private void start(MouseEvent mouseEvent) {
     pluginList.getSelectionModel().select(null);
-
-    for (PluginWrapper<?> wrapper : pluginList.getItems()) {
-      if (wrapper.isActive()) {
-        Plugin plugin = wrapper.getPlugin();
-        if (plugin instanceof Provider) {
-          builder.addProvider((Provider) plugin);
-        } else if (plugin instanceof Suggester) {
-          builder.addSuggester((Suggester) plugin);
-        } else {
-          log.severe("Unknown plugin type: " + wrapper);
-        }
-      }
-    }
-
     startButton.setDisable(true);
-    findDefaultSuggester();
+
+    builder.defaultSuggester(askForDefaultSuggesters());
+
     new Thread(() -> {
       MusicBot bot;
       try {
@@ -201,6 +215,9 @@ public class MainController implements Window {
       } catch (IllegalStateException e) {
         log.severe("Could not create MusicBot: " + e);
         e.printStackTrace();
+        return;
+      } catch (InitializationException e) {
+        log.severe("Could not initialize MusicBot: " + e);
         return;
       } finally {
         startButton.setDisable(false);
