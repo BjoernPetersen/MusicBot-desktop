@@ -95,7 +95,7 @@ public final class ConfigController {
   @Nonnull
   private Node createPlainTextField(Config.StringEntry entry) {
     TextField field = new TextField(entry.get().orElse(null));
-    field.setPromptText(entry.getDefault());
+    field.setPromptText(entry.getDefault().orElse(null));
     field.textProperty().addListener(((observable, oldValue, newValue) -> {
       entry.set(newValue);
     }));
