@@ -51,6 +51,8 @@ public class PluginWrapper<P extends NamedPlugin> {
       entries.clear();
       if (newValue) {
         entries.addAll(manager.getConfigEntries(getPlugin()));
+      } else {
+        manager.destructConfigEntries(getPlugin());
       }
     }));
     this.active.set(activeConfig.get());
