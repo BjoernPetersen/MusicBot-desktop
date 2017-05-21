@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -73,6 +74,8 @@ public class MainController implements Window {
   private ProviderManager providerManager;
   private MusicBot.Builder builder;
 
+  private Config.StringEntry defaultSuggester;
+
   public MainController() {
   }
 
@@ -83,6 +86,10 @@ public class MainController implements Window {
 
     config = new Config(
         new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
+    );
+    defaultSuggester = config.stringEntry(
+        getClass(), "defaultSuggester",
+        "", null
     );
 
     playbackFactoryManager = loadPlaybackFactories();
@@ -174,6 +181,7 @@ public class MainController implements Window {
       }
     });
     choiceBox.setItems(FXCollections.observableList(getActiveSuggesters()));
+    choiceBox.setValue(getDefaultSuggester(choiceBox.getItems()));
     pane.setHeaderText("Which suggester should be used if the queue is empty?");
     pane.setContent(choiceBox);
     pane.getButtonTypes().add(ButtonType.OK);
@@ -201,12 +209,30 @@ public class MainController implements Window {
     return result;
   }
 
+
+  @Nullable
+  private Suggester getDefaultSuggester(List<Suggester> actives) {
+    Optional<String> foundName = defaultSuggester.get();
+
+    if (foundName.isPresent()) {
+      String name = foundName.get();
+      for (Suggester suggester : actives) {
+        if (suggester.getName().equals(name)) {
+          return suggester;
+        }
+      }
+    }
+    return null;
+  }
+
   @FXML
   private void start(MouseEvent mouseEvent) {
     pluginList.getSelectionModel().select(null);
     startButton.setDisable(true);
 
-    builder.defaultSuggester(askForDefaultSuggesters());
+    Suggester defaultSuggester = askForDefaultSuggesters();
+    builder.defaultSuggester(defaultSuggester);
+    this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getName());
 
     new Thread(() -> {
       MusicBot bot;
