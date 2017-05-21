@@ -15,7 +15,7 @@ jobs:
         - ~/.m2
 
     - run:
-        command: mvn test
+        command: mvn -U test
         name: Running unit tests
         when: always
     - deploy:
