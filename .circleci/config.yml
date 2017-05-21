@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-    - image: maven:3.5.0-jdk-8
+    - image: fbrissi/maven-openjfx:jdk-8
     working_directory: ~/app
     steps:
     - checkout
@@ -14,7 +14,7 @@ jobs:
         paths:
         - ~/.m2
 
-    - run: 
+    - run:
         command: mvn test
         name: Running unit tests
         when: always
