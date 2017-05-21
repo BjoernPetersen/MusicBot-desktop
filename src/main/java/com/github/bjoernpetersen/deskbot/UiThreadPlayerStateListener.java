@@ -24,11 +24,6 @@ public final class UiThreadPlayerStateListener implements PlayerStateListener {
   }
 
   @Override
-  public void onChange(@Nonnull PlayerState old, @Nonnull PlayerState next) {
-    Platform.runLater(() -> listener.onChange(old, next));
-  }
-
-  @Override
   public void onChanged(@Nonnull PlayerState playerState) {
     Platform.runLater(() -> listener.onChanged(playerState));
   }
