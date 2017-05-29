@@ -2,9 +2,14 @@ package com.github.bjoernpetersen.deskbot.view.config;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
+import com.github.bjoernpetersen.jmusicbot.config.Config.ReadOnlyStringEntry;
+import com.github.bjoernpetersen.jmusicbot.config.StringConfigListener;
+import com.github.bjoernpetersen.jmusicbot.config.WeakStringConfigListener;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -31,6 +36,8 @@ public final class ConfigController {
   private final Config config;
   @Nonnull
   private final ObservableList<? extends Config.Entry> entries;
+  @Nonnull
+  private final List<StringConfigListener> validityListeners;
 
   @FXML
   private GridPane grid;
@@ -38,6 +45,7 @@ public final class ConfigController {
   public ConfigController(Config config, ObservableList<? extends Config.Entry> entries) {
     this.config = config;
     this.entries = entries;
+    this.validityListeners = new LinkedList<>();
   }
 
   @Nonnull
@@ -59,6 +67,7 @@ public final class ConfigController {
   }
 
   private void updateGrid(List<? extends Config.Entry> entries) {
+    validityListeners.clear();
     grid.getChildren().clear();
 
     for (int row = 0; row < entries.size(); row++) {
@@ -74,6 +83,30 @@ public final class ConfigController {
       grid.add(description, 1, row);
 
       grid.add(createEditable(entry), 2, row);
+
+      if (entry instanceof Config.ReadOnlyStringEntry) {
+        // check for validity on change
+        Node warningNode = new Label();
+        warningNode.getStyleClass().addAll("alert", "warning", "dialog-pane");
+        grid.add(warningNode, 3, row);
+        Tooltip tooltip = new Tooltip();
+        Tooltip.install(warningNode, tooltip);
+
+        Config.ReadOnlyStringEntry stringEntry = (ReadOnlyStringEntry) entry;
+        StringConfigListener listener = (o, v) -> {
+          Optional<String> warning = stringEntry.checkError();
+          if (warning.isPresent()) {
+            tooltip.setText(warning.get());
+            warningNode.setVisible(true);
+          } else {
+            warningNode.setVisible(false);
+          }
+        };
+        listener.onChange(null, null);
+
+        validityListeners.add(listener);
+        stringEntry.addListener(new WeakStringConfigListener(listener));
+      }
     }
   }
 
