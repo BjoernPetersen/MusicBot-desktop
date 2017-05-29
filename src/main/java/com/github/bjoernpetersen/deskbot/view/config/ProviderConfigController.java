@@ -23,9 +23,9 @@ public class ProviderConfigController {
   @Nonnull
   private final Config config;
   @Nonnull
-  private PluginWrapper pluginWrapper;
+  private PluginWrapper<?> pluginWrapper;
 
-  public ProviderConfigController(Config config, PluginWrapper pluginWrapper) {
+  public ProviderConfigController(Config config, PluginWrapper<?> pluginWrapper) {
     this.config = config;
     this.pluginWrapper = pluginWrapper;
   }
