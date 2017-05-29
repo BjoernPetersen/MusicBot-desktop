@@ -1,11 +1,9 @@
 package com.github.bjoernpetersen.deskbot.view;
 
-import com.github.bjoernpetersen.deskbot.model.BotHolder;
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.ProviderConfigController;
-import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
@@ -13,19 +11,15 @@ import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -228,39 +222,11 @@ public class MainController implements Window {
   @FXML
   private void start(MouseEvent mouseEvent) {
     pluginList.getSelectionModel().select(null);
-    startButton.setDisable(true);
 
     Suggester defaultSuggester = askForDefaultSuggesters();
     builder.defaultSuggester(defaultSuggester);
     this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getName());
 
-    new Thread(() -> {
-      MusicBot bot;
-      try {
-        bot = builder.build();
-      } catch (IllegalStateException e) {
-        log.severe("Could not create MusicBot: " + e);
-        e.printStackTrace();
-        return;
-      } catch (InitializationException e) {
-        log.severe("Could not initialize MusicBot: " + e);
-        return;
-      } finally {
-        startButton.setDisable(false);
-      }
-      Platform.runLater(() -> {
-        BotHolder.getInstance().set(bot);
-
-        try {
-          FXMLLoader loader = new FXMLLoader();
-          loader.setLocation(PlayerController.class.getResource("Player.fxml"));
-          loader.load();
-          Window controller = loader.getController();
-          controller.showOnStage(stage);
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      });
-    }, "InitializationThread").start();
+    PluginLoaderController.load(stage, builder);
   }
 }
