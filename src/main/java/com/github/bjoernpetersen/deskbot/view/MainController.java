@@ -89,7 +89,7 @@ public class MainController implements Window {
     );
     defaultSuggester = config.stringEntry(
         getClass(), "defaultSuggester",
-        "", null
+        "", null, v -> Optional.empty()
     );
 
     playbackFactoryManager = loadPlaybackFactories();
