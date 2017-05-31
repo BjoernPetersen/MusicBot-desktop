@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javax.annotation.Nonnull;
 
@@ -31,21 +32,29 @@ public final class PluginLoaderController extends InitStateWriter {
     this.stage = stage;
     this.alert = new Alert(AlertType.INFORMATION);
     alert.setTitle("Initializing...");
+    alert.getButtonTypes().clear();
+    alert.getButtonTypes().add(ButtonType.CANCEL);
   }
 
   private void load() {
     stage.hide();
-    new Thread(() -> {
+    Thread initializer = new Thread(() -> {
       try {
         BotHolder.getInstance().set(builder.build());
       } catch (IllegalStateException e) {
         log.severe("Could not create MusicBot: " + e);
       } catch (InitializationException e) {
         log.severe("Could not initialize MusicBot: " + e);
+      } catch (InterruptedException e) {
+        log.warning("Interrupted during MusicBot initialization");
+      } catch (Exception e) {
+        log.severe("Unknown error creating MusicBot: " + e);
       }
       Platform.runLater(alert::hide);
-    }, "InitializationThread").start();
+    }, "InitializationThread");
+    initializer.start();
     alert.showAndWait();
+    initializer.interrupt();
     if (!BotHolder.getInstance().hasValue()) {
       try {
         FXMLLoader loader = new FXMLLoader();
@@ -73,7 +82,10 @@ public final class PluginLoaderController extends InitStateWriter {
 
   @Override
   public void begin(String s) {
-    Platform.runLater(() -> alert.setHeaderText("Loading " + s));
+    Platform.runLater(() -> {
+      alert.setHeaderText("Loading " + s);
+      alert.setContentText("");
+    });
   }
 
   @Override
