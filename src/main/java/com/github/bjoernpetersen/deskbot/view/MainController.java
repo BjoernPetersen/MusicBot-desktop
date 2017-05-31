@@ -4,7 +4,7 @@ import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
 import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
-import com.github.bjoernpetersen.deskbot.view.config.ProviderConfigController;
+import com.github.bjoernpetersen.deskbot.view.config.PluginConfigController;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
@@ -21,11 +21,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -152,8 +149,7 @@ public class MainController implements Window {
   }
 
   private <T extends NamedPlugin> ChangeListener<T> createChangeListener(
-      Function<T, BooleanProperty> activeProperty,
-      Function<T, ObservableList<? extends Config.Entry>> configEntries) {
+      Function<T, PluginConfigController> controllerFunction) {
     return (observable, oldValue, newValue) -> {
       pluginConfig.getChildren().clear();
       if (newValue == null) {
@@ -161,33 +157,38 @@ public class MainController implements Window {
         pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
       } else {
         pluginName.setText(newValue.getReadableName());
-        pluginConfig.getChildren().add(
-            new ProviderConfigController(
-                config,
-                activeProperty.apply(newValue),
-                configEntries.apply(newValue)
-            ).createProviderConfig()
-        );
+        pluginConfig.getChildren().add(controllerFunction.apply(newValue).createProviderConfig());
       }
       closeButton.setVisible(newValue != null);
     };
   }
 
   private void initializePluginLists() {
-
     initializePluginList(playbackFactoryList, createChangeListener(
-        f -> new SimpleBooleanProperty(true),
-        f -> FXCollections.observableList(playbackFactoryManager.getConfigEntries(f.getWrapped())))
+        f -> new PluginConfigController(
+            config,
+            FXCollections.observableList(playbackFactoryManager.getConfigEntries(f.getWrapped())))
+        )
     );
 
-    initializePluginList(providerList, createChangeListener(
-        p ->getWrapper(p).activeProperty(),
-        p -> getWrapper(p).getConfigEntries()
-    ));
-    initializePluginList(suggesterList, createChangeListener(
-        s -> getWrapper(s).activeProperty(),
-        s -> getWrapper(s).getConfigEntries()
-    ));
+    initializePluginList(providerList, createChangeListener(p -> {
+          PluginWrapper<NamedPlugin> wrapper = getWrapper(p);
+          return new PluginConfigController(
+              config,
+              wrapper.activeProperty(),
+              wrapper.getConfigEntries()
+          );
+        })
+    );
+    initializePluginList(providerList, createChangeListener(s -> {
+          PluginWrapper<NamedPlugin> wrapper = getWrapper(s);
+          return new PluginConfigController(
+              config,
+              wrapper.activeProperty(),
+              wrapper.getConfigEntries()
+          );
+        })
+    );
   }
 
   private <T extends NamedPlugin> void initializePluginList(ListView<T> list,
