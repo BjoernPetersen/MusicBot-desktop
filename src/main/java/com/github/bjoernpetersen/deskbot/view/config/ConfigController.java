@@ -51,7 +51,7 @@ public final class ConfigController {
   @Nonnull
   public Node createConfigNode() {
     FXMLLoader loader = new FXMLLoader();
-    loader.setLocation(ProviderConfigController.class.getResource("Config.fxml"));
+    loader.setLocation(PluginConfigController.class.getResource("Config.fxml"));
     loader.setController(this);
     try {
       return loader.load();
