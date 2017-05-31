@@ -14,7 +14,7 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" prefWidth="800"
   fx:controller="com.github.bjoernpetersen.deskbot.view.MainController">
   <left>
-    <TabPane tabClosingPolicy="UNAVAILABLE">
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE">
       <Tab text="PlaybackFactory">
         <ListView fx:id="playbackFactoryList"/>
       </Tab>
