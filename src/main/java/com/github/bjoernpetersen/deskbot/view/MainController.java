@@ -1,6 +1,7 @@
 package com.github.bjoernpetersen.deskbot.view;
 
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
+import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.ProviderConfigController;
@@ -9,14 +10,20 @@ import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
+import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -55,8 +62,12 @@ public class MainController implements Window {
   private StackPane pluginConfig;
 
   @FXML
-  private ListView<PluginWrapper<NamedPlugin>> pluginList;
-  private ObservableList<PluginWrapper<NamedPlugin>> plugins;
+  private ListView<PlaybackFactoryWrapper> playbackFactoryList;
+  @FXML
+  private ListView<Provider> providerList;
+  @FXML
+  private ListView<Suggester> suggesterList;
+  private Map<NamedPlugin, PluginWrapper<NamedPlugin>> pluginWrappers;
 
   @FXML
   private Button startButton;
@@ -75,8 +86,8 @@ public class MainController implements Window {
 
   @FXML
   private void initialize() {
-    plugins = FXCollections.observableArrayList();
-    initializePluginList();
+    pluginWrappers = new HashMap<>();
+    initializePluginLists();
 
     config = new Config(
         new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
@@ -86,10 +97,9 @@ public class MainController implements Window {
         "", null, v -> Optional.empty()
     );
 
-    playbackFactoryManager = loadPlaybackFactories();
-    providerManager = loadProviderManager();
-    addPlugins(providerManager.getProviders().values());
-    addPlugins(providerManager.getSuggesters().values());
+    playbackFactoryManager = new PlaybackFactoryManager(config, Collections.emptyList());
+    providerManager = new ProviderManager(config, playbackFactoryManager);
+    fillPluginLists();
     builder = new MusicBot.Builder(config)
         .playbackFactoryManager(playbackFactoryManager)
         .providerManager(providerManager);
@@ -99,56 +109,91 @@ public class MainController implements Window {
     pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
 
     closeButton.managedProperty().bind(closeButton.visibleProperty());
-    closeButton.setOnMouseClicked(event -> pluginList.getSelectionModel().select(null));
+    closeButton.setOnMouseClicked(event -> selectNull());
   }
 
-  private PlaybackFactoryManager loadPlaybackFactories() {
-    return new PlaybackFactoryManager(config, Collections.emptyList());
+  private void selectNull() {
+    playbackFactoryList.getSelectionModel().select(null);
+    providerList.getSelectionModel().select(null);
+    suggesterList.getSelectionModel().select(null);
   }
 
-  private ProviderManager loadProviderManager() {
-    return new ProviderManager(config, playbackFactoryManager);
+  private PluginWrapper<NamedPlugin> getWrapper(Provider provider) {
+    return pluginWrappers.computeIfAbsent(provider, p ->
+        new PluginWrapper<>(config, providerManager, p));
   }
 
-  private void addPlugins(Collection<? extends NamedPlugin> plugins) {
-    for (NamedPlugin plugin : plugins) {
-      PluginWrapper<NamedPlugin> wrapper = new PluginWrapper<>(config, providerManager, plugin);
-      this.plugins.add(wrapper);
-    }
+  private PluginWrapper<NamedPlugin> getWrapper(Suggester suggester) {
+    return pluginWrappers.computeIfAbsent(suggester, s ->
+        new PluginWrapper<>(config, providerManager, s));
   }
 
-  private void initializePluginList() {
-    pluginList.setCellFactory(
-        TextFieldListCell.forListView(new StringConverter<PluginWrapper<NamedPlugin>>() {
-          @Override
-          public String toString(PluginWrapper<NamedPlugin> wrapper) {
-            return wrapper.getPlugin().getReadableName();
-          }
+  private void fillPluginLists() {
+    playbackFactoryList.getItems().addAll(playbackFactoryManager.getPlaybackFactories().stream()
+        .map(PlaybackFactoryWrapper::new)
+        .collect(Collectors.toList())
+    );
+    providerList.getItems().addAll(providerManager.getProviders().values());
+    suggesterList.getItems().addAll(providerManager.getSuggesters().values());
+  }
 
-          @Override
-          public PluginWrapper<NamedPlugin> fromString(String string) {
-            return null;
-          }
-        })
+  private <T extends NamedPlugin> StringConverter<T> createStringConverter() {
+    return new StringConverter<T>() {
+      @Override
+      public String toString(T object) {
+        return object.getReadableName();
+      }
+
+      @Override
+      public T fromString(String string) {
+        return null;
+      }
+    };
+  }
+
+  private <T extends NamedPlugin> ChangeListener<T> createChangeListener(
+      Function<T, BooleanProperty> activeProperty,
+      Function<T, ObservableList<? extends Config.Entry>> configEntries) {
+    return (observable, oldValue, newValue) -> {
+      pluginConfig.getChildren().clear();
+      if (newValue == null) {
+        pluginName.setText("General");
+        pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
+      } else {
+        pluginName.setText(newValue.getReadableName());
+        pluginConfig.getChildren().add(
+            new ProviderConfigController(
+                config,
+                activeProperty.apply(newValue),
+                configEntries.apply(newValue)
+            ).createProviderConfig()
+        );
+      }
+      closeButton.setVisible(newValue != null);
+    };
+  }
+
+  private void initializePluginLists() {
+
+    initializePluginList(playbackFactoryList, createChangeListener(
+        f -> new SimpleBooleanProperty(true),
+        f -> FXCollections.observableList(playbackFactoryManager.getConfigEntries(f.getWrapped())))
     );
 
-    pluginList.getSelectionModel().selectedItemProperty().addListener(
-        (observable, oldValue, newValue) -> {
-          pluginConfig.getChildren().clear();
-          if (newValue == null) {
-            pluginName.setText("General");
-            pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
-          } else {
-            pluginName.setText(newValue.getPlugin().getReadableName());
-            pluginConfig.getChildren().add(
-                new ProviderConfigController(config, newValue).createProviderConfig()
-            );
-          }
-          closeButton.setVisible(newValue != null);
-        }
-    );
+    initializePluginList(providerList, createChangeListener(
+        p ->getWrapper(p).activeProperty(),
+        p -> getWrapper(p).getConfigEntries()
+    ));
+    initializePluginList(suggesterList, createChangeListener(
+        s -> getWrapper(s).activeProperty(),
+        s -> getWrapper(s).getConfigEntries()
+    ));
+  }
 
-    pluginList.setItems(this.plugins);
+  private <T extends NamedPlugin> void initializePluginList(ListView<T> list,
+      ChangeListener<T> selectListener) {
+    list.setCellFactory(TextFieldListCell.forListView(createStringConverter()));
+    list.getSelectionModel().selectedItemProperty().addListener(selectListener);
   }
 
   @Override
@@ -193,14 +238,9 @@ public class MainController implements Window {
 
   @Nonnull
   private List<Suggester> getActiveSuggesters() {
-    List<Suggester> result = new LinkedList<>();
-    for (PluginWrapper<NamedPlugin> wrapper : plugins) {
-      NamedPlugin plugin = wrapper.getPlugin();
-      if (plugin instanceof Suggester && wrapper.isActive()) {
-        result.add((Suggester) plugin);
-      }
-    }
-    return result;
+    return suggesterList.getItems().stream()
+        .filter(s -> getWrapper(s).isActive())
+        .collect(Collectors.toList());
   }
 
 
@@ -221,7 +261,7 @@ public class MainController implements Window {
 
   @FXML
   private void start(MouseEvent mouseEvent) {
-    pluginList.getSelectionModel().select(null);
+    selectNull();
 
     Suggester defaultSuggester = askForDefaultSuggesters();
     builder.defaultSuggester(defaultSuggester);

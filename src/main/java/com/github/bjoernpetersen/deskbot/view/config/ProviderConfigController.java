@@ -1,9 +1,10 @@
 package com.github.bjoernpetersen.deskbot.view.config;
 
-import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import javafx.beans.property.BooleanProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -23,11 +24,15 @@ public class ProviderConfigController {
   @Nonnull
   private final Config config;
   @Nonnull
-  private PluginWrapper<?> pluginWrapper;
+  private final BooleanProperty activeProperty;
+  @Nonnull
+  private final ObservableList<? extends Config.Entry> configEntries;
 
-  public ProviderConfigController(Config config, PluginWrapper<?> pluginWrapper) {
+  public ProviderConfigController(Config config, BooleanProperty activeProperty,
+      ObservableList<? extends Config.Entry> configEntries) {
     this.config = config;
-    this.pluginWrapper = pluginWrapper;
+    this.activeProperty = activeProperty;
+    this.configEntries = configEntries;
   }
 
   @Nonnull
@@ -45,11 +50,11 @@ public class ProviderConfigController {
   @FXML
   private void initialize() {
     configPane.getChildren().add(
-        new ConfigController(config, pluginWrapper.getConfigEntries()).createConfigNode()
+        new ConfigController(config, configEntries).createConfigNode()
     );
-    configPane.visibleProperty().bind(pluginWrapper.activeProperty());
-    activateCheckbox.selectedProperty().set(pluginWrapper.isActive());
-    activateCheckbox.selectedProperty().bindBidirectional(pluginWrapper.activeProperty());
+    configPane.visibleProperty().bind(activeProperty);
+    activateCheckbox.selectedProperty().set(activeProperty.get());
+    activateCheckbox.selectedProperty().bindBidirectional(activeProperty);
   }
 
 }
