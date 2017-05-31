@@ -34,6 +34,7 @@ public final class PluginLoaderController extends InitStateWriter {
     alert.setTitle("Initializing...");
     alert.getButtonTypes().clear();
     alert.getButtonTypes().add(ButtonType.CANCEL);
+    alert.setResizable(true);
   }
 
   private void load() {
