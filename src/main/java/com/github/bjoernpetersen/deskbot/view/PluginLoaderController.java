@@ -47,7 +47,7 @@ public final class PluginLoaderController extends InitStateWriter {
         log.severe("Could not initialize MusicBot: " + e);
       } catch (InterruptedException e) {
         log.warning("Interrupted during MusicBot initialization");
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         log.severe("Unknown error creating MusicBot: " + e);
       }
       Platform.runLater(alert::hide);
