@@ -33,6 +33,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -60,6 +61,8 @@ public class MainController implements Window {
   @FXML
   private StackPane pluginConfig;
 
+  @FXML
+  private TabPane tabPane;
   @FXML
   private ListView<PlaybackFactoryWrapper> playbackFactoryList;
   @FXML
@@ -109,6 +112,9 @@ public class MainController implements Window {
 
     closeButton.managedProperty().bind(closeButton.visibleProperty());
     closeButton.setOnMouseClicked(event -> selectNull());
+    tabPane.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldValue, newValue) -> selectNull()
+    );
   }
 
   private void selectNull() {
