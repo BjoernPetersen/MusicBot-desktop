@@ -54,6 +54,8 @@ public class MainController implements Window {
   @FXML
   private Label pluginName;
   @FXML
+  private Label pluginType;
+  @FXML
   private Button closeButton;
   @FXML
   private StackPane pluginConfig;
@@ -148,15 +150,17 @@ public class MainController implements Window {
     };
   }
 
-  private <T extends NamedPlugin> ChangeListener<T> createChangeListener(
+  private <T extends NamedPlugin> ChangeListener<T> createChangeListener(String pluginType,
       Function<T, PluginConfigController> controllerFunction) {
     return (observable, oldValue, newValue) -> {
       pluginConfig.getChildren().clear();
       if (newValue == null) {
         pluginName.setText("General");
+        this.pluginType.setText("");
         pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
       } else {
         pluginName.setText(newValue.getReadableName());
+        this.pluginType.setText(pluginType);
         pluginConfig.getChildren().add(controllerFunction.apply(newValue).createProviderConfig());
       }
       closeButton.setVisible(newValue != null);
@@ -165,30 +169,34 @@ public class MainController implements Window {
 
   private void initializePluginLists() {
     initializePluginList(playbackFactoryList, createChangeListener(
+        "PlaybackFactory",
         f -> new PluginConfigController(
             config,
             FXCollections.observableList(playbackFactoryManager.getConfigEntries(f.getWrapped())))
         )
     );
 
-    initializePluginList(providerList, createChangeListener(p -> {
+    initializePluginList(providerList, createChangeListener(
+        "Provider",
+        p -> {
           PluginWrapper<NamedPlugin> wrapper = getWrapper(p);
           return new PluginConfigController(
               config,
               wrapper.activeProperty(),
               wrapper.getConfigEntries()
           );
-        })
-    );
-    initializePluginList(providerList, createChangeListener(s -> {
+        }
+    ));
+    initializePluginList(suggesterList, createChangeListener("Suggester",
+        s -> {
           PluginWrapper<NamedPlugin> wrapper = getWrapper(s);
           return new PluginConfigController(
               config,
               wrapper.activeProperty(),
               wrapper.getConfigEntries()
           );
-        })
-    );
+        }
+    ));
   }
 
   private <T extends NamedPlugin> void initializePluginList(ListView<T> list,

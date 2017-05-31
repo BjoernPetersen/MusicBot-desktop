@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" prefWidth="800"
@@ -27,17 +28,18 @@
   </left>
   <center>
     <StackPane fx:id="centerPane">
-      <VBox>
-        <Label fx:id="pluginName" text="General"/>
+      <VBox spacing="5">
+        <HBox alignment="CENTER">
+          <Label fx:id="pluginName" text="General"
+            style="-fx-font-weight: bold; -fx-font-size: 160%"/>
+          <VBox HBox.hgrow="ALWAYS"/>
+          <Label fx:id="pluginType" style="-fx-font-style: italic"/>
+        </HBox>
         <Button fx:id="closeButton" text="Close" visible="false"/>
-        <StackPane fx:id="pluginConfig" VBox.vgrow="ALWAYS">
-          <padding>
-            <Insets top="10"/>
-          </padding>
-        </StackPane>
+        <StackPane fx:id="pluginConfig" VBox.vgrow="ALWAYS"/>
       </VBox>
       <padding>
-        <Insets left="10" top="10" bottom="10" right="10"/>
+        <Insets left="5" top="5" bottom="5" right="5"/>
       </padding>
     </StackPane>
   </center>

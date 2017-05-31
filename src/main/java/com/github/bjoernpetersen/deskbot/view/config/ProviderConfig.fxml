@@ -3,12 +3,9 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1">
+<VBox xmlns:fx="http://javafx.com/fxml/1" spacing="5">
   <CheckBox fx:id="activateCheckbox" text="activate"/>
   <StackPane VBox.vgrow="ALWAYS">
-    <padding>
-      <Insets top="10"/>
-    </padding>
     <ScrollPane>
       <padding>
         <Insets bottom="5" top="5" left="5" right="5"/>
