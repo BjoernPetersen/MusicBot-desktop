@@ -271,6 +271,9 @@ public class MainController implements Window {
   @FXML
   private void start(MouseEvent mouseEvent) {
     selectNull();
+    // if the wrapper for one of the providers hasn't been initialized,
+    // its active state hasn't been loaded from the config
+    providerList.getItems().forEach(this::getWrapper);
 
     Suggester defaultSuggester = askForDefaultSuggesters();
     builder.defaultSuggester(defaultSuggester);
