@@ -93,19 +93,14 @@ public final class ConfigController {
         Tooltip.install(warningNode, tooltip);
 
         Config.ReadOnlyStringEntry stringEntry = (ReadOnlyStringEntry) entry;
-        StringConfigListener listener = (o, v) -> {
+        StringConfigListener listener = (o, n) -> {
           Optional<String> warning = stringEntry.checkError();
-          if (warning.isPresent()) {
-            tooltip.setText(warning.get());
-            warningNode.setVisible(true);
-          } else {
-            warningNode.setVisible(false);
-          }
+          warning.ifPresent(tooltip::setText);
+          warningNode.setVisible(warning.isPresent());
         };
-        listener.onChange(null, null);
-
         validityListeners.add(listener);
         stringEntry.addListener(new WeakStringConfigListener(listener));
+        listener.onChange(null, stringEntry.get().orElse(null));
       }
     }
   }
