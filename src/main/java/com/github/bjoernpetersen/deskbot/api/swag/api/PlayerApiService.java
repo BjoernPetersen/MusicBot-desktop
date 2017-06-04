@@ -7,8 +7,8 @@ import javax.ws.rs.core.SecurityContext;
 
 public abstract class PlayerApiService implements BotService {
 
-  public abstract Response dequeue(@NotNull String songId, @NotNull String providerId,
-      SecurityContext securityContext) throws NotFoundException;
+  public abstract Response dequeue(String authorization, @NotNull String songId,
+      @NotNull String providerId, SecurityContext securityContext) throws NotFoundException;
 
   public abstract Response enqueue(@NotNull String songId, @NotNull String providerId,
       SecurityContext securityContext) throws NotFoundException;
@@ -16,6 +16,9 @@ public abstract class PlayerApiService implements BotService {
   public abstract Response getPlayerState(SecurityContext securityContext) throws NotFoundException;
 
   public abstract Response getQueue(SecurityContext securityContext) throws NotFoundException;
+
+  public abstract Response nextSong(String authorization, SecurityContext securityContext)
+      throws NotFoundException;
 
   public abstract Response pausePlayer(SecurityContext securityContext) throws NotFoundException;
 

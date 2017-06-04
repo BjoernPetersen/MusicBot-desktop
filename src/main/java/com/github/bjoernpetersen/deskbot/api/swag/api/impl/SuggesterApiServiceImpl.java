@@ -23,7 +23,7 @@ public class SuggesterApiServiceImpl extends SuggesterApiService {
   }
 
   @Override
-  public Response suggest(String suggesterId, Integer max, SecurityContext securityContext)
+  public Response suggestSong(String suggesterId, Integer max, SecurityContext securityContext)
       throws NotFoundException {
     Optional<Suggester> suggesterOptional = Util.lookupSuggester(manager, suggesterId);
     if (suggesterOptional.isPresent()) {
@@ -33,7 +33,7 @@ public class SuggesterApiServiceImpl extends SuggesterApiService {
           .collect(Collectors.toList());
       return Response.ok(suggestions).build();
     } else {
-      return Response.status(Status.NOT_FOUND).entity("Suggester not found").build();
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 

@@ -13,7 +13,9 @@ import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
+import com.github.bjoernpetersen.jmusicbot.user.UserManager;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -286,6 +288,12 @@ public class MainController implements Window {
     builder.defaultSuggester(defaultSuggester);
     this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getName());
 
+    try {
+      builder.userManager(new UserManager(config, "jdbc:sqlite:users.db"));
+    } catch (SQLException e) {
+      log.severe("Could not connect to database: " + e);
+      return;
+    }
     builder.apiInitializer(RestApi::new);
 
     PluginLoaderController.load(stage, builder);

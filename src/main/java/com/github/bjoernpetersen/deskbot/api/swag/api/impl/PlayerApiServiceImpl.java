@@ -6,6 +6,10 @@ import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
+import com.github.bjoernpetersen.jmusicbot.user.InvalidTokenException;
+import com.github.bjoernpetersen.jmusicbot.user.Permission;
+import com.github.bjoernpetersen.jmusicbot.user.User;
+import com.github.bjoernpetersen.jmusicbot.user.UserManager;
 import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
@@ -16,17 +20,29 @@ public class PlayerApiServiceImpl extends PlayerApiService {
 
   private ProviderManager providerManager;
   private Player player;
+  private UserManager userManager;
 
   @Override
-  public Response dequeue(@NotNull String songId, @NotNull String providerId,
+  public Response dequeue(String authorization, @NotNull String songId, @NotNull String providerId,
       SecurityContext securityContext) throws NotFoundException {
+    User user;
+    try {
+      user = userManager.fromToken(authorization);
+    } catch (InvalidTokenException e) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    if (!user.getPermissions().contains(Permission.SKIP)) {
+      return Response.status(Status.FORBIDDEN).build();
+    }
+
     Optional<Song> songOptional = Util
         .lookupSong(providerManager, songId, providerId);
     if (songOptional.isPresent()) {
       player.getQueue().remove(songOptional.get());
       return getQueue(securityContext);
     } else {
-      return Response.status(Status.NOT_FOUND).entity("Song not found").build();
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 
@@ -39,7 +55,7 @@ public class PlayerApiServiceImpl extends PlayerApiService {
       player.getQueue().append(songOptional.get());
       return getQueue(securityContext);
     } else {
-      return Response.status(Status.NOT_FOUND).entity("Song not found").build();
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 
@@ -52,9 +68,30 @@ public class PlayerApiServiceImpl extends PlayerApiService {
 
   @Override
   public Response getQueue(SecurityContext securityContext) throws NotFoundException {
-    return Response.ok(
-        Util
-            .convert(player.getQueue().toList())).build();
+    return Response.ok(Util.convert(player.getQueue().toList())).build();
+  }
+
+  @Override
+  public Response nextSong(String authorization, SecurityContext securityContext)
+      throws NotFoundException {
+    User user;
+    try {
+      user = userManager.fromToken(authorization);
+    } catch (InvalidTokenException e) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    if (!user.getPermissions().contains(Permission.SKIP)) {
+      return Response.status(Status.FORBIDDEN).build();
+    }
+
+    try {
+      player.next();
+    } catch (InterruptedException e) {
+      return Response.serverError().entity("Interrupted").build();
+    }
+
+    return getPlayerState(securityContext);
   }
 
   @Override
@@ -73,5 +110,6 @@ public class PlayerApiServiceImpl extends PlayerApiService {
   public void initialize(MusicBot bot) {
     this.providerManager = bot.getProviderManager();
     this.player = bot.getPlayer();
+    this.userManager = bot.getUserManager();
   }
 }

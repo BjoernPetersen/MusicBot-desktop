@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 0.1.0
+  version: 0.2.0
   title: JMusicBot
   license:
     name: MIT
@@ -11,6 +11,140 @@ consumes:
 produces:
   - application/json
 paths:
+  /user:
+    post:
+      operationId: registerUser
+      summary: Registers a new user
+      produces:
+        - text/plain; charset=utf-8
+      description: >-
+        Adds a new guest user to the database. The user is identified by his
+        username.
+      parameters:
+        - name: userName
+          in: header
+          description: The desired user name
+          type: string
+          required: true
+        - name: uuid
+          in: header
+          description: >-
+            A uuid (or device ID) to authenticate the user while he doesn't have
+            a password
+          type: string
+          required: true
+      responses:
+        '201':
+          description: An authorization token
+          schema:
+            type: string
+        '409':
+          description: Username already in use
+          schema:
+            type: string
+    put:
+      operationId: changePassword
+      summary: Sets a new password
+      produces:
+        - text/plain; charset=utf-8
+      description: >-
+        Sets a new password for the caller. If the user was a guest account,
+        this makes him a full user.
+      parameters:
+        - name: Authorization
+          in: header
+          description: An authorization token
+          type: string
+          required: true
+        - name: oldPassword
+          in: header
+          description: The users old password. Only required if the user is no guest
+          type: string
+          required: false
+        - name: password
+          in: header
+          description: A password
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A new Authorization token
+          schema:
+            type: string
+        '400':
+          description: Invalid new password
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '403':
+          description: Wrong old password
+          schema:
+            type: string
+    delete:
+      operationId: deleteUser
+      summary: Deletes a user
+      produces:
+        - text/plain; charset=utf-8
+      description: Deletes the user associated with the Authorization token.
+      parameters:
+        - name: Authorization
+          in: header
+          description: An authorization token
+          type: string
+          required: true
+      responses:
+        '204':
+          description: Successfully deleted
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+    get:
+      operationId: login
+      summary: Retrieves a token for a user
+      produces:
+        - text/plain; charset=utf-8
+      description: >-
+        Retrieves an Authorization token for a user. Either a password or a UUID
+        must be supplied. Not both.
+      parameters:
+        - name: userName
+          in: header
+          description: The user to log in as
+          type: string
+          required: true
+        - name: password
+          in: header
+          description: The users password. Guest users should use the uuid parameter.
+          type: string
+          required: false
+        - name: uuid
+          in: header
+          description: >-
+            The UUID (or device ID) authenticating this guest user. Full users
+            should use the password parameter.
+          type: string
+          required: false
+      responses:
+        '200':
+          description: An authorization token
+          schema:
+            type: string
+        '400':
+          description: Wrong password/uuid
+          schema:
+            type: string
+        '401':
+          description: Needs password or uuid parameter
+          schema:
+            type: string
+        '404':
+          description: Unknown user
+          schema:
+            type: string
   /player:
     get:
       operationId: getPlayerState
@@ -47,6 +181,29 @@ paths:
           description: A PlayerState
           schema:
             $ref: '#/definitions/PlayerState'
+  /player/next:
+    put:
+      operationId: nextSong
+      summary: Skips to the next song
+      description: Skips the current song and plays the next song.
+      parameters:
+        - name: Authorization
+          in: header
+          description: Authorization token with 'skip' permission
+          type: string
+      responses:
+        '200':
+          description: A PlayerState
+          schema:
+            $ref: '#/definitions/PlayerState'
+        '401':
+          description: Missing Authorization token
+          schema:
+            type: string
+        '403':
+          description: Not authorized
+          schema:
+            type: string
   /player/queue:
     get:
       operationId: getQueue
@@ -89,6 +246,11 @@ paths:
         Removes the specified Song from the current queue. If the queue did not
         contain the song, nothing is done.
       parameters:
+        - name: Authorization
+          in: header
+          description: Authorization token with 'skip' permission
+          type: string
+          required: true
         - name: songId
           in: query
           description: the song's ID
@@ -106,6 +268,10 @@ paths:
             $ref: '#/definitions/Queue'
         '400':
           $ref: '#/responses/ParameterIsMissingResponse'
+        '403':
+          description: Not authorized
+          schema:
+            type: string
         '404':
           $ref: '#/responses/SongNotFoundResponse'
   /provider:
@@ -120,15 +286,15 @@ paths:
             items:
               type: string
               example: spotify
-  /search:
+  '/provider/{providerId}':
     get:
-      operationId: search
+      operationId: searchSong
       summary: Searches for songs
       parameters:
         - name: providerId
-          in: query
-          description: The ID of the provider to search with
+          in: path
           type: string
+          description: The provider with which to search
           required: true
         - name: query
           in: query
@@ -149,19 +315,19 @@ paths:
           schema:
             type: string
             example: Invalid provider
-  /lookup:
+  '/provider/{providerId}/{songId}':
     get:
-      operationId: lookup
+      operationId: lookupSong
       summary: Looks up a song
       description: Looks up a song using its ID and a provider ID
       parameters:
         - name: songId
-          in: query
+          in: path
           description: A song ID
           type: string
           required: true
         - name: providerId
-          in: query
+          in: path
           description: A provider ID
           type: string
           required: true
@@ -188,7 +354,7 @@ paths:
               example: spotify
   '/suggester/{suggesterId}':
     get:
-      operationId: suggest
+      operationId: suggestSong
       summary: Returns a list of suggestions
       parameters:
         - name: suggesterId

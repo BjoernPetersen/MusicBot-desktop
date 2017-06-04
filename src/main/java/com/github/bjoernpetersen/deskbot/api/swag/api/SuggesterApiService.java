@@ -8,6 +8,6 @@ public abstract class SuggesterApiService implements BotService {
 
   public abstract Response getSuggesters(SecurityContext securityContext) throws NotFoundException;
 
-  public abstract Response suggest(String suggesterId, Integer max, SecurityContext securityContext)
-      throws NotFoundException;
+  public abstract Response suggestSong(String suggesterId, Integer max,
+      SecurityContext securityContext) throws NotFoundException;
 }
