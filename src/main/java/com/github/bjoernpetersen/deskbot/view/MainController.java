@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.deskbot.view;
 
+import com.github.bjoernpetersen.deskbot.api.RestApi;
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
 import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
@@ -284,6 +285,8 @@ public class MainController implements Window {
     Suggester defaultSuggester = askForDefaultSuggesters();
     builder.defaultSuggester(defaultSuggester);
     this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getName());
+
+    builder.apiInitializer(RestApi::new);
 
     PluginLoaderController.load(stage, builder);
   }
