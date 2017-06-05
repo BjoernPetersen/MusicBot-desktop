@@ -108,7 +108,7 @@ public class PlayerApi {
 
       @ApiResponse(code = 403, message = "Not authorized", response = PlayerState.class)})
   public Response nextSong(
-      @ApiParam(value = "Authorization token with 'skip' permission") @HeaderParam("Authorization") String authorization
+      @ApiParam(value = "Authorization token with 'skip' permission", required = true) @HeaderParam("Authorization") String authorization
       , @Context SecurityContext securityContext)
       throws NotFoundException {
     return delegate.nextSong(authorization, securityContext);

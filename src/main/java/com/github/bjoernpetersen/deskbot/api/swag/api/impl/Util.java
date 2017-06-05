@@ -22,6 +22,7 @@ final class Util {
     result.setProviderId(song.getProviderName());
     result.setTitle(song.getTitle());
     result.setDescription(song.getDescription());
+    result.setAlbumArtUrl(song.getAlbumArtUrl().orElse(null));
     return result;
   }
 

@@ -32,12 +32,14 @@ paths:
             A uuid (or device ID) to authenticate the user while he doesn't have
             a password
           type: string
+          format: password
           required: true
       responses:
         '201':
           description: An authorization token
           schema:
             type: string
+            format: password
         '409':
           description: Username already in use
           schema:
@@ -55,22 +57,26 @@ paths:
           in: header
           description: An authorization token
           type: string
+          format: password
           required: true
         - name: oldPassword
           in: header
           description: The users old password. Only required if the user is no guest
           type: string
+          format: password
           required: false
         - name: password
           in: header
           description: A password
           type: string
+          format: password
           required: true
       responses:
         '200':
           description: A new Authorization token
           schema:
             type: string
+            format: password
         '400':
           description: Invalid new password
           schema:
@@ -94,6 +100,7 @@ paths:
           in: header
           description: An authorization token
           type: string
+          format: password
           required: true
       responses:
         '204':
@@ -120,6 +127,7 @@ paths:
           in: header
           description: The users password. Guest users should use the uuid parameter.
           type: string
+          format: password
           required: false
         - name: uuid
           in: header
@@ -127,12 +135,14 @@ paths:
             The UUID (or device ID) authenticating this guest user. Full users
             should use the password parameter.
           type: string
+          format: password
           required: false
       responses:
         '200':
           description: An authorization token
           schema:
             type: string
+            format: password
         '400':
           description: Wrong password/uuid
           schema:
@@ -191,6 +201,8 @@ paths:
           in: header
           description: Authorization token with 'skip' permission
           type: string
+          format: password
+          required: true
       responses:
         '200':
           description: A PlayerState
@@ -224,6 +236,7 @@ paths:
           in: header
           description: Authorization token
           type: string
+          format: password
           required: true
         - name: songId
           in: query
@@ -255,6 +268,7 @@ paths:
           in: header
           description: Authorization token with 'skip' permission
           type: string
+          format: password
           required: true
         - name: queueEntry
           in: body
@@ -405,6 +419,10 @@ definitions:
         description: The description of a song. Might be the artist. May also be empty.
         minLength: 0
         example: Rick Astley
+      albumArtUrl:
+        type: string
+        description: The URL pointing to an album art for this song
+        example: 'http://example.com/image.png'
   PlayerState:
     type: object
     required:

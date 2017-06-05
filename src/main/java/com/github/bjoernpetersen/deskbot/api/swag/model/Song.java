@@ -37,6 +37,9 @@ public class Song {
   @JsonProperty("description")
   private String description = null;
 
+  @JsonProperty("albumArtUrl")
+  private String albumArtUrl = null;
+
   public Song id(String id) {
     this.id = id;
     return this;
@@ -123,6 +126,26 @@ public class Song {
     this.description = description;
   }
 
+  public Song albumArtUrl(String albumArtUrl) {
+    this.albumArtUrl = albumArtUrl;
+    return this;
+  }
+
+  /**
+   * The URL pointing to an album art for this song
+   *
+   * @return albumArtUrl
+   **/
+  @JsonProperty("albumArtUrl")
+  @ApiModelProperty(example = "http://example.com/image.png", value = "The URL pointing to an album art for this song")
+  public String getAlbumArtUrl() {
+    return albumArtUrl;
+  }
+
+  public void setAlbumArtUrl(String albumArtUrl) {
+    this.albumArtUrl = albumArtUrl;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -136,12 +159,13 @@ public class Song {
     return Objects.equals(this.id, song.id) &&
         Objects.equals(this.providerId, song.providerId) &&
         Objects.equals(this.title, song.title) &&
-        Objects.equals(this.description, song.description);
+        Objects.equals(this.description, song.description) &&
+        Objects.equals(this.albumArtUrl, song.albumArtUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, providerId, title, description);
+    return Objects.hash(id, providerId, title, description, albumArtUrl);
   }
 
 
@@ -154,6 +178,7 @@ public class Song {
     sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
     sb.append("    title: ").append(toIndentedString(title)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
+    sb.append("    albumArtUrl: ").append(toIndentedString(albumArtUrl)).append("\n");
     sb.append("}");
     return sb.toString();
   }
