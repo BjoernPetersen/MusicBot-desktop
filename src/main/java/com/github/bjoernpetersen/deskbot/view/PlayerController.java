@@ -18,11 +18,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -40,6 +46,8 @@ public class PlayerController implements Window {
   private boolean autoPause = false;
   @FXML
   private ToggleButton pauseToggle;
+  @FXML
+  private VBox spacer;
 
   private Stage stage;
   private MusicBot musicBot;
@@ -49,6 +57,7 @@ public class PlayerController implements Window {
 
   @FXML
   private void initialize() {
+    HBox.setHgrow(spacer, Priority.ALWAYS);
     musicBot = BotHolder.getInstance().getValue();
     player = musicBot.getPlayer();
     BotHolder.getInstance().botProperty().addListener(botListener = observable -> exit(null));
@@ -132,6 +141,18 @@ public class PlayerController implements Window {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  @FXML
+  private void manageUsers(MouseEvent mouseEvent) {
+    Parent parent = new UserController(musicBot.getUserManager()).createNode();
+    Dialog<Void> dialog = new Dialog<>();
+    DialogPane dialogPane = new DialogPane();
+    dialogPane.setContent(parent);
+    dialogPane.getButtonTypes().add(ButtonType.OK);
+    dialog.setDialogPane(dialogPane);
+    dialog.setTitle("Manage users");
+    dialog.showAndWait();
   }
 
   @Override

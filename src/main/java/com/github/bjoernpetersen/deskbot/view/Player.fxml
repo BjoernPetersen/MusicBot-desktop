@@ -4,6 +4,7 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" prefWidth="800"
   fx:controller="com.github.bjoernpetersen.deskbot.view.PlayerController">
   <left>
@@ -16,6 +17,8 @@
     <ToolBar>
       <ToggleButton fx:id="pauseToggle" text="pause"/>
       <Button text="next" onMouseClicked="#next"/>
+      <VBox fx:id="spacer"/>
+      <Button text="manage users" onMouseClicked="#manageUsers"/>
       <Button text="exit" onMouseClicked="#exit"/>
     </ToolBar>
   </bottom>
