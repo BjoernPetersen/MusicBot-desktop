@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.deskbot.api.swag.api;
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.PlayerApiServiceFactory;
 import com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState;
 import com.github.bjoernpetersen.deskbot.api.swag.model.Queue;
+import com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -44,12 +45,10 @@ public class PlayerApi {
       @ApiResponse(code = 404, message = "The song could not be found", response = Queue.class)})
   public Response dequeue(
       @ApiParam(value = "Authorization token with 'skip' permission", required = true) @HeaderParam("Authorization") String authorization
-      , @ApiParam(value = "the song's ID", required = true) @QueryParam("songId") String songId
-      ,
-      @ApiParam(value = "The ID of the provider the song is from", required = true) @QueryParam("providerId") String providerId
+      , @ApiParam(value = "the queue entry to dequeue", required = true) QueueEntry queueEntry
       , @Context SecurityContext securityContext)
       throws NotFoundException {
-    return delegate.dequeue(authorization, songId, providerId, securityContext);
+    return delegate.dequeue(authorization, queueEntry, securityContext);
   }
 
   @PUT
@@ -64,12 +63,13 @@ public class PlayerApi {
 
       @ApiResponse(code = 404, message = "The song could not be found", response = Queue.class)})
   public Response enqueue(
-      @ApiParam(value = "The song's ID", required = true) @QueryParam("songId") String songId
+      @ApiParam(value = "Authorization token", required = true) @HeaderParam("Authorization") String authorization
+      , @ApiParam(value = "The song's ID", required = true) @QueryParam("songId") String songId
       ,
       @ApiParam(value = "The ID of the provider the song is from", required = true) @QueryParam("providerId") String providerId
       , @Context SecurityContext securityContext)
       throws NotFoundException {
-    return delegate.enqueue(songId, providerId, securityContext);
+    return delegate.enqueue(authorization, songId, providerId, securityContext);
   }
 
   @GET

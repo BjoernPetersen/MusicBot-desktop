@@ -220,6 +220,11 @@ paths:
         Adds the specified Song to the current queue. If the queue already
         contains the Song, it won't be added.
       parameters:
+        - name: Authorization
+          in: header
+          description: Authorization token
+          type: string
+          required: true
         - name: songId
           in: query
           description: The song's ID
@@ -251,15 +256,11 @@ paths:
           description: Authorization token with 'skip' permission
           type: string
           required: true
-        - name: songId
-          in: query
-          description: the song's ID
-          type: string
-          required: true
-        - name: providerId
-          in: query
-          description: The ID of the provider the song is from
-          type: string
+        - name: queueEntry
+          in: body
+          schema:
+            $ref: '#/definitions/QueueEntry'
+          description: the queue entry to dequeue
           required: true
       responses:
         '200':
@@ -416,13 +417,36 @@ definitions:
           - PAUSE
           - STOP
           - ERROR
+      songEntry:
+        $ref: '#/definitions/SongEntry'
+  SongEntry:
+    type: object
+    required:
+      - song
+    properties:
       song:
         $ref: '#/definitions/Song'
+      userName:
+        description: >-
+          The user who put the song in the queue. May be missing if it was auto
+          suggested.
+        type: string
+  QueueEntry:
+    type: object
+    required:
+      - song
+      - userName
+    properties:
+      song:
+        $ref: '#/definitions/Song'
+      userName:
+        description: The user who put the song in the queue
+        type: string
   Queue:
     type: array
     maxItems: 64
     items:
-      $ref: '#/definitions/Song'
+      $ref: '#/definitions/QueueEntry'
 responses:
   ParameterIsMissingResponse:
     description: A parameter is missing

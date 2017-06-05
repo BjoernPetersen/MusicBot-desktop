@@ -64,8 +64,8 @@ public class PlayerState {
   @JsonProperty("state")
   private StateEnum state = null;
 
-  @JsonProperty("song")
-  private Song song = null;
+  @JsonProperty("songEntry")
+  private SongEntry songEntry = null;
 
   public PlayerState state(StateEnum state) {
     this.state = state;
@@ -88,24 +88,24 @@ public class PlayerState {
     this.state = state;
   }
 
-  public PlayerState song(Song song) {
-    this.song = song;
+  public PlayerState songEntry(SongEntry songEntry) {
+    this.songEntry = songEntry;
     return this;
   }
 
   /**
-   * Get song
+   * Get songEntry
    *
-   * @return song
+   * @return songEntry
    **/
-  @JsonProperty("song")
+  @JsonProperty("songEntry")
   @ApiModelProperty(value = "")
-  public Song getSong() {
-    return song;
+  public SongEntry getSongEntry() {
+    return songEntry;
   }
 
-  public void setSong(Song song) {
-    this.song = song;
+  public void setSongEntry(SongEntry songEntry) {
+    this.songEntry = songEntry;
   }
 
 
@@ -119,12 +119,12 @@ public class PlayerState {
     }
     PlayerState playerState = (PlayerState) o;
     return Objects.equals(this.state, playerState.state) &&
-        Objects.equals(this.song, playerState.song);
+        Objects.equals(this.songEntry, playerState.songEntry);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(state, song);
+    return Objects.hash(state, songEntry);
   }
 
 
@@ -134,7 +134,7 @@ public class PlayerState {
     sb.append("class PlayerState {\n");
 
     sb.append("    state: ").append(toIndentedString(state)).append("\n");
-    sb.append("    song: ").append(toIndentedString(song)).append("\n");
+    sb.append("    songEntry: ").append(toIndentedString(songEntry)).append("\n");
     sb.append("}");
     return sb.toString();
   }

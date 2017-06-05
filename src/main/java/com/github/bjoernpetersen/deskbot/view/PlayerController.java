@@ -8,7 +8,9 @@ import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerStateListener;
+import com.github.bjoernpetersen.jmusicbot.playback.Queue;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
+import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import javafx.beans.InvalidationListener;
@@ -31,6 +33,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import javax.annotation.Nonnull;
 
 public class PlayerController implements Window {
 
@@ -80,7 +83,10 @@ public class PlayerController implements Window {
     });
 
     player.addListener(playerListener = new UiThreadPlayerStateListener(state -> {
-      currentTitle.setText(state.getSong().map(Song::getTitle).orElse(null));
+      currentTitle.setText(state.getEntry()
+          .map(SongEntry::getSong)
+          .map(Song::getTitle)
+          .orElse(null));
     }));
 
     initializeQueueListener();
@@ -91,13 +97,13 @@ public class PlayerController implements Window {
     player.getQueue().addListener(queueListener = new UiThreadQueueChangeListener(
         new QueueChangeListener() {
           @Override
-          public void onAdd(Song song) {
-            queue.add(song);
+          public void onAdd(@Nonnull Queue.Entry entry) {
+            queue.add(entry.getSong());
           }
 
           @Override
-          public void onRemove(Song song) {
-            queue.remove(song);
+          public void onRemove(@Nonnull Queue.Entry entry) {
+            queue.remove(entry.getSong());
           }
         })
     );

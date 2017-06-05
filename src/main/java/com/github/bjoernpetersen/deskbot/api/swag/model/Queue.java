@@ -20,7 +20,7 @@ import java.util.Objects;
  * Queue
  */
 
-public class Queue extends ArrayList<Song> {
+public class Queue extends ArrayList<QueueEntry> {
 
   @Override
   public boolean equals(Object o) {

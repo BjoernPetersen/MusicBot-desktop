@@ -2,11 +2,15 @@ package com.github.bjoernpetersen.deskbot.api.swag.api.impl;
 
 import com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState;
 import com.github.bjoernpetersen.deskbot.api.swag.model.Queue;
+import com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry;
 import com.github.bjoernpetersen.deskbot.api.swag.model.Song;
+import com.github.bjoernpetersen.deskbot.api.swag.model.SongEntry;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
+import com.github.bjoernpetersen.jmusicbot.playback.Queue.Entry;
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
+import com.github.bjoernpetersen.jmusicbot.user.User;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +25,27 @@ final class Util {
     return result;
   }
 
-  public static Queue convert(List<com.github.bjoernpetersen.jmusicbot.Song> queue) {
+  public static QueueEntry convert(Entry entry) {
+    QueueEntry queueEntry = new QueueEntry();
+    queueEntry.setUserName(entry.getUser().getName());
+    queueEntry.setSong(convert(entry.getSong()));
+    return queueEntry;
+  }
+
+  public static SongEntry convert(com.github.bjoernpetersen.jmusicbot.playback.SongEntry entry) {
+    Song song = convert(entry.getSong());
+    User user = entry.getUser();
+    String userName = user == null ? null : user.getName();
+    SongEntry queueEntry = new SongEntry();
+    queueEntry.setUserName(userName);
+    queueEntry.setSong(song);
+    return queueEntry;
+  }
+
+  public static Queue convert(List<Entry> queue) {
     Queue result = new Queue();
-    queue.stream().map(Util::convert)
+    queue.stream()
+        .map(Util::convert)
         .forEach(result::add);
     return result;
   }
@@ -32,8 +54,7 @@ final class Util {
       com.github.bjoernpetersen.jmusicbot.playback.PlayerState playerState) {
     PlayerState result = new PlayerState();
     result.setState(PlayerState.StateEnum.valueOf(playerState.getState().name()));
-    result.setSong(playerState.getSong().map(
-        Util::convert).orElse(null));
+    result.setSongEntry(playerState.getEntry().map(Util::convert).orElse(null));
     return result;
   }
 
