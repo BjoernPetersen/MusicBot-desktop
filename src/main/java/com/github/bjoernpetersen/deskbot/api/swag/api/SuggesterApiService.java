@@ -10,4 +10,7 @@ public abstract class SuggesterApiService implements BotService {
 
   public abstract Response suggestSong(String suggesterId, Integer max,
       SecurityContext securityContext) throws NotFoundException;
+
+  public abstract Response removeSuggestion(String suggesterId, String authorization, String songId,
+      String providerId, SecurityContext securityContext) throws NotFoundException;
 }

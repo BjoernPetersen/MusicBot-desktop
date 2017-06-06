@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 0.2.0
+  version: 0.3.0
   title: JMusicBot
   license:
     name: MIT
@@ -381,6 +381,8 @@ paths:
           in: query
           description: The maximum size of the response. Defaults to 16.
           type: integer
+          minimum: 1
+          maximum: 64
           required: false
       responses:
         '200':
@@ -395,6 +397,44 @@ paths:
           schema:
             type: string
             example: 'Suggester not found: Napster'
+    delete:
+      operationId: removeSuggestion
+      summary: Removes a song from the suggestions
+      parameters:
+        - name: suggesterId
+          in: path
+          description: the ID of the suggester
+          type: string
+          required: true
+        - name: Authorization
+          in: header
+          description: An authorization token with 'dislike' permission
+          type: string
+          format: password
+          required: true
+        - name: songId
+          in: query
+          description: The ID of the song to remove
+          type: string
+          required: true
+        - name: providerId
+          in: query
+          description: The ID of the provider of the song to remove
+          type: string
+          required: true
+      responses:
+        '204':
+          description: >-
+            Success. Will also be the case if the song was not in the current
+            suggestions.
+        '401':
+          description: Not authenticated
+          schema:
+            type: string
+        '404':
+          description: Song or Provider not found.
+          schema:
+            type: string
 definitions:
   Song:
     type: object

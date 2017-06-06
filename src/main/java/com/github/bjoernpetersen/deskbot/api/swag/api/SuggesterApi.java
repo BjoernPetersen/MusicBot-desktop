@@ -8,7 +8,9 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -36,6 +38,31 @@ public class SuggesterApi {
   public Response getSuggesters(@Context SecurityContext securityContext)
       throws NotFoundException {
     return delegate.getSuggesters(securityContext);
+  }
+
+  @DELETE
+  @Path("/{suggesterId}")
+  @Consumes({"application/json"})
+  @Produces({"application/json"})
+  @ApiOperation(value = "Removes a song from the suggestions", notes = "", response = void.class, tags = {})
+  @ApiResponses(value = {
+      @ApiResponse(code = 204, message = "Success. Will also be the case if the song was not in the current suggestions.", response = void.class),
+
+      @ApiResponse(code = 401, message = "Not authenticated", response = void.class),
+
+      @ApiResponse(code = 404, message = "Song or Provider not found.", response = void.class)})
+  public Response removeSuggestion(
+      @ApiParam(value = "the ID of the suggester", required = true) @PathParam("suggesterId") String suggesterId
+      ,
+      @ApiParam(value = "An authorization token with 'dislike' permission", required = true) @HeaderParam("Authorization") String authorization
+      ,
+      @ApiParam(value = "The ID of the song to remove", required = true) @QueryParam("songId") String songId
+      ,
+      @ApiParam(value = "The ID of the provider of the song to remove", required = true) @QueryParam("providerId") String providerId
+      , @Context SecurityContext securityContext)
+      throws NotFoundException {
+    return delegate
+        .removeSuggestion(suggesterId, authorization, songId, providerId, securityContext);
   }
 
   @GET
