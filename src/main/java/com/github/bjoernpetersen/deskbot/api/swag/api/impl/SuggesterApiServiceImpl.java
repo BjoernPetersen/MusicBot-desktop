@@ -28,7 +28,8 @@ public class SuggesterApiServiceImpl extends SuggesterApiService {
     Optional<Suggester> suggesterOptional = Util.lookupSuggester(manager, suggesterId);
     if (suggesterOptional.isPresent()) {
       Suggester suggester = suggesterOptional.get();
-      List<Song> suggestions = suggester.getNextSuggestions(max).stream()
+      int maxSuggestions = max == null || max < 1 || max > 64 ? 16 : max;
+      List<Song> suggestions = suggester.getNextSuggestions(maxSuggestions).stream()
           .map(Util::convert)
           .collect(Collectors.toList());
       return Response.ok(suggestions).build();
