@@ -2,7 +2,6 @@ package com.github.bjoernpetersen.deskbot.api.swag.api;
 
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.PlayerApiServiceFactory;
 import com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState;
-import com.github.bjoernpetersen.deskbot.api.swag.model.Queue;
 import com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,15 +33,15 @@ public class PlayerApi {
   @Path("/queue")
   @Consumes({"application/json"})
   @Produces({"application/json"})
-  @ApiOperation(value = "Removes a Song from the queue", notes = "Removes the specified Song from the current queue. If the queue did not contain the song, nothing is done.", response = Queue.class, tags = {})
+  @ApiOperation(value = "Removes a Song from the queue", notes = "Removes the specified Song from the current queue. If the queue did not contain the song, nothing is done.", response = QueueEntry.class, responseContainer = "List", tags = {})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "The new queue", response = Queue.class),
+      @ApiResponse(code = 200, message = "The new queue", response = QueueEntry.class, responseContainer = "List"),
 
-      @ApiResponse(code = 400, message = "A parameter is missing", response = Queue.class),
+      @ApiResponse(code = 400, message = "A parameter is missing", response = QueueEntry.class, responseContainer = "List"),
 
-      @ApiResponse(code = 403, message = "Not authorized", response = Queue.class),
+      @ApiResponse(code = 403, message = "Not authorized", response = QueueEntry.class, responseContainer = "List"),
 
-      @ApiResponse(code = 404, message = "The song could not be found", response = Queue.class)})
+      @ApiResponse(code = 404, message = "The song could not be found", response = QueueEntry.class, responseContainer = "List")})
   public Response dequeue(
       @ApiParam(value = "Authorization token with 'skip' permission", required = true) @HeaderParam("Authorization") String authorization
       , @ApiParam(value = "the queue entry to dequeue", required = true) QueueEntry queueEntry
@@ -55,13 +54,13 @@ public class PlayerApi {
   @Path("/queue")
   @Consumes({"application/json"})
   @Produces({"application/json"})
-  @ApiOperation(value = "Adds a Song to the queue", notes = "Adds the specified Song to the current queue. If the queue already contains the Song, it won't be added.", response = Queue.class, tags = {})
+  @ApiOperation(value = "Adds a Song to the queue", notes = "Adds the specified Song to the current queue. If the queue already contains the Song, it won't be added.", response = QueueEntry.class, responseContainer = "List", tags = {})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "The new queue", response = Queue.class),
+      @ApiResponse(code = 200, message = "The new queue", response = QueueEntry.class, responseContainer = "List"),
 
-      @ApiResponse(code = 400, message = "A parameter is missing", response = Queue.class),
+      @ApiResponse(code = 400, message = "A parameter is missing", response = QueueEntry.class, responseContainer = "List"),
 
-      @ApiResponse(code = 404, message = "The song could not be found", response = Queue.class)})
+      @ApiResponse(code = 404, message = "The song could not be found", response = QueueEntry.class, responseContainer = "List")})
   public Response enqueue(
       @ApiParam(value = "Authorization token", required = true) @HeaderParam("Authorization") String authorization
       , @ApiParam(value = "The song's ID", required = true) @QueryParam("songId") String songId
@@ -88,9 +87,9 @@ public class PlayerApi {
   @Path("/queue")
   @Consumes({"application/json"})
   @Produces({"application/json"})
-  @ApiOperation(value = "Returns the current player queue", notes = "", response = Queue.class, tags = {})
+  @ApiOperation(value = "Returns the current player queue", notes = "", response = QueueEntry.class, responseContainer = "List", tags = {})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "A list of Songs", response = Queue.class)})
+      @ApiResponse(code = 200, message = "A list of Songs", response = QueueEntry.class, responseContainer = "List")})
   public Response getQueue(@Context SecurityContext securityContext)
       throws NotFoundException {
     return delegate.getQueue(securityContext);

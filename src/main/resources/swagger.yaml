@@ -224,7 +224,10 @@ paths:
         '200':
           description: A list of Songs
           schema:
-            $ref: '#/definitions/Queue'
+            type: array
+            maxItems: 64
+            items:
+              $ref: '#/definitions/QueueEntry'
     put:
       operationId: enqueue
       summary: Adds a Song to the queue
@@ -252,7 +255,10 @@ paths:
         '200':
           description: The new queue
           schema:
-            $ref: '#/definitions/Queue'
+            type: array
+            maxItems: 64
+            items:
+              $ref: '#/definitions/QueueEntry'
         '400':
           $ref: '#/responses/ParameterIsMissingResponse'
         '404':
@@ -280,7 +286,10 @@ paths:
         '200':
           description: The new queue
           schema:
-            $ref: '#/definitions/Queue'
+            type: array
+            maxItems: 64
+            items:
+              $ref: '#/definitions/QueueEntry'
         '400':
           $ref: '#/responses/ParameterIsMissingResponse'
         '403':
@@ -500,11 +509,6 @@ definitions:
       userName:
         description: The user who put the song in the queue
         type: string
-  Queue:
-    type: array
-    maxItems: 64
-    items:
-      $ref: '#/definitions/QueueEntry'
 responses:
   ParameterIsMissingResponse:
     description: A parameter is missing
