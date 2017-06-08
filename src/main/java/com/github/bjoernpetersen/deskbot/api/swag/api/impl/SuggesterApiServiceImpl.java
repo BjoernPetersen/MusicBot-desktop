@@ -9,6 +9,7 @@ import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.InvalidTokenException;
+import com.github.bjoernpetersen.jmusicbot.user.Permission;
 import com.github.bjoernpetersen.jmusicbot.user.User;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
 import java.util.List;
@@ -52,6 +53,10 @@ public class SuggesterApiServiceImpl extends SuggesterApiService {
       user = userManager.fromToken(authorization);
     } catch (InvalidTokenException e) {
       return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    if (!user.getPermissions().contains(Permission.DISLIKE)) {
+      return Response.status(Status.FORBIDDEN).build();
     }
 
     Suggester suggester;
