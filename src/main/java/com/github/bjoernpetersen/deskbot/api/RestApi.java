@@ -20,7 +20,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 public class RestApi implements Closeable {
 
-  private static final URI BASE_URI = URI.create("http://localhost:4567/v1/");
+  private static final URI BASE_URI = URI.create("http://0.0.0.0:4567/v1/");
   private final MusicBot bot;
   private final HttpServer server;
 
