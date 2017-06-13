@@ -51,7 +51,7 @@ public class UserApiServiceImpl extends UserApiService {
       if (user.hasUuid(uuid)) {
         return Response.ok(userManager.toToken(user)).build();
       } else {
-        return Response.status(Status.FORBIDDEN).build();
+        return Response.status(Status.BAD_REQUEST).build();
       }
     } else {
       if (password == null) {

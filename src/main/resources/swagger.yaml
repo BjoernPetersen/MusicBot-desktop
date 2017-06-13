@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 0.3.0
+  version: 0.4.0
   title: JMusicBot
   license:
     name: MIT
@@ -144,11 +144,15 @@ paths:
             type: string
             format: password
         '400':
-          description: Wrong password/uuid
+          description: Wrong uuid
           schema:
             type: string
         '401':
           description: Needs password or uuid parameter
+          schema:
+            type: string
+        '403':
+          description: Wrong password
           schema:
             type: string
         '404':
@@ -438,6 +442,10 @@ paths:
             suggestions.
         '401':
           description: Not authenticated
+          schema:
+            type: string
+        '403':
+          description: Missing 'dislike' permission
           schema:
             type: string
         '404':
