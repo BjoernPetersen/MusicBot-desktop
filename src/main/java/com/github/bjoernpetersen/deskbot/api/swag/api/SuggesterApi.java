@@ -48,7 +48,9 @@ public class SuggesterApi {
   @ApiResponses(value = {
       @ApiResponse(code = 204, message = "Success. Will also be the case if the song was not in the current suggestions.", response = void.class),
 
-      @ApiResponse(code = 401, message = "Not authenticated", response = void.class),
+      @ApiResponse(code = 401, message = "Invalid or missing Authorization token", response = void.class),
+
+      @ApiResponse(code = 403, message = "Missing 'dislike' permission", response = void.class),
 
       @ApiResponse(code = 404, message = "Song or Provider not found.", response = void.class)})
   public Response removeSuggestion(

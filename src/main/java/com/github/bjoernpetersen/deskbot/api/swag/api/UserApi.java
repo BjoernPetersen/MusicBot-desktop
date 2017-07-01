@@ -37,7 +37,7 @@ public class UserApi {
 
       @ApiResponse(code = 400, message = "Invalid new password", response = String.class),
 
-      @ApiResponse(code = 401, message = "Invalid token", response = String.class),
+      @ApiResponse(code = 401, message = "Invalid or missing token", response = String.class),
 
       @ApiResponse(code = 403, message = "Wrong old password", response = String.class)})
   public Response changePassword(
@@ -58,7 +58,7 @@ public class UserApi {
   @ApiResponses(value = {
       @ApiResponse(code = 204, message = "Successfully deleted", response = void.class),
 
-      @ApiResponse(code = 401, message = "Invalid token", response = void.class)})
+      @ApiResponse(code = 401, message = "Invalid or missing token", response = void.class)})
   public Response deleteUser(
       @ApiParam(value = "An authorization token", required = true) @HeaderParam("Authorization") String authorization
       , @Context SecurityContext securityContext)
@@ -74,9 +74,11 @@ public class UserApi {
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "An authorization token", response = String.class),
 
-      @ApiResponse(code = 400, message = "Wrong password/uuid", response = String.class),
+      @ApiResponse(code = 400, message = "Wrong uuid", response = String.class),
 
       @ApiResponse(code = 401, message = "Needs password or uuid parameter", response = String.class),
+
+      @ApiResponse(code = 403, message = "Wrong password", response = String.class),
 
       @ApiResponse(code = 404, message = "Unknown user", response = String.class)})
   public Response login(

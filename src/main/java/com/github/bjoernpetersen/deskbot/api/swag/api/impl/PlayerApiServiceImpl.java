@@ -47,7 +47,7 @@ public class PlayerApiServiceImpl extends PlayerApiService {
       try {
         queueUser = userManager.getUser(queueEntry.getUserName());
       } catch (UserNotFoundException e) {
-        return Response.status(Status.BAD_REQUEST).build();
+        return Response.status(Status.UNAUTHORIZED).build();
       }
       Song song = songOptional.get();
       Queue.Entry entry = new Queue.Entry(song, queueUser);

@@ -39,6 +39,8 @@ public class PlayerApi {
 
       @ApiResponse(code = 400, message = "A parameter is missing", response = QueueEntry.class, responseContainer = "List"),
 
+      @ApiResponse(code = 401, message = "Invalid or missing Authorization token", response = QueueEntry.class, responseContainer = "List"),
+
       @ApiResponse(code = 403, message = "Not authorized", response = QueueEntry.class, responseContainer = "List"),
 
       @ApiResponse(code = 404, message = "The song could not be found", response = QueueEntry.class, responseContainer = "List")})
@@ -59,6 +61,8 @@ public class PlayerApi {
       @ApiResponse(code = 200, message = "The new queue", response = QueueEntry.class, responseContainer = "List"),
 
       @ApiResponse(code = 400, message = "A parameter is missing", response = QueueEntry.class, responseContainer = "List"),
+
+      @ApiResponse(code = 401, message = "Invalid or missing Authorization token", response = QueueEntry.class, responseContainer = "List"),
 
       @ApiResponse(code = 404, message = "The song could not be found", response = QueueEntry.class, responseContainer = "List")})
   public Response enqueue(
@@ -103,7 +107,7 @@ public class PlayerApi {
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "A PlayerState", response = PlayerState.class),
 
-      @ApiResponse(code = 401, message = "Missing Authorization token", response = PlayerState.class),
+      @ApiResponse(code = 401, message = "Invalid or missing Authorization token", response = PlayerState.class),
 
       @ApiResponse(code = 403, message = "Not authorized", response = PlayerState.class)})
   public Response nextSong(

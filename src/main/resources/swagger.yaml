@@ -82,7 +82,7 @@ paths:
           schema:
             type: string
         '401':
-          description: Invalid token
+          description: Invalid or missing token
           schema:
             type: string
         '403':
@@ -106,7 +106,7 @@ paths:
         '204':
           description: Successfully deleted
         '401':
-          description: Invalid token
+          description: Invalid or missing token
           schema:
             type: string
     get:
@@ -213,7 +213,7 @@ paths:
           schema:
             $ref: '#/definitions/PlayerState'
         '401':
-          description: Missing Authorization token
+          description: Invalid or missing Authorization token
           schema:
             type: string
         '403':
@@ -265,6 +265,10 @@ paths:
               $ref: '#/definitions/QueueEntry'
         '400':
           $ref: '#/responses/ParameterIsMissingResponse'
+        '401':
+          description: Invalid or missing Authorization token
+          schema:
+            type: string
         '404':
           $ref: '#/responses/SongNotFoundResponse'
     delete:
@@ -296,6 +300,10 @@ paths:
               $ref: '#/definitions/QueueEntry'
         '400':
           $ref: '#/responses/ParameterIsMissingResponse'
+        '401':
+          description: Invalid or missing Authorization token
+          schema:
+            type: string
         '403':
           description: Not authorized
           schema:
@@ -441,7 +449,7 @@ paths:
             Success. Will also be the case if the song was not in the current
             suggestions.
         '401':
-          description: Not authenticated
+          description: Invalid or missing Authorization token
           schema:
             type: string
         '403':
