@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.deskbot.view;
 import com.github.bjoernpetersen.deskbot.UiThreadPlayerStateListener;
 import com.github.bjoernpetersen.deskbot.UiThreadQueueChangeListener;
 import com.github.bjoernpetersen.deskbot.model.BotHolder;
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
@@ -13,6 +14,7 @@ import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.logging.Logger;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,7 +37,10 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javax.annotation.Nonnull;
 
-public class PlayerController implements Window {
+public class PlayerController implements Loggable, Window {
+
+  @Nonnull
+  private final Logger logger;
 
   @FXML
   private Parent root;
@@ -57,6 +62,16 @@ public class PlayerController implements Window {
   private Player player;
   private InvalidationListener botListener;
   private PlayerStateListener playerListener;
+
+  public PlayerController() {
+    this.logger = createLogger();
+  }
+
+  @Override
+  @Nonnull
+  public Logger getLogger() {
+    return logger;
+  }
 
   @FXML
   private void initialize() {
@@ -129,7 +144,7 @@ public class PlayerController implements Window {
     try {
       player.next();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logWarning("Interrupted calling next", e);
     }
   }
 
