@@ -6,6 +6,7 @@ import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.PluginConfigController;
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
@@ -22,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -46,9 +46,7 @@ import javafx.util.StringConverter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class MainController implements Window {
-
-  private static final Logger log = Logger.getLogger(MainController.class.getName());
+public class MainController implements Loggable, Window {
 
   @FXML
   private Parent root;
@@ -291,7 +289,7 @@ public class MainController implements Window {
     try {
       builder.userManager(new UserManager(config, "jdbc:sqlite:users.db"));
     } catch (SQLException e) {
-      log.severe("Could not connect to database: " + e);
+      logSevere("Could not connect to database: ", e);
       return;
     }
     builder.apiInitializer(RestApi::new);

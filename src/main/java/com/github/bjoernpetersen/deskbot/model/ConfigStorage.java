@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.deskbot.model;
 
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.config.ConfigStorageAdapter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,16 +9,12 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public final class ConfigStorage implements ConfigStorageAdapter {
-
-  @Nonnull
-  private static final Logger log = Logger.getLogger(ConfigStorage.class.getName());
+public final class ConfigStorage implements Loggable, ConfigStorageAdapter {
 
   @Nonnull
   private final File configFile;
@@ -30,7 +27,7 @@ public final class ConfigStorage implements ConfigStorageAdapter {
   }
 
   private Map<String, String> load(File file) {
-    log.fine("Loading config from file: " + file.getName());
+    logFine("Loading config from file: " + file.getName());
     if (!file.isFile()) {
       return Collections.emptyMap();
     }
@@ -44,22 +41,20 @@ public final class ConfigStorage implements ConfigStorageAdapter {
               e -> String.valueOf(e.getValue())
           ));
     } catch (IOException e) {
-      log.severe(
-          String.format("Could not load config entries from file '%s': %s", file.getName(), e)
-      );
+      logSevere(e, "Could not load config entries from file '%s'", file.getName());
       return Collections.emptyMap();
     }
   }
 
   private void store(File file, Map<String, String> map) {
-    log.fine("Storing config in file: " + file.getName());
+    logFine("Storing config in file: " + file.getName());
     if (!file.exists()) {
       try {
         if (!file.createNewFile()) {
           throw new IOException("Could not create file");
         }
       } catch (IOException e) {
-        log.severe(String.format("Could not create config file '%s': %s", file.getName(), e));
+        logSevere(e, "Could not create config file '%s'", file.getName());
         return;
       }
     }
@@ -69,9 +64,7 @@ public final class ConfigStorage implements ConfigStorageAdapter {
     try {
       properties.store(new FileOutputStream(file, false), null);
     } catch (IOException e) {
-      log.severe(
-          String.format("Could not store config entries in file '%s': %s", file.getName(), e)
-      );
+      logSevere(e, "Could not store config entries in file '%s'", file.getName());
     }
   }
 

@@ -3,6 +3,7 @@ package com.github.bjoernpetersen.deskbot.view;
 import com.github.bjoernpetersen.deskbot.model.BotHolder;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -15,10 +16,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javax.annotation.Nonnull;
 
-public final class PluginLoaderController extends InitStateWriter {
-
-  @Nonnull
-  private static final Logger log = Logger.getLogger(PluginLoaderController.class.getName());
+public final class PluginLoaderController extends InitStateWriter implements Loggable {
 
   @Nonnull
   private final MusicBot.Builder builder;
@@ -43,13 +41,13 @@ public final class PluginLoaderController extends InitStateWriter {
       try {
         BotHolder.getInstance().set(builder.build());
       } catch (IllegalStateException e) {
-        log.severe("Could not create MusicBot: " + e);
+        logSevere("Could not create MusicBot", e);
       } catch (InitializationException e) {
-        log.severe("Could not initialize MusicBot: " + e);
+        logSevere("Could not initialize MusicBot", e);
       } catch (InterruptedException e) {
-        log.warning("Interrupted during MusicBot initialization");
+        logWarning("Interrupted during MusicBot initialization");
       } catch (RuntimeException e) {
-        log.severe("Unknown error creating MusicBot: " + e);
+        logSevere("Unknown error creating MusicBot", e);
       }
       Platform.runLater(alert::hide);
     }, "InitializationThread");

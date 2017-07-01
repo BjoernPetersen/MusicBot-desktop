@@ -2,6 +2,7 @@ package com.github.bjoernpetersen.deskbot;
 
 import com.github.bjoernpetersen.deskbot.model.BotHolder;
 import com.github.bjoernpetersen.deskbot.view.MainController;
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
@@ -11,7 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javax.annotation.Nonnull;
 
-public class DeskBot extends Application {
+public class DeskBot extends Application implements Loggable {
 
   static {
     try (InputStream in = DeskBot.class.getResourceAsStream("/logging.properties")) {
@@ -21,9 +22,6 @@ public class DeskBot extends Application {
       System.exit(100);
     }
   }
-
-  @Nonnull
-  private static final Logger log = Logger.getLogger(DeskBot.class.getName());
 
   @Override
   public void start(Stage primaryStage) throws Exception {
@@ -41,12 +39,12 @@ public class DeskBot extends Application {
   private void initBotListener() {
     BotHolder.getInstance().botProperty().addListener((observable, oldValue, newValue) -> {
       if (oldValue != null) {
-        log.info("Closing MusicBot...");
+        logInfo("Closing MusicBot...");
         try {
           oldValue.close();
-          log.info("MusicBot closed.");
+          logInfo("MusicBot closed.");
         } catch (IOException e) {
-          log.severe("Couldn't close MusicBot: " + e);
+          logSevere("Couldn't close MusicBot", e);
         }
       }
     });

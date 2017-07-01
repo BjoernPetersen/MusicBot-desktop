@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.deskbot.view;
 
+import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.user.Permission;
 import com.github.bjoernpetersen.jmusicbot.user.User;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
@@ -18,10 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javax.annotation.Nonnull;
 
-class PermissionController {
-
-  @Nonnull
-  private static final Logger log = Logger.getLogger(PermissionController.class.getName());
+class PermissionController implements Loggable {
 
   @Nonnull
   private Property<User> user;
@@ -70,7 +68,7 @@ class PermissionController {
     activeToggle.selectedProperty().addListener((observable, oldValue, newValue) -> {
       User user = getUser();
       if (user.isInvalid()) {
-        log.warning("Invalid user");
+        logWarning("Invalid user");
         return;
       }
       Set<Permission> permissions = new HashSet<>(user.getPermissions());
@@ -82,7 +80,7 @@ class PermissionController {
       try {
         setUser(userManager.updateUser(user, permissions));
       } catch (SQLException e) {
-        log.severe("Error updating permissions: " + e);
+        logSevere("Error updating permissions", e);
         activeToggle.setSelected(oldValue);
       }
     });
