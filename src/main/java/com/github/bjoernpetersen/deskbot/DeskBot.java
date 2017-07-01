@@ -5,12 +5,12 @@ import com.github.bjoernpetersen.deskbot.view.MainController;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
-import javax.annotation.Nonnull;
 
 public class DeskBot extends Application implements Loggable {
 
@@ -51,6 +51,11 @@ public class DeskBot extends Application implements Loggable {
   }
 
   public static void main(String[] args) {
-    Application.launch(args);
+    try {
+      Application.launch(args);
+    } catch (Throwable t) {
+      Logger.getLogger(DeskBot.class.getName()).log(Level.SEVERE, "Unhandled exception", t);
+      throw t;
+    }
   }
 }
