@@ -15,6 +15,8 @@ import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
+import io.sentry.Sentry;
+import io.sentry.event.User;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -22,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.beans.value.ChangeListener;
@@ -95,6 +98,7 @@ public class MainController implements Loggable, Window {
     config = new Config(
         new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
     );
+    configureSentryUser(config);
     defaultSuggester = config.stringEntry(
         getClass(), "defaultSuggester",
         "", null, v -> Optional.empty()
@@ -116,6 +120,20 @@ public class MainController implements Loggable, Window {
     tabPane.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldValue, newValue) -> selectNull()
     );
+  }
+
+  private void configureSentryUser(Config config) {
+    Config.StringEntry userIdEntry = config.secret(getClass(), "sentryUser", "");
+    Optional<String> storedId = userIdEntry.get();
+    String userId;
+    if (!storedId.isPresent()) {
+      userIdEntry.set(userId = UUID.randomUUID().toString());
+    } else {
+      userId = storedId.get();
+    }
+    logFine("Sentry user ID: " + userId);
+    User user = new User(userId, null, null, null);
+    Sentry.setUser(user);
   }
 
   private void selectNull() {
