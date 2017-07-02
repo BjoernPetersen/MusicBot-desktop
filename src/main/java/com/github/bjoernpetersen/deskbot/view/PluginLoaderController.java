@@ -7,7 +7,6 @@ import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
@@ -43,9 +42,9 @@ public final class PluginLoaderController extends InitStateWriter implements Log
       } catch (IllegalStateException e) {
         logSevere(e, "Could not create MusicBot");
       } catch (InitializationException e) {
-        logSevere(e, "Could not initialize MusicBot");
+        logInfo(e, "Could not initialize MusicBot");
       } catch (InterruptedException e) {
-        logWarning("Interrupted during MusicBot initialization");
+        logFine("Interrupted during MusicBot initialization");
       } catch (RuntimeException e) {
         logSevere(e, "Unknown error creating MusicBot");
       }
