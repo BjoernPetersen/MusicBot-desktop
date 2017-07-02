@@ -101,7 +101,7 @@ public class MainController implements Loggable, Window {
     configureSentryUser(config);
     defaultSuggester = config.stringEntry(
         getClass(), "defaultSuggester",
-        "", null, v -> Optional.empty()
+        "", null, v -> null
     );
 
     playbackFactoryManager = new PlaybackFactoryManager(config, Collections.emptyList());
