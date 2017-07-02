@@ -9,14 +9,12 @@ import java.io.UncheckedIOException;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 import javafx.beans.property.Property;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
 import javax.annotation.Nonnull;
 
 class PermissionController implements Loggable {
@@ -80,7 +78,7 @@ class PermissionController implements Loggable {
       try {
         setUser(userManager.updateUser(user, permissions));
       } catch (SQLException e) {
-        logSevere("Error updating permissions", e);
+        logSevere(e, "Error updating permissions");
         activeToggle.setSelected(oldValue);
       }
     });

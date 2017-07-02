@@ -144,7 +144,7 @@ public class PlayerController implements Loggable, Window {
     try {
       player.next();
     } catch (InterruptedException e) {
-      logWarning("Interrupted calling next", e);
+      logWarning(e, "Interrupted calling next");
     }
   }
 

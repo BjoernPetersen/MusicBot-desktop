@@ -289,7 +289,7 @@ public class MainController implements Loggable, Window {
     try {
       builder.userManager(new UserManager(config, "jdbc:sqlite:users.db"));
     } catch (SQLException e) {
-      logSevere("Could not connect to database: ", e);
+      logSevere(e, "Could not connect to database: ");
       return;
     }
     builder.apiInitializer(RestApi::new);

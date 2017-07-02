@@ -41,13 +41,13 @@ public final class PluginLoaderController extends InitStateWriter implements Log
       try {
         BotHolder.getInstance().set(builder.build());
       } catch (IllegalStateException e) {
-        logSevere("Could not create MusicBot", e);
+        logSevere(e, "Could not create MusicBot");
       } catch (InitializationException e) {
-        logSevere("Could not initialize MusicBot", e);
+        logSevere(e, "Could not initialize MusicBot");
       } catch (InterruptedException e) {
         logWarning("Interrupted during MusicBot initialization");
       } catch (RuntimeException e) {
-        logSevere("Unknown error creating MusicBot", e);
+        logSevere(e, "Unknown error creating MusicBot");
       }
       Platform.runLater(alert::hide);
     }, "InitializationThread");

@@ -44,7 +44,9 @@ public class DeskBot extends Application implements Loggable {
           oldValue.close();
           logInfo("MusicBot closed.");
         } catch (IOException e) {
-          logSevere("Couldn't close MusicBot", e);
+          logSevere(e, "Couldn't close MusicBot");
+        } catch (Throwable t) {
+          logSevere(t, "Unknown error closing MusicBot");
         }
       }
     });
