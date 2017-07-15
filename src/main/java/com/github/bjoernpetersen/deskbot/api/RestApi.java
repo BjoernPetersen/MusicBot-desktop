@@ -12,22 +12,22 @@ import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
-import org.glassfish.grizzly.http.server.ErrorPageGenerator;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.Request;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public class RestApi implements Closeable {
 
-  private static final URI BASE_URI = URI.create("http://0.0.0.0:4567/v1/");
+  private static final String BASE_URI_TEMPLATE = "http://0.0.0.0:%d/v1/";
+
   private final MusicBot bot;
   private final HttpServer server;
 
-  public RestApi(MusicBot bot) throws InitializationException {
+  public RestApi(MusicBot bot, int port) throws InitializationException {
     this.bot = bot;
+    URI baseUri = URI.create(String.format(BASE_URI_TEMPLATE, port));
     server = GrizzlyHttpServerFactory.createHttpServer(
-        BASE_URI,
+        baseUri,
         getResourceConfig(),
         false
     );

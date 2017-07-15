@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.deskbot.view;
 
+import com.github.bjoernpetersen.deskbot.api.Broadcaster;
 import com.github.bjoernpetersen.deskbot.api.RestApi;
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
 import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
@@ -311,6 +312,7 @@ public class MainController implements Loggable, Window {
       return;
     }
     builder.apiInitializer(RestApi::new);
+    builder.broadcasterInitializer(Broadcaster::new);
 
     PluginLoaderController.load(stage, builder);
   }
