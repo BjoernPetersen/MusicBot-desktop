@@ -9,8 +9,8 @@ import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerStateListener;
-import com.github.bjoernpetersen.jmusicbot.playback.Queue;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
+import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
 import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -112,12 +112,12 @@ public class PlayerController implements Loggable, Window {
     player.getQueue().addListener(queueListener = new UiThreadQueueChangeListener(
         new QueueChangeListener() {
           @Override
-          public void onAdd(@Nonnull Queue.Entry entry) {
+          public void onAdd(@Nonnull QueueEntry entry) {
             queue.add(entry.getSong());
           }
 
           @Override
-          public void onRemove(@Nonnull Queue.Entry entry) {
+          public void onRemove(@Nonnull QueueEntry entry) {
             queue.remove(entry.getSong());
           }
         })

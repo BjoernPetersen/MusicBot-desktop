@@ -1,7 +1,7 @@
 package com.github.bjoernpetersen.deskbot;
 
-import com.github.bjoernpetersen.jmusicbot.playback.Queue;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
+import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
 import javafx.application.Platform;
 import javax.annotation.Nonnull;
 
@@ -15,12 +15,12 @@ public final class UiThreadQueueChangeListener implements QueueChangeListener {
   }
 
   @Override
-  public void onAdd(@Nonnull Queue.Entry entry) {
+  public void onAdd(@Nonnull QueueEntry entry) {
     Platform.runLater(() -> wrapped.onAdd(entry));
   }
 
   @Override
-  public void onRemove(@Nonnull Queue.Entry entry) {
+  public void onRemove(@Nonnull QueueEntry entry) {
     Platform.runLater(() -> wrapped.onRemove(entry));
   }
 }

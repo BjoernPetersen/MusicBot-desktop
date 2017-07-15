@@ -5,7 +5,6 @@ import com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry;
 import com.github.bjoernpetersen.deskbot.api.swag.model.Song;
 import com.github.bjoernpetersen.deskbot.api.swag.model.SongEntry;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
-import com.github.bjoernpetersen.jmusicbot.playback.Queue;
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
@@ -26,7 +25,7 @@ final class Util {
     return result;
   }
 
-  public static QueueEntry convert(Queue.Entry entry) {
+  public static QueueEntry convert(com.github.bjoernpetersen.jmusicbot.playback.QueueEntry entry) {
     QueueEntry queueEntry = new QueueEntry();
     queueEntry.setUserName(entry.getUser().getName());
     queueEntry.setSong(convert(entry.getSong()));
@@ -43,7 +42,8 @@ final class Util {
     return queueEntry;
   }
 
-  public static List<QueueEntry> convert(List<Queue.Entry> queue) {
+  public static List<QueueEntry> convert(
+      List<com.github.bjoernpetersen.jmusicbot.playback.QueueEntry> queue) {
     return queue.stream()
         .map(Util::convert)
         .collect(Collectors.toList());

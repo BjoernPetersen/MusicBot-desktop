@@ -2,12 +2,11 @@ package com.github.bjoernpetersen.deskbot.api.swag.api.impl;
 
 import com.github.bjoernpetersen.deskbot.api.swag.api.NotFoundException;
 import com.github.bjoernpetersen.deskbot.api.swag.api.PlayerApiService;
-import com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
-import com.github.bjoernpetersen.jmusicbot.playback.Queue;
+import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
 import com.github.bjoernpetersen.jmusicbot.user.InvalidTokenException;
 import com.github.bjoernpetersen.jmusicbot.user.Permission;
 import com.github.bjoernpetersen.jmusicbot.user.User;
@@ -26,7 +25,8 @@ public class PlayerApiServiceImpl extends PlayerApiService {
   private UserManager userManager;
 
   @Override
-  public Response dequeue(String authorization, @NotNull QueueEntry queueEntry,
+  public Response dequeue(String authorization,
+      @NotNull com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry queueEntry,
       SecurityContext securityContext) throws NotFoundException {
     User user;
     try {
@@ -50,7 +50,7 @@ public class PlayerApiServiceImpl extends PlayerApiService {
         return Response.status(Status.UNAUTHORIZED).build();
       }
       Song song = songOptional.get();
-      Queue.Entry entry = new Queue.Entry(song, queueUser);
+      QueueEntry entry = new QueueEntry(song, queueUser);
       player.getQueue().remove(entry);
       return getQueue(securityContext);
     } else {
@@ -70,7 +70,7 @@ public class PlayerApiServiceImpl extends PlayerApiService {
 
     Optional<Song> songOptional = Util.lookupSong(providerManager, songId, providerId);
     if (songOptional.isPresent()) {
-      Queue.Entry entry = new Queue.Entry(songOptional.get(), user);
+      QueueEntry entry = new QueueEntry(songOptional.get(), user);
       player.getQueue().append(entry);
       return getQueue(securityContext);
     } else {
