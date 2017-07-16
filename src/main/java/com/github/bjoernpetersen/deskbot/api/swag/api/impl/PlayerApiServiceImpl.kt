@@ -38,8 +38,8 @@ class PlayerApiServiceImpl : PlayerApiService() {
         }
 
         val paramSong = queueEntry.song
-        val songOptional = lookupSong(providerManager, paramSong.id, paramSong.providerId)
-        if (songOptional.isPresent) {
+        val song = lookupSong(providerManager, paramSong.id, paramSong.providerId)
+        if (song != null) {
             val queueUser: User
             try {
                 queueUser = userManager.getUser(queueEntry.userName)
@@ -47,7 +47,6 @@ class PlayerApiServiceImpl : PlayerApiService() {
                 return Response.status(Response.Status.UNAUTHORIZED).build()
             }
 
-            val song = songOptional.get()
             val entry = QueueEntry(song, queueUser)
             player.queue.remove(entry)
             return getQueue(securityContext)
@@ -67,9 +66,9 @@ class PlayerApiServiceImpl : PlayerApiService() {
             return Response.status(Response.Status.UNAUTHORIZED).build()
         }
 
-        val songOptional = lookupSong(providerManager, songId, providerId)
-        if (songOptional.isPresent) {
-            val entry = QueueEntry(songOptional.get(), user)
+        val song = lookupSong(providerManager, songId, providerId)
+        if (song != null) {
+            val entry = QueueEntry(song, user)
             player.queue.append(entry)
             return getQueue(securityContext)
         } else {

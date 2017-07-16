@@ -10,7 +10,6 @@ import com.github.bjoernpetersen.jmusicbot.playback.SongEntry
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException
 import com.github.bjoernpetersen.jmusicbot.provider.Provider
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester
-import java.util.*
 
 typealias ModelSong = com.github.bjoernpetersen.deskbot.api.swag.model.Song
 typealias ModelQueueEntry = com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry
@@ -56,26 +55,23 @@ fun PlayerState.convert(): ModelPlayerState {
     return result
 }
 
-fun lookupProvider(manager: ProviderManager, providerId: String): Optional<Provider> =
+fun lookupProvider(manager: ProviderManager, providerId: String): Provider? =
         try {
-            Optional.of(manager.getProvider(providerId))
+            manager.getProvider(providerId)
         } catch (e: IllegalArgumentException) {
-            Optional.empty()
+            null
         }
 
-fun lookupSuggester(manager: ProviderManager, suggesterId: String): Optional<Suggester> =
+fun lookupSuggester(manager: ProviderManager, suggesterId: String): Suggester? =
         try {
-            Optional.of(manager.getSuggester(suggesterId))
+            manager.getSuggester(suggesterId)
         } catch (e: IllegalArgumentException) {
-            Optional.empty()
+            null
         }
 
-fun lookupSong(manager: ProviderManager, songId: String, providerId: String): Optional<Song> =
-        lookupProvider(manager, providerId)
-                .map { provider ->
-                    try {
-                        provider.lookup(songId)
-                    } catch (e: NoSuchSongException) {
-                        null
-                    }
-                }
+fun lookupSong(manager: ProviderManager, songId: String, providerId: String): Song? =
+        try {
+            lookupProvider(manager, providerId)?.lookup(songId)
+        } catch (e: NoSuchSongException) {
+            null
+        }

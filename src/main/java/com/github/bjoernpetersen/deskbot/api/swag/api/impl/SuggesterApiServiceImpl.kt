@@ -33,9 +33,8 @@ class SuggesterApiServiceImpl : SuggesterApiService() {
     override fun suggestSong(suggesterId: String,
                              max: Int?,
                              securityContext: SecurityContext): Response {
-        val suggesterOptional = lookupSuggester(providerManager, suggesterId)
-        if (suggesterOptional.isPresent) {
-            val suggester = suggesterOptional.get()
+        val suggester = lookupSuggester(providerManager, suggesterId)
+        if (suggester != null) {
             val maxSuggestions = if (max == null || max < 1 || max > 64) 16 else max
             val suggestions = suggester.getNextSuggestions(maxSuggestions).map { it.convert() }
             return Response.ok(suggestions).build()

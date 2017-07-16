@@ -23,12 +23,11 @@ class ProviderApiServiceImpl : ProviderApiService() {
     @Throws(NotFoundException::class)
     override fun lookupSong(songId: String, providerId: String,
                             securityContext: SecurityContext): Response {
-        val providerOptional = lookupProvider(manager, providerId)
-        if (!providerOptional.isPresent) {
+        val provider = lookupProvider(manager, providerId)
+        if (provider == null) {
             return Response.status(Response.Status.NOT_FOUND).build()
         }
 
-        val provider = providerOptional.get()
         try {
             return Response.ok(provider.lookup(songId).convert()).build()
         } catch (e: NoSuchSongException) {
@@ -40,12 +39,11 @@ class ProviderApiServiceImpl : ProviderApiService() {
     override fun searchSong(providerId: String,
                             query: String,
                             securityContext: SecurityContext): Response {
-        val providerOptional = lookupProvider(manager, providerId)
-        if (!providerOptional.isPresent) {
+        val provider = lookupProvider(manager, providerId)
+        if (provider == null) {
             return Response.status(Response.Status.NOT_FOUND).build()
         }
 
-        val provider = providerOptional.get()
         val searchResult = provider.search(query).map { it.convert() }
         return Response.ok(searchResult).build()
     }
