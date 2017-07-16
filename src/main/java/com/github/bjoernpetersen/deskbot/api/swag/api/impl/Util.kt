@@ -12,11 +12,11 @@ import com.github.bjoernpetersen.jmusicbot.provider.Provider
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester
 import java.util.*
 
-private typealias ModelSong = com.github.bjoernpetersen.deskbot.api.swag.model.Song
-private typealias ModelQueueEntry = com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry
-private typealias ModelSongEntry = com.github.bjoernpetersen.deskbot.api.swag.model.SongEntry
-private typealias ModelPlayerState = com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState
-private typealias ModelPlayerStateEnum = com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState.StateEnum
+typealias ModelSong = com.github.bjoernpetersen.deskbot.api.swag.model.Song
+typealias ModelQueueEntry = com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry
+typealias ModelSongEntry = com.github.bjoernpetersen.deskbot.api.swag.model.SongEntry
+typealias ModelPlayerState = com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState
+typealias ModelPlayerStateEnum = com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState.StateEnum
 
 fun Song.convert(): ModelSong {
     val result = ModelSong()
