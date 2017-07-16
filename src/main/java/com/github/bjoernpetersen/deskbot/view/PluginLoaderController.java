@@ -6,12 +6,17 @@ import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.concurrent.atomic.AtomicReference;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javax.annotation.Nonnull;
 
@@ -36,20 +41,31 @@ public final class PluginLoaderController extends InitStateWriter implements Log
 
   private void load() {
     stage.hide();
+    AtomicReference<Throwable> exception = new AtomicReference<>();
     Thread initializer = new Thread(() -> {
       try {
         BotHolder.getInstance().set(builder.build());
       } catch (IllegalStateException e) {
         logSevere(e, "Could not create MusicBot");
+        exception.set(e);
       } catch (InitializationException e) {
         logInfo(e, "Could not initialize MusicBot");
+        exception.set(e);
       } catch (InterruptedException e) {
         logFine("Interrupted during MusicBot initialization");
+        exception.set(e);
       } catch (RuntimeException e) {
         logSevere(e, "Unknown error creating MusicBot");
+        exception.set(e);
       }
       Platform.runLater(alert::hide);
     }, "InitializationThread");
+    initializer.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        exception.set(e);
+      }
+    });
     initializer.start();
     alert.showAndWait();
     initializer.interrupt();
@@ -61,6 +77,11 @@ public final class PluginLoaderController extends InitStateWriter implements Log
         Window controller = loader.getController();
         stage.show();
         controller.showOnStage(stage);
+
+        Throwable thrown = exception.get();
+        if (!(thrown instanceof InterruptedException)) {
+          showError(thrown);
+        }
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -76,6 +97,20 @@ public final class PluginLoaderController extends InitStateWriter implements Log
         throw new UncheckedIOException(e);
       }
     }
+  }
+
+  private void showError(Throwable e) {
+    Alert alert = new Alert(AlertType.ERROR);
+    alert.setTitle("Error during bot loading");
+    alert.setHeaderText(e.getMessage());
+    StringWriter stringWriter = new StringWriter();
+    e.printStackTrace(new PrintWriter(stringWriter));
+    alert.setContentText(stringWriter.toString());
+    alert.setResizable(true);
+    alert.initModality(Modality.APPLICATION_MODAL);
+    alert.show();
+    alert.setWidth(800);
+    alert.setHeight(600);
   }
 
   @Override
