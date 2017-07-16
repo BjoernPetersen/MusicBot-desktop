@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.bjoernpetersen</groupId>
   <artifactId>musicbot-desktop</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0-SNAPSHOT</version>
   <url>https://github.com/BjoernPetersen/JMusicBot-desktop</url>
   <description>TODO</description>
   <name>${project.groupId}:${project.artifactId}</name>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>com.github.bjoernpetersen</groupId>
       <artifactId>musicbot</artifactId>
-      <version>0.7.0</version>
+      <version>0.8.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
