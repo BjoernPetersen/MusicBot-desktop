@@ -16,7 +16,7 @@ class Broadcaster @Throws(InitializationException::class) constructor(private va
     private val groupAddress: InetAddress
     private val message: ByteArray
     private val scheduler: ScheduledExecutorService
-    private val socket: DatagramSocket
+    private val socket: MulticastSocket
 
     init {
         this.groupAddress = try {
@@ -31,11 +31,17 @@ class Broadcaster @Throws(InitializationException::class) constructor(private va
                 .build()
         )
         this.socket = try {
-            DatagramSocket()
+            MulticastSocket()
         } catch (e: SocketException) {
             throw InitializationException(e)
         }
+
         socket.broadcast = true
+        try {
+            socket.joinGroup(this.groupAddress)
+        } catch (e: IOException) {
+            throw InitializationException(e)
+        }
 
         start()
     }
