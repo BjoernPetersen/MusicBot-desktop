@@ -60,7 +60,7 @@ class PermissionController implements Loggable {
 
   @FXML
   private void initialize() {
-    name.setText(permission.getName());
+    name.setText(permission.getLabel());
     activeToggle.setSelected(getUser().getPermissions().contains(permission));
 
     activeToggle.selectedProperty().addListener((observable, oldValue, newValue) -> {
