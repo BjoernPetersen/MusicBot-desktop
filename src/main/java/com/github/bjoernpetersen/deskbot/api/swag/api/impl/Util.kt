@@ -23,6 +23,7 @@ fun Song.convert(): ModelSong {
     result.providerId = this.providerName
     result.title = this.title
     result.description = this.description
+    result.duration = this.duration
     result.albumArtUrl = this.albumArtUrl.orElse(null)
     return result
 }

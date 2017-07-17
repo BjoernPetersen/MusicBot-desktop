@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 0.4.0
+  version: 0.5.0
   title: JMusicBot
   license:
     name: MIT
@@ -484,6 +484,11 @@ definitions:
         description: The description of a song. Might be the artist. May also be empty.
         minLength: 0
         example: Rick Astley
+      duration:
+        type: integer
+        description: Duration of the song in seconds
+        minimum: 0
+        example: 180
       albumArtUrl:
         type: string
         description: The URL pointing to an album art for this song
