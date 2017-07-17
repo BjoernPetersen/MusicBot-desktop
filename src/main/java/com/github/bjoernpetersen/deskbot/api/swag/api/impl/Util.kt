@@ -2,6 +2,7 @@
 
 package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 
+import com.github.bjoernpetersen.jmusicbot.NamedPlugin
 import com.github.bjoernpetersen.jmusicbot.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.Song
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState
@@ -16,15 +17,24 @@ typealias ModelQueueEntry = com.github.bjoernpetersen.deskbot.api.swag.model.Que
 typealias ModelSongEntry = com.github.bjoernpetersen.deskbot.api.swag.model.SongEntry
 typealias ModelPlayerState = com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState
 typealias ModelPlayerStateEnum = com.github.bjoernpetersen.deskbot.api.swag.model.PlayerState.StateEnum
+typealias ModelNamedPlugin = com.github.bjoernpetersen.deskbot.api.swag.model.NamedPlugin
+
 
 fun Song.convert(): ModelSong {
     val result = ModelSong()
     result.id = this.id
-    result.providerId = this.providerName
+    result.provider = this.provider.convert()
     result.title = this.title
     result.description = this.description
     result.duration = this.duration
     result.albumArtUrl = this.albumArtUrl.orElse(null)
+    return result
+}
+
+fun NamedPlugin.convert(): ModelNamedPlugin {
+    val result = ModelNamedPlugin()
+    result.id = this.name
+    result.name = this.readableName
     return result
 }
 

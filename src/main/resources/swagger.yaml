@@ -320,8 +320,7 @@ paths:
           schema:
             type: array
             items:
-              type: string
-              example: spotify
+              $ref: '#/definitions/NamedPlugin'
   '/provider/{providerId}':
     get:
       operationId: searchSong
@@ -386,8 +385,7 @@ paths:
           schema:
             type: array
             items:
-              type: string
-              example: spotify
+              $ref: '#/definitions/NamedPlugin'
   '/suggester/{suggesterId}':
     get:
       operationId: suggestSong
@@ -461,19 +459,30 @@ paths:
           schema:
             type: string
 definitions:
+  NamedPlugin:
+    type: object
+    required:
+      - id
+      - name
+    properties:
+      id:
+        type: string
+        example: playmusic
+      name:
+        type: string
+        example: Google Play Music
   Song:
     type: object
     required:
       - id
-      - providerId
+      - provider
       - title
       - description
     properties:
       id:
         type: string
-      providerId:
-        type: string
-        example: spotify
+      provider:
+        $ref: '#/definitions/NamedPlugin'
       title:
         type: string
         description: 'The title of a song, most important identifier for human readers'

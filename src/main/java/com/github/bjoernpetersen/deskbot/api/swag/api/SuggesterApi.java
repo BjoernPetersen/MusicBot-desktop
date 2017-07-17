@@ -1,6 +1,7 @@
 package com.github.bjoernpetersen.deskbot.api.swag.api;
 
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.SuggesterApiServiceFactory;
+import com.github.bjoernpetersen.deskbot.api.swag.model.NamedPlugin;
 import com.github.bjoernpetersen.deskbot.api.swag.model.Song;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,9 +33,9 @@ public class SuggesterApi {
 
   @Consumes({"application/json"})
   @Produces({"application/json"})
-  @ApiOperation(value = "Returns a list of all available suggesters", notes = "", response = String.class, responseContainer = "List", tags = {})
+  @ApiOperation(value = "Returns a list of all available suggesters", notes = "", response = NamedPlugin.class, responseContainer = "List", tags = {})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "A list of unique suggester IDs", response = String.class, responseContainer = "List")})
+      @ApiResponse(code = 200, message = "A list of unique suggester IDs", response = NamedPlugin.class, responseContainer = "List")})
   public Response getSuggesters(@Context SecurityContext securityContext)
       throws NotFoundException {
     return delegate.getSuggesters(securityContext);

@@ -29,8 +29,8 @@ public class Song {
   @JsonProperty("id")
   private String id = null;
 
-  @JsonProperty("providerId")
-  private String providerId = null;
+  @JsonProperty("provider")
+  private NamedPlugin provider = null;
 
   @JsonProperty("title")
   private String title = null;
@@ -65,25 +65,25 @@ public class Song {
     this.id = id;
   }
 
-  public Song providerId(String providerId) {
-    this.providerId = providerId;
+  public Song provider(NamedPlugin provider) {
+    this.provider = provider;
     return this;
   }
 
   /**
-   * Get providerId
+   * Get provider
    *
-   * @return providerId
+   * @return provider
    **/
-  @JsonProperty("providerId")
-  @ApiModelProperty(example = "spotify", required = true, value = "")
+  @JsonProperty("provider")
+  @ApiModelProperty(required = true, value = "")
   @NotNull
-  public String getProviderId() {
-    return providerId;
+  public NamedPlugin getProvider() {
+    return provider;
   }
 
-  public void setProviderId(String providerId) {
-    this.providerId = providerId;
+  public void setProvider(NamedPlugin provider) {
+    this.provider = provider;
   }
 
   public Song title(String title) {
@@ -183,7 +183,7 @@ public class Song {
     }
     Song song = (Song) o;
     return Objects.equals(this.id, song.id) &&
-        Objects.equals(this.providerId, song.providerId) &&
+        Objects.equals(this.provider, song.provider) &&
         Objects.equals(this.title, song.title) &&
         Objects.equals(this.description, song.description) &&
         Objects.equals(this.duration, song.duration) &&
@@ -192,7 +192,7 @@ public class Song {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, providerId, title, description, duration, albumArtUrl);
+    return Objects.hash(id, provider, title, description, duration, albumArtUrl);
   }
 
 
@@ -202,7 +202,7 @@ public class Song {
     sb.append("class Song {\n");
 
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    providerId: ").append(toIndentedString(providerId)).append("\n");
+    sb.append("    provider: ").append(toIndentedString(provider)).append("\n");
     sb.append("    title: ").append(toIndentedString(title)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    duration: ").append(toIndentedString(duration)).append("\n");

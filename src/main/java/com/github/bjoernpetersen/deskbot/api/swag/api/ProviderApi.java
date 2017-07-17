@@ -1,6 +1,7 @@
 package com.github.bjoernpetersen.deskbot.api.swag.api;
 
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.ProviderApiServiceFactory;
+import com.github.bjoernpetersen.deskbot.api.swag.model.NamedPlugin;
 import com.github.bjoernpetersen.deskbot.api.swag.model.Song;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +31,9 @@ public class ProviderApi {
 
   @Consumes({"application/json"})
   @Produces({"application/json"})
-  @ApiOperation(value = "Returns a list of all available providers", notes = "", response = String.class, responseContainer = "List", tags = {})
+  @ApiOperation(value = "Returns a list of all available providers", notes = "", response = NamedPlugin.class, responseContainer = "List", tags = {})
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "A list of unique provider IDs", response = String.class, responseContainer = "List")})
+      @ApiResponse(code = 200, message = "A list of unique provider IDs", response = NamedPlugin.class, responseContainer = "List")})
   public Response getProviders(@Context SecurityContext securityContext)
       throws NotFoundException {
     return delegate.getProviders(securityContext);

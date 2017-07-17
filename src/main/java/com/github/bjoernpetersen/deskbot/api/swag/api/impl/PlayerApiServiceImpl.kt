@@ -38,7 +38,7 @@ class PlayerApiServiceImpl : PlayerApiService() {
         }
 
         val paramSong = queueEntry.song
-        val song = lookupSong(providerManager, paramSong.id, paramSong.providerId)
+        val song = lookupSong(providerManager, paramSong.id, paramSong.provider.id)
         if (song != null) {
             val queueUser: User
             try {
