@@ -18,7 +18,7 @@ class ProviderApiServiceImpl : ProviderApiService() {
 
     @Throws(NotFoundException::class)
     override fun getProviders(securityContext: SecurityContext): Response =
-            Response.ok(manager.activeProviders.keys).build()
+            Response.ok(manager.activeProviders.values.convert()).build()
 
     @Throws(NotFoundException::class)
     override fun lookupSong(songId: String, providerId: String,

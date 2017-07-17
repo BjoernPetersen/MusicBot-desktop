@@ -26,7 +26,7 @@ class SuggesterApiServiceImpl : SuggesterApiService() {
 
     @Throws(NotFoundException::class)
     override fun getSuggesters(securityContext: SecurityContext): Response =
-            Response.ok(providerManager.activeSuggesters.keys).build()
+            Response.ok(providerManager.activeSuggesters.values.convert()).build()
 
 
     @Throws(NotFoundException::class)

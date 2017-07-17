@@ -38,6 +38,11 @@ fun NamedPlugin.convert(): ModelNamedPlugin {
     return result
 }
 
+@JvmName("convertNamedPlugins")
+fun Collection<NamedPlugin>.convert(): List<ModelNamedPlugin> {
+    return this.map { it.convert() }
+}
+
 fun QueueEntry.convert(): ModelQueueEntry {
     val queueEntry = ModelQueueEntry()
     queueEntry.userName = this.user.name
