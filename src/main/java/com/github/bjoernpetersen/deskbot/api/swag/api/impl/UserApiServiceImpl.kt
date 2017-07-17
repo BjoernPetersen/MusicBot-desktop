@@ -86,9 +86,8 @@ class UserApiServiceImpl : UserApiService() {
         }
 
         if (!user.isTemporary) {
-            if (oldPassword == null) {
-                return Response.status(Response.Status.UNAUTHORIZED).build()
-            } else if (!user.hasPassword(oldPassword)) {
+            if (oldPassword == null
+                    || !user.hasPassword(oldPassword)) {
                 return Response.status(Response.Status.FORBIDDEN).build()
             }
         }
