@@ -145,6 +145,7 @@
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/main/java</sourceDir>
               </sourceDirs>
+              <jvmTarget>${java.version}</jvmTarget>
             </configuration>
           </execution>
           <execution>
