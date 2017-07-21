@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.deskbot.model;
 
 import com.github.bjoernpetersen.jmusicbot.IdPlugin;
-import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;

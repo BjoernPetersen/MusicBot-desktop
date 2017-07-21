@@ -2,7 +2,7 @@
 
 package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 
-import com.github.bjoernpetersen.jmusicbot.NamedPlugin
+import com.github.bjoernpetersen.jmusicbot.IdPlugin
 import com.github.bjoernpetersen.jmusicbot.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.Song
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState
@@ -31,15 +31,15 @@ fun Song.convert(): ModelSong {
     return result
 }
 
-fun NamedPlugin.convert(): ModelNamedPlugin {
+fun IdPlugin.convert(): ModelNamedPlugin {
     val result = ModelNamedPlugin()
-    result.id = this.name
+    result.id = this.id
     result.name = this.readableName
     return result
 }
 
 @JvmName("convertNamedPlugins")
-fun Collection<NamedPlugin>.convert(): List<ModelNamedPlugin> {
+fun Collection<IdPlugin>.convert(): List<ModelNamedPlugin> {
     return this.map { it.convert() }
 }
 
