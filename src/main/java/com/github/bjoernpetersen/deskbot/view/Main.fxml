@@ -33,7 +33,10 @@
           <Label fx:id="pluginName" text="General"
             style="-fx-font-weight: bold; -fx-font-size: 160%"/>
           <VBox HBox.hgrow="ALWAYS"/>
-          <Label fx:id="pluginType" style="-fx-font-style: italic"/>
+          <VBox alignment="CENTER_RIGHT">
+            <Label fx:id="pluginType" style="-fx-font-style: italic"/>
+            <Label fx:id="pluginPlatforms" style="-fx-font-style: italic"/>
+          </VBox>
         </HBox>
         <Button fx:id="closeButton" text="Close" visible="false"/>
         <StackPane fx:id="pluginConfig" VBox.vgrow="ALWAYS"/>

@@ -11,8 +11,10 @@ import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
+import com.github.bjoernpetersen.jmusicbot.Plugin;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
+import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.provider.Provider;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,6 +64,8 @@ public class MainController implements Loggable, Window {
   private Label pluginName;
   @FXML
   private Label pluginType;
+  @FXML
+  private Label pluginPlatforms;
   @FXML
   private Button closeButton;
   @FXML
@@ -182,15 +187,38 @@ public class MainController implements Loggable, Window {
       pluginConfig.getChildren().clear();
       if (newValue == null) {
         pluginName.setText("General");
+        pluginPlatforms.setText("");
         this.pluginType.setText("");
         pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
       } else {
         pluginName.setText(newValue.getReadableName());
+        pluginPlatforms.setText(getPlatformString(newValue));
         this.pluginType.setText(pluginType);
         pluginConfig.getChildren().add(controllerFunction.apply(newValue).createProviderConfig());
       }
       closeButton.setVisible(newValue != null);
     };
+  }
+
+  private String getPlatformString(Plugin plugin) {
+    StringJoiner joiner = new StringJoiner(", ").setEmptyValue("None");
+    getPlatformString(plugin, Platform.WINDOWS).ifPresent(joiner::add);
+    getPlatformString(plugin, Platform.LINUX).ifPresent(joiner::add);
+    getPlatformString(plugin, Platform.ANDROID).ifPresent(joiner::add);
+    return joiner.toString();
+  }
+
+  @Nonnull
+  private Optional<String> getPlatformString(Plugin plugin, Platform platform) {
+    switch (plugin.getSupport(platform)) {
+      case YES:
+        return Optional.of(platform.getReadableName());
+      case MAYBE:
+        return Optional.of(platform.getReadableName() + '?');
+      case NO:
+      default:
+        return Optional.empty();
+    }
   }
 
   private void initializePluginLists() {
