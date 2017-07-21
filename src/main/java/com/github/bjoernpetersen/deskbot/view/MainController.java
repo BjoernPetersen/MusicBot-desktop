@@ -7,9 +7,9 @@ import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
 import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.PluginConfigController;
+import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
-import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
@@ -79,7 +79,7 @@ public class MainController implements Loggable, Window {
   private ListView<Provider> providerList;
   @FXML
   private ListView<Suggester> suggesterList;
-  private Map<NamedPlugin, PluginWrapper<NamedPlugin>> pluginWrappers;
+  private Map<IdPlugin, PluginWrapper<IdPlugin>> pluginWrappers;
 
   @FXML
   private Button startButton;
@@ -148,12 +148,12 @@ public class MainController implements Loggable, Window {
     suggesterList.getSelectionModel().select(null);
   }
 
-  private PluginWrapper<NamedPlugin> getWrapper(Provider provider) {
+  private PluginWrapper<IdPlugin> getWrapper(Provider provider) {
     return pluginWrappers.computeIfAbsent(provider, p ->
         new PluginWrapper<>(config, providerManager, p));
   }
 
-  private PluginWrapper<NamedPlugin> getWrapper(Suggester suggester) {
+  private PluginWrapper<IdPlugin> getWrapper(Suggester suggester) {
     return pluginWrappers.computeIfAbsent(suggester, s ->
         new PluginWrapper<>(config, providerManager, s));
   }
@@ -167,7 +167,7 @@ public class MainController implements Loggable, Window {
     suggesterList.getItems().addAll(providerManager.getSuggesters().values());
   }
 
-  private <T extends NamedPlugin> StringConverter<T> createStringConverter() {
+  private <T extends IdPlugin> StringConverter<T> createStringConverter() {
     return new StringConverter<T>() {
       @Override
       public String toString(T object) {
@@ -181,7 +181,7 @@ public class MainController implements Loggable, Window {
     };
   }
 
-  private <T extends NamedPlugin> ChangeListener<T> createChangeListener(String pluginType,
+  private <T extends IdPlugin> ChangeListener<T> createChangeListener(String pluginType,
       Function<T, PluginConfigController> controllerFunction) {
     return (observable, oldValue, newValue) -> {
       pluginConfig.getChildren().clear();
@@ -233,7 +233,7 @@ public class MainController implements Loggable, Window {
     initializePluginList(providerList, createChangeListener(
         "Provider",
         p -> {
-          PluginWrapper<NamedPlugin> wrapper = getWrapper(p);
+          PluginWrapper<IdPlugin> wrapper = getWrapper(p);
           return new PluginConfigController(
               config,
               wrapper.activeProperty(),
@@ -243,7 +243,7 @@ public class MainController implements Loggable, Window {
     ));
     initializePluginList(suggesterList, createChangeListener("Suggester",
         s -> {
-          PluginWrapper<NamedPlugin> wrapper = getWrapper(s);
+          PluginWrapper<IdPlugin> wrapper = getWrapper(s);
           return new PluginConfigController(
               config,
               wrapper.activeProperty(),
@@ -253,7 +253,7 @@ public class MainController implements Loggable, Window {
     ));
   }
 
-  private <T extends NamedPlugin> void initializePluginList(ListView<T> list,
+  private <T extends IdPlugin> void initializePluginList(ListView<T> list,
       ChangeListener<T> selectListener) {
     list.setCellFactory(TextFieldListCell.forListView(createStringConverter()));
     list.getSelectionModel().selectedItemProperty().addListener(selectListener);

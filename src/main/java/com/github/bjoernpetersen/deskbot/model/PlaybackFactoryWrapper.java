@@ -1,6 +1,6 @@
 package com.github.bjoernpetersen.deskbot.model;
 
-import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
+import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-public class PlaybackFactoryWrapper implements NamedPlugin {
+public class PlaybackFactoryWrapper implements IdPlugin {
 
   @Nonnull
   private final PlaybackFactory playbackFactory;
@@ -25,9 +25,8 @@ public class PlaybackFactoryWrapper implements NamedPlugin {
     return playbackFactory.getSupport(platform);
   }
 
-  @Nonnull
   @Override
-  public String getName() {
+  public String getId() {
     return playbackFactory.getClass().getName();
   }
 

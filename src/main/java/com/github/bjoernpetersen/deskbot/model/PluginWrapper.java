@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.deskbot.model;
 
+import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.NamedPlugin;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.ProviderManager.State;
@@ -11,7 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javax.annotation.Nonnull;
 
-public class PluginWrapper<P extends NamedPlugin> {
+public class PluginWrapper<P extends IdPlugin> {
 
   @Nonnull
   private static final Logger log = Logger.getLogger(PluginWrapper.class.getName());
