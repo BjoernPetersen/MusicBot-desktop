@@ -3,14 +3,16 @@
 package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 
 import com.github.bjoernpetersen.jmusicbot.IdPlugin
-import com.github.bjoernpetersen.jmusicbot.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.Song
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry
 import com.github.bjoernpetersen.jmusicbot.playback.SongEntry
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException
 import com.github.bjoernpetersen.jmusicbot.provider.Provider
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester
+import java.util.stream.Stream
+import kotlin.streams.toList
 
 typealias ModelSong = com.github.bjoernpetersen.deskbot.api.swag.model.Song
 typealias ModelQueueEntry = com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry
@@ -38,10 +40,7 @@ fun IdPlugin.convert(): ModelNamedPlugin {
     return result
 }
 
-@JvmName("convertNamedPlugins")
-fun Collection<IdPlugin>.convert(): List<ModelNamedPlugin> {
-    return this.map { it.convert() }
-}
+fun Stream<out IdPlugin>.convert(): List<ModelNamedPlugin> = this.map { it.convert() }.toList()
 
 fun QueueEntry.convert(): ModelQueueEntry {
     val queueEntry = ModelQueueEntry()
@@ -71,19 +70,9 @@ fun PlayerState.convert(): ModelPlayerState {
     return result
 }
 
-fun lookupProvider(manager: ProviderManager, providerId: String): Provider? =
-        try {
-            manager.getProvider(providerId)
-        } catch (e: IllegalArgumentException) {
-            null
-        }
+fun lookupProvider(manager: ProviderManager, providerId: String): Provider? = manager.getProvider(providerId)
 
-fun lookupSuggester(manager: ProviderManager, suggesterId: String): Suggester? =
-        try {
-            manager.getSuggester(suggesterId)
-        } catch (e: IllegalArgumentException) {
-            null
-        }
+fun lookupSuggester(manager: ProviderManager, suggesterId: String): Suggester? = manager.getSuggester(suggesterId)
 
 fun lookupSong(manager: ProviderManager, songId: String, providerId: String): Song? =
         try {

@@ -3,9 +3,9 @@ package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 import com.github.bjoernpetersen.deskbot.api.swag.api.NotFoundException
 import com.github.bjoernpetersen.deskbot.api.swag.api.PlayerApiService
 import com.github.bjoernpetersen.jmusicbot.MusicBot
-import com.github.bjoernpetersen.jmusicbot.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.playback.Player
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.user.*
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext

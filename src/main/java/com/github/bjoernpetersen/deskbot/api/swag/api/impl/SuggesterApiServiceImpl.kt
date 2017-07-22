@@ -3,8 +3,8 @@ package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 import com.github.bjoernpetersen.deskbot.api.swag.api.NotFoundException
 import com.github.bjoernpetersen.deskbot.api.swag.api.SuggesterApiService
 import com.github.bjoernpetersen.jmusicbot.MusicBot
-import com.github.bjoernpetersen.jmusicbot.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester
 import com.github.bjoernpetersen.jmusicbot.user.InvalidTokenException
 import com.github.bjoernpetersen.jmusicbot.user.Permission
@@ -26,7 +26,7 @@ class SuggesterApiServiceImpl : SuggesterApiService() {
 
     @Throws(NotFoundException::class)
     override fun getSuggesters(securityContext: SecurityContext): Response =
-            Response.ok(providerManager.activeSuggesters.values.convert()).build()
+            Response.ok(providerManager.suggesters.convert()).build()
 
 
     @Throws(NotFoundException::class)
@@ -57,14 +57,17 @@ class SuggesterApiServiceImpl : SuggesterApiService() {
             return Response.status(Response.Status.FORBIDDEN).build()
         }
 
-        val suggester: Suggester
+        val suggester: Suggester?
         val song: com.github.bjoernpetersen.jmusicbot.Song
         try {
             val provider = providerManager.getProvider(providerId)
             suggester = providerManager.getSuggester(suggesterId)
+
+            if (provider == null || suggester == null) {
+                return Response.status(Response.Status.NOT_FOUND).build()
+            }
+
             song = provider.lookup(songId)
-        } catch (e: IllegalArgumentException) {
-            return Response.status(Response.Status.NOT_FOUND).build()
         } catch (e: NoSuchSongException) {
             return Response.status(Response.Status.NOT_FOUND).build()
         }

@@ -3,8 +3,9 @@ package com.github.bjoernpetersen.deskbot.view;
 import com.github.bjoernpetersen.deskbot.api.Broadcaster;
 import com.github.bjoernpetersen.deskbot.api.RestApi;
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
+import com.github.bjoernpetersen.deskbot.model.ObservableProviderWrapper;
+import com.github.bjoernpetersen.deskbot.model.ObservableSuggesterWrapper;
 import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
-import com.github.bjoernpetersen.deskbot.model.PluginWrapper;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.PluginConfigController;
 import com.github.bjoernpetersen.jmusicbot.IdPlugin;
@@ -12,20 +13,23 @@ import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin;
-import com.github.bjoernpetersen.jmusicbot.ProviderManager;
+import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
-import com.github.bjoernpetersen.jmusicbot.provider.Provider;
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager;
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager.ProviderWrapper;
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager.SuggesterWrapper;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
 import io.sentry.Sentry;
 import io.sentry.event.User;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -36,6 +40,8 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
@@ -76,10 +82,9 @@ public class MainController implements Loggable, Window {
   @FXML
   private ListView<PlaybackFactoryWrapper> playbackFactoryList;
   @FXML
-  private ListView<Provider> providerList;
+  private ListView<ObservableProviderWrapper> providerList;
   @FXML
-  private ListView<Suggester> suggesterList;
-  private Map<IdPlugin, PluginWrapper<IdPlugin>> pluginWrappers;
+  private ListView<ObservableSuggesterWrapper> suggesterList;
 
   @FXML
   private Button startButton;
@@ -98,12 +103,14 @@ public class MainController implements Loggable, Window {
 
   @FXML
   private void initialize() {
-    pluginWrappers = new HashMap<>();
-    initializePluginLists();
-
     config = new Config(
         new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
     );
+
+    ProviderWrapper.setDefaultFactory(p -> new ObservableProviderWrapper(config, p));
+    SuggesterWrapper.setDefaultFactory(s -> new ObservableSuggesterWrapper(config, s));
+    initializePluginLists();
+
     configureSentryUser(config);
     defaultSuggester = config.stringEntry(
         getClass(), "defaultSuggester",
@@ -111,7 +118,20 @@ public class MainController implements Loggable, Window {
     );
 
     playbackFactoryManager = new PlaybackFactoryManager(config, Collections.emptyList());
-    providerManager = new ProviderManager(config, playbackFactoryManager);
+    providerManager = ProviderManager.defaultManager();
+    try {
+      providerManager.initialize(config, playbackFactoryManager);
+    } catch (AbstractMethodError e) {
+      logInfo(e, "Some plugin is outdated");
+      Alert alert = new Alert(AlertType.ERROR);
+      alert.setResizable(true);
+      alert.setHeaderText("Outdated plugin");
+      StringWriter writer = new StringWriter();
+      e.printStackTrace(new PrintWriter(writer));
+      alert.setContentText(writer.toString());
+      alert.showAndWait();
+      System.exit(0);
+    }
     fillPluginLists();
     builder = new MusicBot.Builder(config)
         .playbackFactoryManager(playbackFactoryManager)
@@ -148,23 +168,17 @@ public class MainController implements Loggable, Window {
     suggesterList.getSelectionModel().select(null);
   }
 
-  private PluginWrapper<IdPlugin> getWrapper(Provider provider) {
-    return pluginWrappers.computeIfAbsent(provider, p ->
-        new PluginWrapper<>(config, providerManager, p));
-  }
-
-  private PluginWrapper<IdPlugin> getWrapper(Suggester suggester) {
-    return pluginWrappers.computeIfAbsent(suggester, s ->
-        new PluginWrapper<>(config, providerManager, s));
-  }
-
   private void fillPluginLists() {
     playbackFactoryList.getItems().addAll(playbackFactoryManager.getPlaybackFactories().stream()
         .map(PlaybackFactoryWrapper::new)
         .collect(Collectors.toList())
     );
-    providerList.getItems().addAll(providerManager.getProviders().values());
-    suggesterList.getItems().addAll(providerManager.getSuggesters().values());
+    providerList.getItems().addAll(
+        (Collection<ObservableProviderWrapper>) providerManager.getAllProviders().values()
+    );
+    suggesterList.getItems().addAll(
+        (Collection<ObservableSuggesterWrapper>) providerManager.getAllSuggesters().values()
+    );
   }
 
   private <T extends IdPlugin> StringConverter<T> createStringConverter() {
@@ -233,21 +247,19 @@ public class MainController implements Loggable, Window {
     initializePluginList(providerList, createChangeListener(
         "Provider",
         p -> {
-          PluginWrapper<IdPlugin> wrapper = getWrapper(p);
           return new PluginConfigController(
               config,
-              wrapper.activeProperty(),
-              wrapper.getConfigEntries()
+              p.activeProperty(),
+              p.getObservableConfigEntries()
           );
         }
     ));
     initializePluginList(suggesterList, createChangeListener("Suggester",
         s -> {
-          PluginWrapper<IdPlugin> wrapper = getWrapper(s);
           return new PluginConfigController(
               config,
-              wrapper.activeProperty(),
-              wrapper.getConfigEntries()
+              s.activeProperty(),
+              s.getObservableConfigEntries()
           );
         }
     ));
@@ -302,10 +314,9 @@ public class MainController implements Loggable, Window {
   @Nonnull
   private List<Suggester> getActiveSuggesters() {
     return suggesterList.getItems().stream()
-        .filter(s -> getWrapper(s).isActive())
+        .filter(s -> s.getState() == State.CONFIG)
         .collect(Collectors.toList());
   }
-
 
   @Nullable
   private Suggester getDefaultSuggester(List<Suggester> actives) {
@@ -314,7 +325,7 @@ public class MainController implements Loggable, Window {
     if (foundName.isPresent()) {
       String name = foundName.get();
       for (Suggester suggester : actives) {
-        if (suggester.getName().equals(name)) {
+        if (suggester.getId().equals(name)) {
           return suggester;
         }
       }
@@ -325,13 +336,10 @@ public class MainController implements Loggable, Window {
   @FXML
   private void start(MouseEvent mouseEvent) {
     selectNull();
-    // if the wrapper for one of the providers hasn't been initialized,
-    // its active state hasn't been loaded from the config
-    providerList.getItems().forEach(this::getWrapper);
 
     Suggester defaultSuggester = askForDefaultSuggesters();
     builder.defaultSuggester(defaultSuggester);
-    this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getName());
+    this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getId());
 
     try {
       builder.userManager(new UserManager(config, "jdbc:sqlite:users.db"));

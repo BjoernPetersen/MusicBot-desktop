@@ -19,6 +19,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class PluginLoaderController extends InitStateWriter implements Loggable {
 
@@ -28,6 +29,9 @@ public final class PluginLoaderController extends InitStateWriter implements Log
   private final Stage stage;
   @Nonnull
   private final Alert alert;
+
+  @Nullable
+  private String pluginName;
 
   private PluginLoaderController(@Nonnull Stage stage, @Nonnull MusicBot.Builder builder) {
     this.builder = builder.initStateWriter(this);
@@ -114,9 +118,10 @@ public final class PluginLoaderController extends InitStateWriter implements Log
   }
 
   @Override
-  public void begin(String s) {
+  public void begin(@Nonnull String pluginName) {
+    this.pluginName = pluginName;
     Platform.runLater(() -> {
-      alert.setHeaderText("Loading " + s);
+      alert.setHeaderText("Loading " + pluginName);
       alert.setContentText("");
     });
   }
@@ -127,8 +132,9 @@ public final class PluginLoaderController extends InitStateWriter implements Log
   }
 
   @Override
-  public void warning(String s) {
+  public void warning(@Nonnull String s) {
     // TODO save warnings
+    logWarning("Warning from plugin %s: %s", pluginName, s);
     Platform.runLater(() -> alert.setContentText(s));
   }
 
