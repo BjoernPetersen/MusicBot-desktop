@@ -11,7 +11,11 @@
     <ListView fx:id="queueList"/>
   </left>
   <center>
-    <Label fx:id="currentTitle"/>
+    <VBox alignment="CENTER">
+      <Label fx:id="currentTitle"/>
+      <Label fx:id="currentDescription"/>
+      <Label fx:id="currentDuration"/>
+    </VBox>
   </center>
   <bottom>
     <ToolBar>

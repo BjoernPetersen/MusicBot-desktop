@@ -47,6 +47,10 @@ public class PlayerController implements Loggable, Window {
   @FXML
   private Label currentTitle;
   @FXML
+  private Label currentDescription;
+  @FXML
+  private Label currentDuration;
+  @FXML
   private ListView<Song> queueList;
   private ObservableList<Song> queue;
   private QueueChangeListener queueListener;
@@ -98,10 +102,22 @@ public class PlayerController implements Loggable, Window {
     });
 
     player.addListener(playerListener = new UiThreadPlayerStateListener(state -> {
-      currentTitle.setText(state.getEntry()
-          .map(SongEntry::getSong)
-          .map(Song::getTitle)
-          .orElse(null));
+      if (state.getEntry().isPresent()) {
+        SongEntry entry = state.getEntry().get();
+        Song song = entry.getSong();
+        currentTitle.setText(song.getTitle());
+        currentDescription.setText(song.getDescription());
+
+        int duration = song.getDuration();
+        int seconds = duration % 60;
+        int minutes = (duration - seconds) / 60;
+        String durationText = String.format("%d:%02d", minutes, seconds);
+        currentDuration.setText(durationText);
+      } else {
+        currentTitle.setText(null);
+        currentDescription.setText(null);
+        currentDuration.setText(null);
+      }
     }));
 
     initializeQueueListener();
