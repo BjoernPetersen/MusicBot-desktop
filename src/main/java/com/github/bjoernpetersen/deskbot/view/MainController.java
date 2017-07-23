@@ -279,7 +279,10 @@ public class MainController implements Loggable, Window {
   }
 
   @Nullable
-  private Suggester askForDefaultSuggesters() {
+  private Suggester askForDefaultSuggesters(boolean noConfig) {
+    if (noConfig) {
+      return getDefaultSuggester(getActiveSuggesters());
+    }
     Dialog<Suggester> dialog = new Dialog<>();
     DialogPane pane = new DialogPane();
     ChoiceBox<Suggester> choiceBox = new ChoiceBox<>();
@@ -333,11 +336,10 @@ public class MainController implements Loggable, Window {
     return null;
   }
 
-  @FXML
-  private void start(MouseEvent mouseEvent) {
+  public void start(boolean noConfig) {
     selectNull();
 
-    Suggester defaultSuggester = askForDefaultSuggesters();
+    Suggester defaultSuggester = askForDefaultSuggesters(noConfig);
     builder.defaultSuggester(defaultSuggester);
     this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getId());
 
@@ -351,5 +353,10 @@ public class MainController implements Loggable, Window {
     builder.broadcasterInitializer(Broadcaster::new);
 
     PluginLoaderController.load(stage, builder);
+  }
+
+  @FXML
+  private void start(MouseEvent mouseEvent) {
+    start(false);
   }
 }

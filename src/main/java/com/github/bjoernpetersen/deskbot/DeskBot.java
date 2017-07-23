@@ -34,6 +34,9 @@ public class DeskBot extends Application implements Loggable {
     MainController controller = loader.getController();
     controller.showOnStage(primaryStage);
     primaryStage.show();
+    if (getParameters().getUnnamed().contains("--no-config")) {
+      controller.start(true);
+    }
   }
 
   private void initBotListener() {
