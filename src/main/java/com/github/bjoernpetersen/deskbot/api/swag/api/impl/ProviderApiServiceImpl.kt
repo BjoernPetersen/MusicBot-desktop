@@ -3,8 +3,8 @@ package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 import com.github.bjoernpetersen.deskbot.api.swag.api.NotFoundException
 import com.github.bjoernpetersen.deskbot.api.swag.api.ProviderApiService
 import com.github.bjoernpetersen.jmusicbot.MusicBot
-import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException
+import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
 

@@ -8,8 +8,8 @@ import javafx.collections.WeakListChangeListener;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
- * An immutable {@link ObservableList} implementation that is composed of two observable lists.
- * Does not implement optional operations like {@link #add(Object)}.
+ * An immutable {@link ObservableList} implementation that is composed of two observable lists. Does
+ * not implement optional operations like {@link #add(Object)}.
  */
 @ParametersAreNonnullByDefault
 public final class CompositeObservableList<T> extends ObservableListBase<T> {
@@ -26,9 +26,9 @@ public final class CompositeObservableList<T> extends ObservableListBase<T> {
   }
 
   /**
-   * Creates a composite list based on a single list.
-   * Convenience method for {@link #CompositeObservableList(ObservableList, ObservableList) new
-   * CompositeObservableList(list, Collections.emptyList())}.
+   * Creates a composite list based on a single list. Convenience method for {@link
+   * #CompositeObservableList(ObservableList, ObservableList) new CompositeObservableList(list,
+   * Collections.emptyList())}.
    *
    * @param list the list to wrap
    */
