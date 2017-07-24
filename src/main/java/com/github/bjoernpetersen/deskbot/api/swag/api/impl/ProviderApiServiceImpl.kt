@@ -24,9 +24,7 @@ class ProviderApiServiceImpl : ProviderApiService() {
     override fun lookupSong(songId: String, providerId: String,
                             securityContext: SecurityContext): Response {
         val provider = lookupProvider(manager, providerId)
-        if (provider == null) {
-            return Response.status(Response.Status.NOT_FOUND).build()
-        }
+        provider ?: return Response.status(Response.Status.NOT_FOUND).build()
 
         try {
             return Response.ok(provider.lookup(songId).convert()).build()
@@ -40,11 +38,12 @@ class ProviderApiServiceImpl : ProviderApiService() {
                             query: String,
                             securityContext: SecurityContext): Response {
         val provider = lookupProvider(manager, providerId)
-        if (provider == null) {
-            return Response.status(Response.Status.NOT_FOUND).build()
-        }
+        provider ?: return Response.status(Response.Status.NOT_FOUND).build()
 
-        val searchResult = provider.search(query).map { it.convert() }
+        val trimmedQuery = query.trim()
+        val searchResult =
+                if (trimmedQuery.isEmpty()) provider.search(trimmedQuery).map { it.convert() }
+                else emptyList()
         return Response.ok(searchResult).build()
     }
 
