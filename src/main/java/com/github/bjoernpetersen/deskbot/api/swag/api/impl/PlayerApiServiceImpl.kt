@@ -37,15 +37,15 @@ class PlayerApiServiceImpl : PlayerApiService() {
             return Response.status(Response.Status.UNAUTHORIZED).build()
         }
 
-        if (!user.permissions.contains(Permission.SKIP)) {
-            return Response.status(Response.Status.FORBIDDEN).build()
-        }
-
         val song = lookupSong(providerManager, songId, providerId)
         song ?: return Response.status(Response.Status.NOT_FOUND).build()
 
         val queueEntry: QueueEntry? = player.queue.toList().firstOrNull { it.song == song }
         queueEntry ?: return Response.status(Response.Status.NOT_FOUND).build()
+
+        if (user.name != queueEntry.user.name && !user.permissions.contains(Permission.SKIP)) {
+            return Response.status(Response.Status.FORBIDDEN).build()
+        }
 
         player.queue.remove(queueEntry)
         return getQueue(securityContext)
