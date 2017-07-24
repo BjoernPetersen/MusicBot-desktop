@@ -42,7 +42,7 @@ class ProviderApiServiceImpl : ProviderApiService() {
 
         val trimmedQuery = query.trim()
         val searchResult =
-                if (trimmedQuery.isEmpty()) provider.search(trimmedQuery).map { it.convert() }
+                if (!trimmedQuery.isEmpty()) provider.search(trimmedQuery).map { it.convert() }
                 else emptyList()
         return Response.ok(searchResult).build()
     }
