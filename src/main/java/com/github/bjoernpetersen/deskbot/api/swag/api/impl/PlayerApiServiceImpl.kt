@@ -6,7 +6,10 @@ import com.github.bjoernpetersen.jmusicbot.MusicBot
 import com.github.bjoernpetersen.jmusicbot.playback.Player
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
-import com.github.bjoernpetersen.jmusicbot.user.*
+import com.github.bjoernpetersen.jmusicbot.user.InvalidTokenException
+import com.github.bjoernpetersen.jmusicbot.user.Permission
+import com.github.bjoernpetersen.jmusicbot.user.User
+import com.github.bjoernpetersen.jmusicbot.user.UserManager
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
 
@@ -24,7 +27,8 @@ class PlayerApiServiceImpl : PlayerApiService() {
 
     @Throws(NotFoundException::class)
     override fun dequeue(authorization: String,
-                         queueEntry: ModelQueueEntry,
+                         songId: String,
+                         providerId: String,
                          securityContext: SecurityContext): Response {
         val user: User
         try {
@@ -37,22 +41,14 @@ class PlayerApiServiceImpl : PlayerApiService() {
             return Response.status(Response.Status.FORBIDDEN).build()
         }
 
-        val paramSong = queueEntry.song
-        val song = lookupSong(providerManager, paramSong.id, paramSong.provider.id)
-        if (song != null) {
-            val queueUser: User
-            try {
-                queueUser = userManager.getUser(queueEntry.userName)
-            } catch (e: UserNotFoundException) {
-                return Response.status(Response.Status.UNAUTHORIZED).build()
-            }
+        val song = lookupSong(providerManager, songId, providerId)
+        song ?: return Response.status(Response.Status.NOT_FOUND).build()
 
-            val entry = QueueEntry(song, queueUser)
-            player.queue.remove(entry)
-            return getQueue(securityContext)
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build()
-        }
+        val queueEntry: QueueEntry? = player.queue.toList().firstOrNull { it.song == song }
+        queueEntry ?: return Response.status(Response.Status.NOT_FOUND).build()
+
+        player.queue.remove(queueEntry)
+        return getQueue(securityContext)
     }
 
     @Throws(NotFoundException::class)

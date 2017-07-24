@@ -1,15 +1,14 @@
 package com.github.bjoernpetersen.deskbot.api.swag.api;
 
 import com.github.bjoernpetersen.deskbot.api.BotService;
-import com.github.bjoernpetersen.deskbot.api.swag.model.QueueEntry;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 public abstract class PlayerApiService implements BotService {
 
-  public abstract Response dequeue(String authorization, @NotNull QueueEntry queueEntry,
-      SecurityContext securityContext) throws NotFoundException;
+  public abstract Response dequeue(String authorization, @NotNull String songId,
+      @NotNull String providerId, SecurityContext securityContext) throws NotFoundException;
 
   public abstract Response enqueue(@NotNull String authorization, @NotNull String songId,
       @NotNull String providerId, SecurityContext securityContext) throws NotFoundException;

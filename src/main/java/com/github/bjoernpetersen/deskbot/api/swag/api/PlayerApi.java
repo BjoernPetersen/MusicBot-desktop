@@ -46,10 +46,13 @@ public class PlayerApi {
       @ApiResponse(code = 404, message = "The song could not be found", response = QueueEntry.class, responseContainer = "List")})
   public Response dequeue(
       @ApiParam(value = "Authorization token with 'skip' permission", required = true) @HeaderParam("Authorization") String authorization
-      , @ApiParam(value = "the queue entry to dequeue", required = true) QueueEntry queueEntry
+      ,
+      @ApiParam(value = "the song ID of the song to dequeue", required = true) @QueryParam("songId") String songId
+      ,
+      @ApiParam(value = "the provider ID of the song to dequeue", required = true) @QueryParam("providerId") String providerId
       , @Context SecurityContext securityContext)
       throws NotFoundException {
-    return delegate.dequeue(authorization, queueEntry, securityContext);
+    return delegate.dequeue(authorization, songId, providerId, securityContext);
   }
 
   @PUT
