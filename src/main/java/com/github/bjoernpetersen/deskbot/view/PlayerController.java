@@ -9,6 +9,7 @@ import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerStateListener;
+import com.github.bjoernpetersen.jmusicbot.playback.Queue;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
 import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
@@ -23,10 +24,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.MouseEvent;
@@ -34,6 +38,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javax.annotation.Nonnull;
 
@@ -139,17 +144,7 @@ public class PlayerController implements Loggable, Window {
         })
     );
 
-    queueList.setCellFactory(TextFieldListCell.forListView(new StringConverter<Song>() {
-      @Override
-      public String toString(Song object) {
-        return object.getTitle();
-      }
-
-      @Override
-      public Song fromString(String string) {
-        return null;
-      }
-    }));
+    queueList.setCellFactory(new CellFactory());
 
     queueList.setItems(queue);
   }
@@ -196,5 +191,49 @@ public class PlayerController implements Loggable, Window {
   public void showOnStage(Stage stage) {
     this.stage = stage;
     stage.setScene(new Scene(root));
+  }
+
+  private class CellFactory implements Callback<ListView<Song>, ListCell<Song>> {
+
+    private final Callback<ListView<Song>, ListCell<Song>> wrapped;
+
+    CellFactory() {
+      this.wrapped = TextFieldListCell.forListView(new StringConverter<Song>() {
+        @Override
+        public String toString(Song object) {
+          return object.getTitle();
+        }
+
+        @Override
+        public Song fromString(String string) {
+          return null;
+        }
+      });
+    }
+
+    @Override
+    public ListCell<Song> call(ListView<Song> param) {
+      ListCell<Song> cell = wrapped.call(param);
+      ContextMenu menu = new ContextMenu();
+      MenuItem removeButton = new MenuItem("Remove");
+      removeButton.setOnAction(event -> {
+        Song song = cell.getItem();
+        if (song != null) {
+          Queue queue = player.getQueue();
+          queue.toList().stream()
+              .filter(e -> e.getSong().equals(song))
+              .findAny()
+              .ifPresent(queue::remove);
+        }
+      });
+      menu.getItems().add(removeButton);
+      menu.setOnShowing(event -> {
+        if (cell.getItem() == null) {
+          event.consume();
+        }
+      });
+      cell.setContextMenu(menu);
+      return cell;
+    }
   }
 }
