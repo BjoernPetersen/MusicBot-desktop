@@ -16,7 +16,8 @@ class Broadcaster @Throws(InitializationException::class) constructor(private va
     private val groupAddress: InetAddress
     private val message: ByteArray
     private val scheduler: ScheduledExecutorService
-    private val socket: MulticastSocket
+
+    private val sockets: List<MulticastSocket>
 
     init {
         this.groupAddress = try {
@@ -30,50 +31,51 @@ class Broadcaster @Throws(InitializationException::class) constructor(private va
                 .setNameFormat("UDP-broadcast-%d")
                 .build()
         )
-        this.socket = try {
-            MulticastSocket()
-        } catch (e: SocketException) {
-            throw InitializationException(e)
-        }
 
-        socket.broadcast = true
-        try {
-            socket.joinGroup(this.groupAddress)
-            val networkInterface = findNetworkInterface()
-            if (networkInterface != null) {
-                socket.networkInterface = networkInterface
+        val networkInterfaces = findNetworkInterfaces()
+        this.sockets = networkInterfaces.map {
+            try {
+                val socket = MulticastSocket()
+                socket.networkInterface = it
+                socket.broadcast = true
+                socket.joinGroup(this.groupAddress)
+                logFine("Created socket for network interface ${it.name}")
+                socket
+            } catch (e: SocketException) {
+                throw InitializationException(e)
+            } catch (e: IOException) {
+                throw InitializationException(e)
             }
-        } catch (e: IOException) {
-            throw InitializationException(e)
         }
 
         start()
     }
 
-    private fun findNetworkInterface(): NetworkInterface? {
-        for (ifc in NetworkInterface.getNetworkInterfaces()) {
-            if (!ifc.isLoopback
-                    && !ifc.isVirtual
-                    && ifc.isUp
-                    && ifc.supportsMulticast()) {
-                return ifc
-            }
-        }
-        return null
+    private fun findNetworkInterfaces(): List<NetworkInterface> {
+        return NetworkInterface.getNetworkInterfaces().asSequence().filter {
+            !it.isLoopback
+                    && !it.isVirtual
+                    && it.isUp
+                    && it.supportsMulticast()
+        }.toList()
     }
 
     override fun getLogger(): Logger = cachedLogger
 
     private fun start() {
-        scheduler.scheduleWithFixedDelay({ broadcast() }, 1, 2, TimeUnit.SECONDS)
+        scheduler.scheduleWithFixedDelay({ sockets.forEach { broadcast(it) } }, 1, 2, TimeUnit.SECONDS)
     }
 
-    private fun broadcast() {
+    private fun broadcast(socket: MulticastSocket) {
         val packet = createPacket()
         try {
             socket.send(packet)
         } catch (e: IOException) {
-            logInfo("Could not broadcast state packet", e)
+            logInfo(
+                    e,
+                    "Could not broadcast state packet (interface: %s)",
+                    socket.networkInterface.name
+            )
         }
     }
 
@@ -88,8 +90,8 @@ class Broadcaster @Throws(InitializationException::class) constructor(private va
             scheduler.awaitTermination(500, TimeUnit.MILLISECONDS)
         } catch (e: InterruptedException) {
             throw IOException(e)
+        } finally {
+            sockets.forEach { it.close() }
         }
-
-        socket.close()
     }
 }
