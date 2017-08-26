@@ -39,6 +39,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <sentryhandler/>
 
     <java.version>1.8</java.version>
 
@@ -119,6 +120,7 @@
       </resource>
       <resource>
         <directory>src/main/resources</directory>
+        <filtering>true</filtering>
         <includes>
           <include>**/*</include>
         </includes>
@@ -318,6 +320,9 @@
     </profile>
     <profile>
       <id>release</id>
+      <properties>
+        <sentryhandler>, io.sentry.jul.SentryHandler</sentryhandler>
+      </properties>
       <build>
         <plugins>
           <plugin>
