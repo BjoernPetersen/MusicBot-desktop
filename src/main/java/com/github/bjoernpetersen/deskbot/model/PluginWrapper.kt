@@ -11,79 +11,83 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 
-class ObservableProviderWrapper(config: Config, provider: Provider) : DefaultProviderWrapper(provider) {
-    private val activeEntry: Config.BooleanEntry
+class ObservableProviderWrapper(config: Config, provider: Provider) :
+    DefaultProviderWrapper(provider) {
 
-    val active: BooleanProperty
-        @JvmName("activeProperty")
-        get
-    val observableConfigEntries: ObservableList<Config.Entry>
+  private val activeEntry: Config.BooleanEntry
 
-    init {
-        activeEntry = config.booleanEntry(
-                provider.javaClass,
-                "enable",
-                "Enables plugin: ${provider.readableName}",
-                false
-        )
-        active = SimpleBooleanProperty(activeEntry.get())
-        observableConfigEntries = FXCollections.observableArrayList();
-        active.addListener { _, oldValue, newValue ->
-            if (oldValue != newValue) {
-                if (newValue) initializeConfigEntries(config)
-                else destructConfigEntries()
-                activeEntry.set(newValue)
-            }
-        }
-        addStateListener { o, n ->
-            if (o === Plugin.State.INACTIVE && n === Plugin.State.CONFIG) {
-                active.set(true)
-                activeEntry.set(true)
-                observableConfigEntries.addAll(configEntries)
-            } else if (o === Plugin.State.CONFIG && n === Plugin.State.INACTIVE) {
-                active.set(false)
-                activeEntry.set(false)
-                observableConfigEntries.clear()
-            }
-        }
-        if (active.get()) initializeConfigEntries(config)
+  val active: BooleanProperty
+    @JvmName("activeProperty")
+    get
+  val observableConfigEntries: ObservableList<Config.Entry>
+
+  init {
+    activeEntry = config.booleanEntry(
+        provider.javaClass,
+        "enable",
+        "Enables plugin: ${provider.readableName}",
+        false
+    )
+    active = SimpleBooleanProperty(activeEntry.get())
+    observableConfigEntries = FXCollections.observableArrayList();
+    active.addListener { _, oldValue, newValue ->
+      if (oldValue != newValue) {
+        if (newValue) initializeConfigEntries(config)
+        else destructConfigEntries()
+        activeEntry.set(newValue)
+      }
     }
+    addStateListener { o, n ->
+      if (o === Plugin.State.INACTIVE && n === Plugin.State.CONFIG) {
+        active.set(true)
+        activeEntry.set(true)
+        observableConfigEntries.addAll(configEntries)
+      } else if (o === Plugin.State.CONFIG && n === Plugin.State.INACTIVE) {
+        active.set(false)
+        activeEntry.set(false)
+        observableConfigEntries.clear()
+      }
+    }
+    if (active.get()) initializeConfigEntries(config)
+  }
 }
 
-class ObservableSuggesterWrapper(config: Config, suggester: Suggester) : DefaultSuggesterWrapper(suggester) {
-    private val activeEntry: Config.BooleanEntry
+class ObservableSuggesterWrapper(config: Config, suggester: Suggester) :
+    DefaultSuggesterWrapper(suggester) {
 
-    val active: BooleanProperty
-        @JvmName("activeProperty")
-        get
-    val observableConfigEntries: ObservableList<Config.Entry>
+  private val activeEntry: Config.BooleanEntry
 
-    init {
-        activeEntry = config.booleanEntry(
-                suggester.javaClass,
-                "enable",
-                "Enables plugin: ${suggester.readableName}",
-                false
-        )
-        active = SimpleBooleanProperty()
-        observableConfigEntries = FXCollections.observableArrayList();
-        active.addListener { _, oldValue, newValue ->
-            if (oldValue != newValue) {
-                if (newValue) initializeConfigEntries(config)
-                else destructConfigEntries()
-            }
-        }
-        addStateListener { o, n ->
-            if (o === Plugin.State.INACTIVE && n === Plugin.State.CONFIG) {
-                active.set(true)
-                activeEntry.set(true)
-                observableConfigEntries.addAll(configEntries)
-            } else if (o === Plugin.State.CONFIG && n === Plugin.State.INACTIVE) {
-                active.set(false)
-                activeEntry.set(false)
-                observableConfigEntries.clear()
-            }
-        }
-        active.set(activeEntry.get())
+  val active: BooleanProperty
+    @JvmName("activeProperty")
+    get
+  val observableConfigEntries: ObservableList<Config.Entry>
+
+  init {
+    activeEntry = config.booleanEntry(
+        suggester.javaClass,
+        "enable",
+        "Enables plugin: ${suggester.readableName}",
+        false
+    )
+    active = SimpleBooleanProperty()
+    observableConfigEntries = FXCollections.observableArrayList();
+    active.addListener { _, oldValue, newValue ->
+      if (oldValue != newValue) {
+        if (newValue) initializeConfigEntries(config)
+        else destructConfigEntries()
+      }
     }
+    addStateListener { o, n ->
+      if (o === Plugin.State.INACTIVE && n === Plugin.State.CONFIG) {
+        active.set(true)
+        activeEntry.set(true)
+        observableConfigEntries.addAll(configEntries)
+      } else if (o === Plugin.State.CONFIG && n === Plugin.State.INACTIVE) {
+        active.set(false)
+        activeEntry.set(false)
+        observableConfigEntries.clear()
+      }
+    }
+    active.set(activeEntry.get())
+  }
 }

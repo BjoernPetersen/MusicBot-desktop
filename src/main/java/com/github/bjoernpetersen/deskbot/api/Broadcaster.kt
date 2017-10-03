@@ -11,87 +11,89 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
-class Broadcaster @Throws(InitializationException::class) constructor(private val port: Int, groupAddress: String, message: String) : Loggable, Closeable {
-    private val cachedLogger: Logger = createLogger()
-    private val groupAddress: InetAddress
-    private val message: ByteArray
-    private val scheduler: ScheduledExecutorService
+class Broadcaster @Throws(InitializationException::class) constructor(private val port: Int,
+    groupAddress: String, message: String) : Loggable, Closeable {
 
-    private val sockets: List<MulticastSocket>
+  private val cachedLogger: Logger = createLogger()
+  private val groupAddress: InetAddress
+  private val message: ByteArray
+  private val scheduler: ScheduledExecutorService
 
-    init {
-        this.groupAddress = try {
-            InetAddress.getByName(groupAddress)
-        } catch (e: UnknownHostException) {
-            throw InitializationException(e)
-        }
-        this.message = message.toByteArray(Charsets.UTF_8)
-        this.scheduler = Executors.newSingleThreadScheduledExecutor(ThreadFactoryBuilder()
-                .setDaemon(true)
-                .setNameFormat("UDP-broadcast-%d")
-                .build()
-        )
+  private val sockets: List<MulticastSocket>
 
-        val networkInterfaces = findNetworkInterfaces()
-        this.sockets = networkInterfaces.map {
-            try {
-                val socket = MulticastSocket()
-                socket.networkInterface = it
-                socket.broadcast = true
-                socket.joinGroup(this.groupAddress)
-                logFine("Created socket for network interface ${it.name}")
-                socket
-            } catch (e: SocketException) {
-                throw InitializationException(e)
-            } catch (e: IOException) {
-                throw InitializationException(e)
-            }
-        }
+  init {
+    this.groupAddress = try {
+      InetAddress.getByName(groupAddress)
+    } catch (e: UnknownHostException) {
+      throw InitializationException(e)
+    }
+    this.message = message.toByteArray(Charsets.UTF_8)
+    this.scheduler = Executors.newSingleThreadScheduledExecutor(ThreadFactoryBuilder()
+        .setDaemon(true)
+        .setNameFormat("UDP-broadcast-%d")
+        .build()
+    )
 
-        start()
+    val networkInterfaces = findNetworkInterfaces()
+    this.sockets = networkInterfaces.map {
+      try {
+        val socket = MulticastSocket()
+        socket.networkInterface = it
+        socket.broadcast = true
+        socket.joinGroup(this.groupAddress)
+        logFine("Created socket for network interface ${it.name}")
+        socket
+      } catch (e: SocketException) {
+        throw InitializationException(e)
+      } catch (e: IOException) {
+        throw InitializationException(e)
+      }
     }
 
-    private fun findNetworkInterfaces(): List<NetworkInterface> {
-        return NetworkInterface.getNetworkInterfaces().asSequence().filter {
-            !it.isLoopback
-                    && !it.isVirtual
-                    && it.isUp
-                    && it.supportsMulticast()
-        }.toList()
-    }
+    start()
+  }
 
-    override fun getLogger(): Logger = cachedLogger
+  private fun findNetworkInterfaces(): List<NetworkInterface> {
+    return NetworkInterface.getNetworkInterfaces().asSequence().filter {
+      !it.isLoopback
+          && !it.isVirtual
+          && it.isUp
+          && it.supportsMulticast()
+    }.toList()
+  }
 
-    private fun start() {
-        scheduler.scheduleWithFixedDelay({ sockets.forEach { broadcast(it) } }, 1, 2, TimeUnit.SECONDS)
-    }
+  override fun getLogger(): Logger = cachedLogger
 
-    private fun broadcast(socket: MulticastSocket) {
-        val packet = createPacket()
-        try {
-            socket.send(packet)
-        } catch (e: IOException) {
-            logInfo(
-                    e,
-                    "Could not broadcast state packet (interface: %s)",
-                    socket.networkInterface.name
-            )
-        }
-    }
+  private fun start() {
+    scheduler.scheduleWithFixedDelay({ sockets.forEach { broadcast(it) } }, 1, 2, TimeUnit.SECONDS)
+  }
 
-    private fun createPacket(): DatagramPacket {
-        return DatagramPacket(message, message.size, groupAddress, port)
+  private fun broadcast(socket: MulticastSocket) {
+    val packet = createPacket()
+    try {
+      socket.send(packet)
+    } catch (e: IOException) {
+      logInfo(
+          e,
+          "Could not broadcast state packet (interface: %s)",
+          socket.networkInterface.name
+      )
     }
+  }
 
-    @Throws(IOException::class)
-    override fun close() {
-        scheduler.shutdown()
-        try {
-            scheduler.awaitTermination(500, TimeUnit.MILLISECONDS)
-        } catch (e: InterruptedException) {
-            throw IOException(e)
-        } finally {
-            sockets.forEach { it.close() }
-        }
+  private fun createPacket(): DatagramPacket {
+    return DatagramPacket(message, message.size, groupAddress, port)
+  }
+
+  @Throws(IOException::class)
+  override fun close() {
+    scheduler.shutdown()
+    try {
+      scheduler.awaitTermination(500, TimeUnit.MILLISECONDS)
+    } catch (e: InterruptedException) {
+      throw IOException(e)
+    } finally {
+      sockets.forEach { it.close() }
     }
+  }
 }
