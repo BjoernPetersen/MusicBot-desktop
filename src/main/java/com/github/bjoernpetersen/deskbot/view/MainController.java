@@ -112,9 +112,9 @@ public class MainController implements Loggable, Window {
     initializePluginLists();
 
     configureSentryUser(config);
-    defaultSuggester = config.stringEntry(
+    defaultSuggester = config.new StringEntry(
         getClass(), "defaultSuggester",
-        "", null, v -> null
+        "", false, null
     );
 
     playbackFactoryManager = new PlaybackFactoryManager(config, Collections.emptyList());
@@ -149,13 +149,13 @@ public class MainController implements Loggable, Window {
   }
 
   private void configureSentryUser(Config config) {
-    Config.StringEntry userIdEntry = config.secret(getClass(), "sentryUser", "");
-    Optional<String> storedId = userIdEntry.get();
+    Config.StringEntry userIdEntry = config.new StringEntry(getClass(), "sentryUser", "", true);
+    String storedId = userIdEntry.getValue();
     String userId;
-    if (!storedId.isPresent()) {
+    if (storedId == null) {
       userIdEntry.set(userId = UUID.randomUUID().toString());
     } else {
-      userId = storedId.get();
+      userId = storedId;
     }
     logFine("Sentry user ID: " + userId);
     User user = new User(userId, null, null, null);
@@ -323,10 +323,9 @@ public class MainController implements Loggable, Window {
 
   @Nullable
   private Suggester getDefaultSuggester(List<Suggester> actives) {
-    Optional<String> foundName = defaultSuggester.get();
+    String name = defaultSuggester.getValue();
 
-    if (foundName.isPresent()) {
-      String name = foundName.get();
+    if (name != null) {
       for (Suggester suggester : actives) {
         if (suggester.getId().equals(name)) {
           return suggester;

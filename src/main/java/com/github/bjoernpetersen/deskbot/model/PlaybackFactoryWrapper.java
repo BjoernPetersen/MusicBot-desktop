@@ -43,8 +43,8 @@ public class PlaybackFactoryWrapper implements IdPlugin {
   }
 
   @Override
-  public void destructConfigEntries() {
-    playbackFactory.destructConfigEntries();
+  public void dereferenceConfigEntries() {
+    playbackFactory.dereferenceConfigEntries();
   }
 
   @Override

@@ -22,18 +22,18 @@ class ObservableProviderWrapper(config: Config, provider: Provider) :
   val observableConfigEntries: ObservableList<Config.Entry>
 
   init {
-    activeEntry = config.booleanEntry(
+    activeEntry = config.BooleanEntry(
         provider.javaClass,
         "enable",
         "Enables plugin: ${provider.readableName}",
         false
     )
-    active = SimpleBooleanProperty(activeEntry.get())
+    active = SimpleBooleanProperty(activeEntry.value)
     observableConfigEntries = FXCollections.observableArrayList();
     active.addListener { _, oldValue, newValue ->
       if (oldValue != newValue) {
         if (newValue) initializeConfigEntries(config)
-        else destructConfigEntries()
+        else dereferenceConfigEntries()
         activeEntry.set(newValue)
       }
     }
@@ -63,7 +63,7 @@ class ObservableSuggesterWrapper(config: Config, suggester: Suggester) :
   val observableConfigEntries: ObservableList<Config.Entry>
 
   init {
-    activeEntry = config.booleanEntry(
+    activeEntry = config.BooleanEntry(
         suggester.javaClass,
         "enable",
         "Enables plugin: ${suggester.readableName}",
@@ -74,7 +74,7 @@ class ObservableSuggesterWrapper(config: Config, suggester: Suggester) :
     active.addListener { _, oldValue, newValue ->
       if (oldValue != newValue) {
         if (newValue) initializeConfigEntries(config)
-        else destructConfigEntries()
+        else dereferenceConfigEntries()
       }
     }
     addStateListener { o, n ->
@@ -88,6 +88,6 @@ class ObservableSuggesterWrapper(config: Config, suggester: Suggester) :
         observableConfigEntries.clear()
       }
     }
-    active.set(activeEntry.get())
+    active.set(activeEntry.value)
   }
 }

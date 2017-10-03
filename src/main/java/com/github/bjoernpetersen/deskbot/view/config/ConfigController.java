@@ -3,13 +3,12 @@ package com.github.bjoernpetersen.deskbot.view.config;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
 import com.github.bjoernpetersen.jmusicbot.config.Config.ReadOnlyStringEntry;
-import com.github.bjoernpetersen.jmusicbot.config.StringConfigListener;
-import com.github.bjoernpetersen.jmusicbot.config.WeakStringConfigListener;
+import com.github.bjoernpetersen.jmusicbot.config.ConfigListener;
+import com.github.bjoernpetersen.jmusicbot.config.WeakConfigListener;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -37,7 +36,7 @@ public final class ConfigController {
   @Nonnull
   private final ObservableList<? extends Config.Entry> entries;
   @Nonnull
-  private final List<StringConfigListener> validityListeners;
+  private final List<ConfigListener<String>> validityListeners;
 
   @FXML
   private GridPane grid;
@@ -93,14 +92,16 @@ public final class ConfigController {
         Tooltip.install(warningNode, tooltip);
 
         Config.ReadOnlyStringEntry stringEntry = (ReadOnlyStringEntry) entry;
-        StringConfigListener listener = (o, n) -> {
-          Optional<String> warning = stringEntry.checkError();
-          warning.ifPresent(tooltip::setText);
-          warningNode.setVisible(warning.isPresent());
+        ConfigListener<String> listener = (o, n) -> {
+          String warning = stringEntry.checkError();
+          if (warning != null) {
+            tooltip.setText(warning);
+          }
+          warningNode.setVisible(warning != null);
         };
         validityListeners.add(listener);
-        stringEntry.addListener(new WeakStringConfigListener(listener));
-        listener.onChange(null, stringEntry.get().orElse(null));
+        stringEntry.addListener(new WeakConfigListener<>(listener));
+        listener.onChange(null, stringEntry.getValue());
       }
     }
   }
@@ -122,8 +123,8 @@ public final class ConfigController {
 
   @Nonnull
   private Node createPlainTextField(Config.StringEntry entry) {
-    TextField field = new TextField(entry.get().orElse(null));
-    field.setPromptText(entry.getDefault().orElse(null));
+    TextField field = new TextField(entry.getValue());
+    field.setPromptText(entry.getDefaultValue());
     field.textProperty().addListener(((observable, oldValue, newValue) -> {
       entry.set(newValue);
     }));
@@ -133,7 +134,7 @@ public final class ConfigController {
   @Nonnull
   private Node createSecretTextField(Config.StringEntry entry) {
     PasswordField field = new PasswordField();
-    field.setText(entry.getWithDefault().orElse(null));
+    field.setText(entry.getValue());
     field.textProperty().addListener(((observable, oldValue, newValue) -> {
       entry.set(newValue);
     }));
@@ -143,7 +144,7 @@ public final class ConfigController {
   @Nonnull
   private Node createCheckbox(Config.BooleanEntry entry) {
     CheckBox checkBox = new CheckBox();
-    checkBox.setSelected(entry.get());
+    checkBox.setSelected(entry.getValue());
     checkBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
       entry.set(newValue);
     }));

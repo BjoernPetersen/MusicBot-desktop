@@ -1,7 +1,6 @@
 package com.github.bjoernpetersen.deskbot.view.config;
 
 import com.github.bjoernpetersen.jmusicbot.config.Config;
-import com.github.bjoernpetersen.jmusicbot.config.DefaultConfigEntry;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import javafx.collections.FXCollections;
@@ -41,7 +40,7 @@ public class BaseConfigController {
   private void initialize() {
     configPane.getChildren().add(new ConfigController(
         config,
-        FXCollections.observableList(DefaultConfigEntry.get(config).getEntries())
+        FXCollections.observableList(config.getDefaults().getEntries())
     ).createConfigNode());
   }
 }
