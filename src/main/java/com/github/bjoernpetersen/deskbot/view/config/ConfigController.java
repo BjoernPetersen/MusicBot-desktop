@@ -1,5 +1,7 @@
 package com.github.bjoernpetersen.deskbot.view.config;
 
+import static com.github.bjoernpetersen.deskbot.view.config.ConfigNodeFactoryKt.createNode;
+
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
 import com.github.bjoernpetersen.jmusicbot.config.Config.ReadOnlyStringEntry;
@@ -15,10 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -81,7 +80,7 @@ public final class ConfigController {
       Tooltip.install(description, new Tooltip(description.getText()));
       grid.add(description, 1, row);
 
-      grid.add(createEditable(entry), 2, row);
+      grid.add(createNode(entry), 2, row);
 
       if (entry instanceof Config.ReadOnlyStringEntry) {
         // check for validity on change
@@ -104,50 +103,5 @@ public final class ConfigController {
         listener.onChange(null, stringEntry.getValue());
       }
     }
-  }
-
-  @Nonnull
-  private Node createEditable(Config.Entry entry) {
-    if (entry instanceof Config.StringEntry) {
-      Config.StringEntry stringEntry = (Config.StringEntry) entry;
-      if (stringEntry.isSecret()) {
-        return createSecretTextField(stringEntry);
-      } else {
-        return createPlainTextField(stringEntry);
-      }
-    } else {
-      Config.BooleanEntry booleanEntry = (Config.BooleanEntry) entry;
-      return createCheckbox(booleanEntry);
-    }
-  }
-
-  @Nonnull
-  private Node createPlainTextField(Config.StringEntry entry) {
-    TextField field = new TextField(entry.getValueWithoutDefault());
-    field.setPromptText(entry.getDefaultValue());
-    field.textProperty().addListener(((observable, oldValue, newValue) -> {
-      entry.set(newValue);
-    }));
-    return field;
-  }
-
-  @Nonnull
-  private Node createSecretTextField(Config.StringEntry entry) {
-    PasswordField field = new PasswordField();
-    field.setText(entry.getValueWithoutDefault());
-    field.textProperty().addListener(((observable, oldValue, newValue) -> {
-      entry.set(newValue);
-    }));
-    return field;
-  }
-
-  @Nonnull
-  private Node createCheckbox(Config.BooleanEntry entry) {
-    CheckBox checkBox = new CheckBox();
-    checkBox.setSelected(entry.getValue());
-    checkBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
-      entry.set(newValue);
-    }));
-    return checkBox;
   }
 }
