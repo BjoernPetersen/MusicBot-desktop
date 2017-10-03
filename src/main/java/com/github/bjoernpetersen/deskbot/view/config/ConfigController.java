@@ -123,7 +123,7 @@ public final class ConfigController {
 
   @Nonnull
   private Node createPlainTextField(Config.StringEntry entry) {
-    TextField field = new TextField(entry.getValue());
+    TextField field = new TextField(entry.getValueWithoutDefault());
     field.setPromptText(entry.getDefaultValue());
     field.textProperty().addListener(((observable, oldValue, newValue) -> {
       entry.set(newValue);
@@ -134,7 +134,7 @@ public final class ConfigController {
   @Nonnull
   private Node createSecretTextField(Config.StringEntry entry) {
     PasswordField field = new PasswordField();
-    field.setText(entry.getValue());
+    field.setText(entry.getValueWithoutDefault());
     field.textProperty().addListener(((observable, oldValue, newValue) -> {
       entry.set(newValue);
     }));
