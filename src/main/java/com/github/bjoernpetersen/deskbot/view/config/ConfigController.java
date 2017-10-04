@@ -80,7 +80,7 @@ public final class ConfigController {
       Tooltip.install(description, new Tooltip(description.getText()));
       grid.add(description, 1, row);
 
-      grid.add(createNode(entry), 2, row);
+      grid.add(createNode(() -> grid.getScene().getWindow(), entry), 2, row);
 
       if (entry instanceof Config.ReadOnlyStringEntry) {
         // check for validity on change
