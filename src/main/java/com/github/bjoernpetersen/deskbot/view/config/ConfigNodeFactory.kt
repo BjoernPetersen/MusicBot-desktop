@@ -42,17 +42,39 @@ private fun createNode(entry: Config.BooleanEntry, node: CheckBox): Node = FxChe
   })
 }
 
-private fun createNode(entry: Config.StringEntry,
-    node: ChoiceBox): Node = FxChoiceBox<String>().apply {
-  // TODO add refresh button
-  node.refresh()?.forEach { items.add(it) }
-  val current = node.converter.getWithoutDefault(entry) ?: node.converter.getDefault(entry)
-  if (current != null) {
-    selectionModel.select(current)
+private fun createNode(entry: Config.StringEntry, node: ChoiceBox): Node {
+  var autoSelecting = false
+  val choiceBox = FxChoiceBox<String>().apply {
+    selectionModel.selectedItemProperty().addListener({ _: Any, _: Any?, new: String? ->
+      if (!autoSelecting) node.converter.set(entry, new?.trim())
+    })
   }
-  selectionModel.selectedItemProperty().addListener({ _: Any, _: Any?, new: String? ->
-    node.converter.set(entry, new?.trim())
+  val refresh: () -> Unit = {
+    val new = node.refresh()
+    if (new != null) {
+      with(choiceBox.items) {
+        clear();
+        add("")
+        new.forEach { add(it) }
+      }
+
+      val current = node.converter.getWithDefault(entry)
+      if (current != null) {
+        autoSelecting = true
+        choiceBox.selectionModel.select(current)
+        autoSelecting = false
+      }
+    }
+  }
+
+  val box = HBox()
+  box.children.add(choiceBox)
+  box.children.add(Button().apply {
+    text = "Refresh"
+    onAction = EventHandler { refresh() }
   })
+  refresh()
+  return box
 }
 
 private fun askForFolder(window: () -> Window, initial: String?): File? {
