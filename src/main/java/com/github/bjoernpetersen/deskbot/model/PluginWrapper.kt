@@ -33,7 +33,7 @@ class ObservableProviderWrapper(config: Config, provider: Provider) :
     active.addListener { _, oldValue, newValue ->
       if (oldValue != newValue) {
         if (newValue) initializeConfigEntries(config)
-        else dereferenceConfigEntries()
+        else destructConfigEntries()
         activeEntry.set(newValue)
       }
     }
@@ -74,7 +74,7 @@ class ObservableSuggesterWrapper(config: Config, suggester: Suggester) :
     active.addListener { _, oldValue, newValue ->
       if (oldValue != newValue) {
         if (newValue) initializeConfigEntries(config)
-        else dereferenceConfigEntries()
+        else destructConfigEntries()
       }
     }
     addStateListener { o, n ->
