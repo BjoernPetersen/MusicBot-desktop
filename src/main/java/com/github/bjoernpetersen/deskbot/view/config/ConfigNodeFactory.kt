@@ -15,7 +15,8 @@ import java.io.File
 import javafx.scene.control.CheckBox as FxCheckBox
 import javafx.scene.control.ChoiceBox as FxChoiceBox
 
-private fun <T : Config.Entry> TextField.registerListener(entry: T, node: UiNode<T, String?>) {
+private fun TextField.registerListener(entry: Config.StringEntry,
+    node: UiNode<Config.StringEntry, String?, String?>) {
   this.textProperty().addListener({ _: Any, _: Any?, new: String? ->
     node.converter.set(entry, new?.trim())
   })
@@ -42,29 +43,35 @@ private fun createNode(entry: Config.BooleanEntry, node: CheckBox): Node = FxChe
   })
 }
 
-private fun createNode(entry: Config.StringEntry, node: ChoiceBox): Node {
+private fun <T : Choice> createNode(entry: Config.StringEntry, node: ChoiceBox<T>): Node {
   var autoSelecting = false
+  var items: List<T?> = emptyList()
   val choiceBox = FxChoiceBox<String>().apply {
-    selectionModel.selectedItemProperty().addListener({ _: Any, _: Any?, new: String? ->
-      if (!autoSelecting) node.converter.set(entry, new?.trim())
+    isDisable = true
+    selectionModel.selectedIndexProperty().addListener({ _: Any, _: Any?, new: Number? ->
+      if (!autoSelecting) node.converter.set(
+          entry,
+          items[new?.toInt() ?: throw IllegalStateException()]?.id
+      )
     })
   }
   val refresh: () -> Unit = {
-    val new = node.refresh()
+    val new: List<T?>? = node.refresh()
     if (new != null) {
+      items = new.toMutableList().apply { add(null) }
+
       with(choiceBox.items) {
         clear();
-        add("")
-        new.forEach { add(it) }
+        items.map { it?.displayName ?: "" }.forEach { add(it) }
       }
 
-      val current = node.converter.getWithDefault(entry)
-      if (current != null) {
-        autoSelecting = true
-        choiceBox.selectionModel.select(current)
-        autoSelecting = false
-      }
+      val currentId = node.converter.getWithDefault(entry)
+      val current = items.firstOrNull { it?.id == currentId }
+      autoSelecting = true
+      choiceBox.selectionModel.select(current?.displayName ?: "")
+      autoSelecting = false
     }
+    choiceBox.isDisable = false
   }
 
   val box = HBox()
@@ -73,7 +80,7 @@ private fun createNode(entry: Config.StringEntry, node: ChoiceBox): Node {
     text = "Refresh"
     onAction = EventHandler { refresh() }
   })
-  refresh()
+  if (!node.lazy) refresh()
   return box
 }
 
@@ -128,14 +135,22 @@ private fun createNode(window: () -> Window, entry: Config.StringEntry,
   })
 }
 
+private fun createNode(node: ActionButton): Node = Button().apply {
+  text = node.text
+  onAction = EventHandler {
+    node.action()
+  }
+}
+
 fun createNode(window: () -> Window, entry: Config.Entry): Node = entry.ui.let {
   when (it) {
     is TextBox -> createNode(entry as Config.StringEntry, it)
     is PasswordBox -> createNode(entry as Config.StringEntry, it)
     is CheckBox -> createNode(entry as Config.BooleanEntry, it)
     is NumberBox -> createNode(entry as Config.StringEntry, it)
-    is ChoiceBox -> createNode(entry as Config.StringEntry, it)
+    is ChoiceBox<*> -> createNode(entry as Config.StringEntry, it)
     is FileChooserButton -> createNode(window, entry as Config.StringEntry, it)
+    is ActionButton -> createNode(it)
     else -> throw IllegalStateException()
   }
 }

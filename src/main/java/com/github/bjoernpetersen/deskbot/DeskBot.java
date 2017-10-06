@@ -14,6 +14,8 @@ import javafx.stage.Stage;
 
 public class DeskBot extends Application implements Loggable {
 
+  private static DeskBot instance;
+
   static {
     try (InputStream in = DeskBot.class.getResourceAsStream("/logging.properties")) {
       LogManager.getLogManager().readConfiguration(in);
@@ -21,6 +23,14 @@ public class DeskBot extends Application implements Loggable {
       System.out.println("Can't initialize logging!");
       System.exit(100);
     }
+  }
+
+  public DeskBot() {
+    instance = this;
+  }
+
+  public static DeskBot getInstance() {
+    return instance;
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.deskbot.view;
 
+import com.github.bjoernpetersen.deskbot.JavafxHostServices;
 import com.github.bjoernpetersen.deskbot.api.Broadcaster;
 import com.github.bjoernpetersen.deskbot.api.RestApi;
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
@@ -104,7 +105,8 @@ public class MainController implements Loggable, Window {
   @FXML
   private void initialize() {
     config = new Config(
-        new ConfigStorage(new File("config.properties"), new File("secrets.properties"))
+        new ConfigStorage(new File("config.properties"), new File("secrets.properties")),
+        new JavafxHostServices()
     );
 
     ProviderWrapper.setDefaultFactory(p -> new ObservableProviderWrapper(config, p));

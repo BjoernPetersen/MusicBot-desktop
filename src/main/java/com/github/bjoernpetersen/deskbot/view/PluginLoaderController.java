@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class PluginLoaderController extends InitStateWriter implements Loggable {
+public final class PluginLoaderController implements InitStateWriter, Loggable {
 
   @Nonnull
   private final MusicBot.Builder builder;
