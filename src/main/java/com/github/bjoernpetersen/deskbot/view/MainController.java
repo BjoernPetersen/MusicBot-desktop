@@ -7,7 +7,9 @@ import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
 import com.github.bjoernpetersen.deskbot.model.ObservableProviderWrapper;
 import com.github.bjoernpetersen.deskbot.model.ObservableSuggesterWrapper;
 import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
+import com.github.bjoernpetersen.deskbot.model.SuggesterChoice;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
+import com.github.bjoernpetersen.deskbot.view.config.ConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.PluginConfigController;
 import com.github.bjoernpetersen.jmusicbot.IdPlugin;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
@@ -16,6 +18,8 @@ import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin;
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
+import com.github.bjoernpetersen.jmusicbot.config.ui.ChoiceBox;
+import com.github.bjoernpetersen.jmusicbot.config.ui.DefaultStringConverter;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager.ProviderWrapper;
@@ -34,6 +38,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.beans.value.ChangeListener;
@@ -45,7 +53,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
@@ -115,8 +122,18 @@ public class MainController implements Loggable, Window {
 
     configureSentryUser(config);
     defaultSuggester = config.new StringEntry(
-        getClass(), "defaultSuggester",
-        "", false, null
+        getClass(),
+        "defaultSuggester",
+        "",
+        false,
+        null,
+        new ChoiceBox<>(
+            () -> getActiveSuggesters().stream()
+                .map(SuggesterChoice::new)
+                .collect(Collectors.toList()),
+            DefaultStringConverter.INSTANCE,
+            false
+        )
     );
 
     playbackFactoryManager = new PlaybackFactoryManager(config, Collections.emptyList());
@@ -136,6 +153,7 @@ public class MainController implements Loggable, Window {
     }
     fillPluginLists();
     builder = new MusicBot.Builder(config)
+        .configurator(this::askForMissingConfig)
         .playbackFactoryManager(playbackFactoryManager)
         .providerManager(providerManager);
 
@@ -280,40 +298,45 @@ public class MainController implements Loggable, Window {
     stage.setScene(scene);
   }
 
-  @Nullable
-  private Suggester askForDefaultSuggesters(boolean noConfig) {
-    if (noConfig) {
-      return getDefaultSuggester(getActiveSuggesters());
-    }
-    Dialog<Suggester> dialog = new Dialog<>();
-    DialogPane pane = new DialogPane();
-    ChoiceBox<Suggester> choiceBox = new ChoiceBox<>();
-    choiceBox.setConverter(new StringConverter<Suggester>() {
-      @Override
-      public String toString(Suggester object) {
-        return object.getReadableName();
-      }
+  private boolean askForMissingConfig(String plugin, List<? extends Config.Entry> entries) {
+    Lock lock = new ReentrantLock();
+    Condition done = lock.newCondition();
+    AtomicBoolean result = new AtomicBoolean();
+    Runnable ask = () -> {
+      Dialog<Boolean> dialog = new Dialog<>();
+      dialog.setTitle("Missing config entries");
+      DialogPane pane = new DialogPane();
+      pane.setHeaderText("Missing config entries for " + plugin);
+      pane.setContent(
+          new ConfigController(config, FXCollections.observableList(entries)).createConfigNode()
+      );
+      pane.getButtonTypes().add(ButtonType.OK);
+      pane.getButtonTypes().add(ButtonType.CANCEL);
+      dialog.setDialogPane(pane);
+      dialog.setResultConverter(param -> param.equals(ButtonType.OK));
+      result.set(dialog.showAndWait().orElseThrow(IllegalStateException::new));
 
-      @Override
-      public Suggester fromString(String string) {
-        return null;
+      lock.lock();
+      try {
+        done.signalAll();
+      } finally {
+        lock.unlock();
       }
-    });
-    choiceBox.setItems(FXCollections.observableList(getActiveSuggesters()));
-    choiceBox.setValue(getDefaultSuggester(choiceBox.getItems()));
-    pane.setHeaderText("Which suggester should be used if the queue is empty?");
-    pane.setContent(choiceBox);
-    pane.getButtonTypes().add(ButtonType.OK);
-    pane.getButtonTypes().add(ButtonType.CANCEL);
-    dialog.setDialogPane(pane);
-    dialog.setResultConverter(param -> {
-      if (param.equals(ButtonType.OK)) {
-        return choiceBox.getValue();
-      } else {
-        return null;
+    };
+
+    if (javafx.application.Platform.isFxApplicationThread()) {
+      ask.run();
+    } else {
+      javafx.application.Platform.runLater(ask);
+      lock.lock();
+      try {
+        done.awaitUninterruptibly();
+      } finally {
+        lock.unlock();
       }
-    });
-    return dialog.showAndWait().orElse(null);
+    }
+
+    return result.get();
   }
 
   @Nonnull
@@ -337,10 +360,15 @@ public class MainController implements Loggable, Window {
     return null;
   }
 
-  public void start(boolean noConfig) {
+  public void start() {
     selectNull();
 
-    Suggester defaultSuggester = askForDefaultSuggesters(noConfig);
+    askForMissingConfig(
+        "base functionality",
+        Collections.singletonList(defaultSuggester)
+    );
+
+    Suggester defaultSuggester = getDefaultSuggester(getActiveSuggesters());
     builder.defaultSuggester(defaultSuggester);
     this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getId());
 
@@ -358,6 +386,6 @@ public class MainController implements Loggable, Window {
 
   @FXML
   private void start(MouseEvent mouseEvent) {
-    start(false);
+    start();
   }
 }

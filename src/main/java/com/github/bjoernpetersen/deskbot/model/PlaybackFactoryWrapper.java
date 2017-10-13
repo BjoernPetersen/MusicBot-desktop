@@ -42,6 +42,12 @@ public class PlaybackFactoryWrapper implements IdPlugin {
     return playbackFactory.initializeConfigEntries(config);
   }
 
+  @Nonnull
+  @Override
+  public List<? extends Entry> getMissingConfigEntries() {
+    return playbackFactory.getMissingConfigEntries();
+  }
+
   @Override
   public void destructConfigEntries() {
     playbackFactory.destructConfigEntries();

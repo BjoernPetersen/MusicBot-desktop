@@ -43,15 +43,20 @@ private fun createNode(entry: Config.BooleanEntry, node: CheckBox): Node = FxChe
   })
 }
 
-private fun <T : Choice> createNode(entry: Config.StringEntry, node: ChoiceBox<T>): Node {
-  var autoSelecting = false
+private fun <I : Any, T : Choice<I>> createNode(entry: Config.StringEntry,
+    node: ChoiceBox<I, T>): Node {
   var items: List<T?> = emptyList()
   val choiceBox = FxChoiceBox<String>().apply {
     isDisable = true
+    val current = node.converter.getWithDefault(entry)
+    if (current != null) {
+      this.items.add("(Is set)")
+      selectionModel.select(0)
+    }
     selectionModel.selectedIndexProperty().addListener({ _: Any, _: Any?, new: Number? ->
-      if (!autoSelecting) node.converter.set(
+      if (new!!.toInt() > -1) node.converter.set(
           entry,
-          items[new?.toInt() ?: throw IllegalStateException()]?.id
+          items[new.toInt()]?.id
       )
     })
   }
@@ -67,9 +72,7 @@ private fun <T : Choice> createNode(entry: Config.StringEntry, node: ChoiceBox<T
 
       val currentId = node.converter.getWithDefault(entry)
       val current = items.firstOrNull { it?.id == currentId }
-      autoSelecting = true
       choiceBox.selectionModel.select(current?.displayName ?: "")
-      autoSelecting = false
     }
     choiceBox.isDisable = false
   }
@@ -148,7 +151,7 @@ fun createNode(window: () -> Window, entry: Config.Entry): Node = entry.ui.let {
     is PasswordBox -> createNode(entry as Config.StringEntry, it)
     is CheckBox -> createNode(entry as Config.BooleanEntry, it)
     is NumberBox -> createNode(entry as Config.StringEntry, it)
-    is ChoiceBox<*> -> createNode(entry as Config.StringEntry, it)
+    is ChoiceBox<*, *> -> createNode(entry as Config.StringEntry, it as ChoiceBox<Any, Choice<Any>>)
     is FileChooserButton -> createNode(window, entry as Config.StringEntry, it)
     is ActionButton -> createNode(it)
     else -> throw IllegalStateException()
