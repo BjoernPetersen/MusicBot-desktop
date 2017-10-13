@@ -360,13 +360,15 @@ public class MainController implements Loggable, Window {
     return null;
   }
 
-  public void start() {
+  public void start(boolean noConfig) {
     selectNull();
 
-    askForMissingConfig(
-        "base functionality",
-        Collections.singletonList(defaultSuggester)
-    );
+    if (!noConfig || getDefaultSuggester(getActiveSuggesters()) == null) {
+      askForMissingConfig(
+          "base functionality",
+          Collections.singletonList(defaultSuggester)
+      );
+    }
 
     Suggester defaultSuggester = getDefaultSuggester(getActiveSuggesters());
     builder.defaultSuggester(defaultSuggester);
@@ -386,6 +388,6 @@ public class MainController implements Loggable, Window {
 
   @FXML
   private void start(MouseEvent mouseEvent) {
-    start();
+    start(false);
   }
 }
