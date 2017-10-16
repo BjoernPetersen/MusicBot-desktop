@@ -24,6 +24,9 @@
       <Tab text="Suggester">
         <ListView fx:id="suggesterList"/>
       </Tab>
+      <Tab text="AdminPlugins">
+        <ListView fx:id="adminList"/>
+      </Tab>
     </TabPane>
   </left>
   <center>

@@ -4,6 +4,7 @@ import com.github.bjoernpetersen.deskbot.JavafxHostServices;
 import com.github.bjoernpetersen.deskbot.api.Broadcaster;
 import com.github.bjoernpetersen.deskbot.api.RestApi;
 import com.github.bjoernpetersen.deskbot.model.ConfigStorage;
+import com.github.bjoernpetersen.deskbot.model.ObservableAdminWrapper;
 import com.github.bjoernpetersen.deskbot.model.ObservableProviderWrapper;
 import com.github.bjoernpetersen.deskbot.model.ObservableSuggesterWrapper;
 import com.github.bjoernpetersen.deskbot.model.PlaybackFactoryWrapper;
@@ -11,12 +12,13 @@ import com.github.bjoernpetersen.deskbot.model.SuggesterChoice;
 import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.ConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.PluginConfigController;
-import com.github.bjoernpetersen.jmusicbot.IdPlugin;
+import com.github.bjoernpetersen.jmusicbot.AdminPlugin;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin;
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
+import com.github.bjoernpetersen.jmusicbot.PluginLoader;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.ui.ChoiceBox;
 import com.github.bjoernpetersen.jmusicbot.config.ui.DefaultStringConverter;
@@ -32,6 +34,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -93,6 +96,8 @@ public class MainController implements Loggable, Window {
   private ListView<ObservableProviderWrapper> providerList;
   @FXML
   private ListView<ObservableSuggesterWrapper> suggesterList;
+  @FXML
+  private ListView<ObservableAdminWrapper> adminList;
 
   @FXML
   private Button startButton;
@@ -102,6 +107,7 @@ public class MainController implements Loggable, Window {
   private Config config;
   private PlaybackFactoryManager playbackFactoryManager;
   private ProviderManager providerManager;
+  private List<ObservableAdminWrapper> adminPlugins;
   private MusicBot.Builder builder;
 
   private Config.StringEntry defaultSuggester;
@@ -141,16 +147,10 @@ public class MainController implements Loggable, Window {
     try {
       providerManager.initialize(config, playbackFactoryManager);
     } catch (AbstractMethodError e) {
-      logInfo(e, "Some plugin is outdated");
-      Alert alert = new Alert(AlertType.ERROR);
-      alert.setResizable(true);
-      alert.setHeaderText("Outdated plugin");
-      StringWriter writer = new StringWriter();
-      e.printStackTrace(new PrintWriter(writer));
-      alert.setContentText(writer.toString());
-      alert.showAndWait();
-      System.exit(0);
+      showOutdated(e);
+      return;
     }
+    loadAdminPlugins();
     fillPluginLists();
     builder = new MusicBot.Builder(config)
         .configurator(this::askForMissingConfig)
@@ -166,6 +166,36 @@ public class MainController implements Loggable, Window {
     tabPane.getSelectionModel().selectedItemProperty().addListener(
         (observable, oldValue, newValue) -> selectNull()
     );
+  }
+
+  private void loadAdminPlugins() {
+    String pluginFolderName = config.getDefaults().getPluginFolder().getValue();
+    File pluginFolder = new File(pluginFolderName);
+    PluginLoader<AdminPlugin> loader = new PluginLoader<>(pluginFolder, AdminPlugin.class);
+
+    Collection<AdminPlugin> plugins;
+    try {
+      plugins = loader.load();
+    } catch (AbstractMethodError e) {
+      showOutdated(e);
+      return;
+    }
+    adminPlugins = new ArrayList<>(plugins.size());
+    for (AdminPlugin plugin : plugins) {
+      adminPlugins.add(new ObservableAdminWrapper(config, plugin));
+    }
+  }
+
+  private void showOutdated(AbstractMethodError e) {
+    logInfo(e, "Some plugin is outdated");
+    Alert alert = new Alert(AlertType.ERROR);
+    alert.setResizable(true);
+    alert.setHeaderText("Outdated plugin");
+    StringWriter writer = new StringWriter();
+    e.printStackTrace(new PrintWriter(writer));
+    alert.setContentText(writer.toString());
+    alert.showAndWait();
+    System.exit(0);
   }
 
   private void configureSentryUser(Config config) {
@@ -186,6 +216,7 @@ public class MainController implements Loggable, Window {
     playbackFactoryList.getSelectionModel().select(null);
     providerList.getSelectionModel().select(null);
     suggesterList.getSelectionModel().select(null);
+    adminList.getSelectionModel().select(null);
   }
 
   private void fillPluginLists() {
@@ -199,9 +230,10 @@ public class MainController implements Loggable, Window {
     suggesterList.getItems().addAll(
         (Collection<ObservableSuggesterWrapper>) providerManager.getAllSuggesters().values()
     );
+    adminList.getItems().addAll(adminPlugins);
   }
 
-  private <T extends IdPlugin> StringConverter<T> createStringConverter() {
+  private <T extends Plugin> StringConverter<T> createStringConverter() {
     return new StringConverter<T>() {
       @Override
       public String toString(T object) {
@@ -215,7 +247,7 @@ public class MainController implements Loggable, Window {
     };
   }
 
-  private <T extends IdPlugin> ChangeListener<T> createChangeListener(String pluginType,
+  private <T extends Plugin> ChangeListener<T> createChangeListener(String pluginType,
       Function<T, PluginConfigController> controllerFunction) {
     return (observable, oldValue, newValue) -> {
       pluginConfig.getChildren().clear();
@@ -283,9 +315,18 @@ public class MainController implements Loggable, Window {
           );
         }
     ));
+    initializePluginList(adminList, createChangeListener("AdminPlugin",
+        a -> {
+          return new PluginConfigController(
+              config,
+              a.activeProperty(),
+              a.getObservableConfigEntries()
+          );
+        }
+    ));
   }
 
-  private <T extends IdPlugin> void initializePluginList(ListView<T> list,
+  private <T extends Plugin> void initializePluginList(ListView<T> list,
       ChangeListener<T> selectListener) {
     list.setCellFactory(TextFieldListCell.forListView(createStringConverter()));
     list.getSelectionModel().selectedItemProperty().addListener(selectListener);
@@ -382,6 +423,10 @@ public class MainController implements Loggable, Window {
     }
     builder.apiInitializer(RestApi::new);
     builder.broadcasterInitializer(Broadcaster::new);
+    adminPlugins.stream()
+        .filter(w -> w.getState() == State.CONFIG)
+        .map(ObservableAdminWrapper::getWrapped)
+        .forEach(builder::addAdminPlugin);
 
     PluginLoaderController.load(stage, builder);
   }
