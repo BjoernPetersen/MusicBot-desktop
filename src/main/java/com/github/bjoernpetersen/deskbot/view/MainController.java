@@ -13,6 +13,7 @@ import com.github.bjoernpetersen.deskbot.view.config.BaseConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.ConfigController;
 import com.github.bjoernpetersen.deskbot.view.config.PluginConfigController;
 import com.github.bjoernpetersen.jmusicbot.AdminPlugin;
+import com.github.bjoernpetersen.jmusicbot.Configurator.Result;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
@@ -41,7 +42,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -339,12 +339,13 @@ public class MainController implements Loggable, Window {
     stage.setScene(scene);
   }
 
-  private boolean askForMissingConfig(String plugin, List<? extends Config.Entry> entries) {
+  private Result askForMissingConfig(String plugin,
+      List<? extends Config.Entry> entries) {
     Lock lock = new ReentrantLock();
     Condition done = lock.newCondition();
-    AtomicBoolean result = new AtomicBoolean();
+    Result[] result = new Result[1];
     Runnable ask = () -> {
-      Dialog<Boolean> dialog = new Dialog<>();
+      Dialog<Result> dialog = new Dialog<>();
       dialog.setTitle("Missing config entries");
       DialogPane pane = new DialogPane();
       pane.setHeaderText("Missing config entries for " + plugin);
@@ -352,11 +353,23 @@ public class MainController implements Loggable, Window {
           new ConfigController(config, FXCollections.observableList(entries)).createConfigNode()
       );
       pane.getButtonTypes().add(ButtonType.OK);
+      pane.getButtonTypes().add(ButtonType.NO);
+      ((Button) pane.lookupButton(ButtonType.NO)).setText("Disable");
       pane.getButtonTypes().add(ButtonType.CANCEL);
       dialog.setDialogPane(pane);
-      dialog.setResultConverter(param -> param.equals(ButtonType.OK));
-      result.set(dialog.showAndWait().orElseThrow(IllegalStateException::new));
-
+      dialog.setResultConverter(bt -> {
+        if (bt.equals(ButtonType.OK)) {
+          return Result.OK;
+        } else if (bt.equals(ButtonType.NO)) {
+          return Result.DISABLE;
+        } else if (bt.equals(ButtonType.CANCEL)) {
+          return Result.CANCEL;
+        } else {
+          logWarning("No button was pressed somehow");
+          return Result.CANCEL;
+        }
+      });
+      result[0] = dialog.showAndWait().orElseThrow(IllegalStateException::new);
       lock.lock();
       try {
         done.signalAll();
@@ -377,7 +390,7 @@ public class MainController implements Loggable, Window {
       }
     }
 
-    return result.get();
+    return result[0];
   }
 
   @Nonnull
@@ -405,10 +418,21 @@ public class MainController implements Loggable, Window {
     selectNull();
 
     if (!noConfig || getDefaultSuggester(getActiveSuggesters()) == null) {
-      askForMissingConfig(
+      Result result = askForMissingConfig(
           "base functionality",
           Collections.singletonList(defaultSuggester)
       );
+      switch (result) {
+        case DISABLE:
+          defaultSuggester.set(null);
+          break;
+        case CANCEL:
+          logFine("User cancelled config");
+          return;
+        case OK:
+        default:
+          // nothing to see here
+      }
     }
 
     Suggester defaultSuggester = getDefaultSuggester(getActiveSuggesters());

@@ -1,6 +1,7 @@
 package com.github.bjoernpetersen.deskbot.view;
 
 import com.github.bjoernpetersen.deskbot.model.BotHolder;
+import com.github.bjoernpetersen.jmusicbot.CancelException;
 import com.github.bjoernpetersen.jmusicbot.InitStateWriter;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.Loggable;
@@ -52,6 +53,8 @@ public final class PluginLoaderController implements InitStateWriter, Loggable {
       } catch (IllegalStateException e) {
         logSevere(e, "Could not create MusicBot");
         exception.set(e);
+      } catch (CancelException e) {
+        logFine("User aborted config");
       } catch (InitializationException e) {
         logInfo(e, "Could not initialize MusicBot");
         exception.set(e);
@@ -83,7 +86,7 @@ public final class PluginLoaderController implements InitStateWriter, Loggable {
         controller.showOnStage(stage);
 
         Throwable thrown = exception.get();
-        if (!(thrown instanceof InterruptedException)) {
+        if (thrown != null && !(thrown instanceof InterruptedException)) {
           showError(thrown);
         }
       } catch (IOException e) {
