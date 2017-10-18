@@ -3,6 +3,9 @@ package com.github.bjoernpetersen.deskbot.view.config;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,12 +19,15 @@ public class BaseConfigController {
 
   @Nonnull
   private final Config config;
+  @Nonnull
+  private final Config.Entry[] additional;
 
   @FXML
   private StackPane configPane;
 
-  public BaseConfigController(Config config) {
+  public BaseConfigController(Config config, Config.Entry... additionalEntries) {
     this.config = config;
+    this.additional = additionalEntries;
   }
 
   @Nonnull
@@ -38,9 +44,11 @@ public class BaseConfigController {
 
   @FXML
   private void initialize() {
+    List<Config.Entry> entries = new LinkedList<>(config.getDefaults().getEntries());
+    entries.addAll(Arrays.asList(additional));
     configPane.getChildren().add(new ConfigController(
         config,
-        FXCollections.observableList(config.getDefaults().getEntries())
+        FXCollections.observableList(entries)
     ).createConfigNode());
   }
 }

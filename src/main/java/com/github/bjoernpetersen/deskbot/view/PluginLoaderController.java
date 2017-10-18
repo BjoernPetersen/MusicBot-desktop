@@ -34,7 +34,11 @@ public final class PluginLoaderController implements InitStateWriter, Loggable {
   @Nullable
   private String pluginName;
 
-  private PluginLoaderController(@Nonnull Stage stage, @Nonnull MusicBot.Builder builder) {
+  private final boolean showNotifications;
+
+  private PluginLoaderController(@Nonnull Stage stage, @Nonnull MusicBot.Builder builder,
+      boolean showNotifications) {
+    this.showNotifications = showNotifications;
     this.builder = builder.initStateWriter(this);
     this.stage = stage;
     this.alert = new Alert(AlertType.INFORMATION);
@@ -97,7 +101,8 @@ public final class PluginLoaderController implements InitStateWriter, Loggable {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(PlayerController.class.getResource("Player.fxml"));
         loader.load();
-        Window controller = loader.getController();
+        PlayerController controller = loader.getController();
+        controller.setShowNotifications(showNotifications);
         stage.show();
         controller.showOnStage(stage);
       } catch (IOException e) {
@@ -141,7 +146,7 @@ public final class PluginLoaderController implements InitStateWriter, Loggable {
     Platform.runLater(() -> alert.setContentText(s));
   }
 
-  static void load(Stage stage, MusicBot.Builder builder) {
-    new PluginLoaderController(stage, builder).load();
+  static void load(Stage stage, MusicBot.Builder builder, boolean showNotifications) {
+    new PluginLoaderController(stage, builder, showNotifications).load();
   }
 }

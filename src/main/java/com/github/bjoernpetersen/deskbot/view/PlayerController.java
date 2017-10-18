@@ -7,6 +7,7 @@ import com.github.bjoernpetersen.jmusicbot.Loggable;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
 import com.github.bjoernpetersen.jmusicbot.Song;
 import com.github.bjoernpetersen.jmusicbot.playback.Player;
+import com.github.bjoernpetersen.jmusicbot.playback.PlayerState;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerState.State;
 import com.github.bjoernpetersen.jmusicbot.playback.PlayerStateListener;
 import com.github.bjoernpetersen.jmusicbot.playback.Queue;
@@ -33,14 +34,18 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.controlsfx.control.Notifications;
 
 public class PlayerController implements Loggable, Window {
 
@@ -71,6 +76,7 @@ public class PlayerController implements Loggable, Window {
   private Player player;
   private InvalidationListener botListener;
   private PlayerStateListener playerListener;
+  private boolean showNotifications = false;
 
   public PlayerController() {
     this.logger = createLogger();
@@ -106,24 +112,49 @@ public class PlayerController implements Loggable, Window {
       }
     });
 
-    player.addListener(playerListener = new UiThreadPlayerStateListener(state -> {
-      if (state.getEntry().isPresent()) {
-        SongEntry entry = state.getEntry().get();
-        Song song = entry.getSong();
-        currentTitle.setText(song.getTitle());
-        currentDescription.setText(song.getDescription());
+    player.addListener(playerListener = new UiThreadPlayerStateListener(new PlayerStateListener() {
+      @Nullable
+      private Song last;
 
-        int duration = song.getDuration();
-        int seconds = duration % 60;
-        int minutes = (duration - seconds) / 60;
-        String durationText = String.format("%d:%02d", minutes, seconds);
-        currentDuration.setText(durationText);
-      } else {
-        currentTitle.setText(null);
-        currentDescription.setText(null);
-        currentDuration.setText(null);
+      @Override
+      public void onChanged(@Nonnull PlayerState state) {
+        if (state.getEntry().isPresent()) {
+          SongEntry entry = state.getEntry().get();
+          Song song = entry.getSong();
+          if (song.equals(last)) {
+            return;
+          }
+          last = song;
+          currentTitle.setText(song.getTitle());
+          currentDescription.setText(song.getDescription());
+
+          int duration = song.getDuration();
+          int seconds = duration % 60;
+          int minutes = (duration - seconds) / 60;
+          String durationText = String.format("%d:%02d", minutes, seconds);
+          currentDuration.setText(durationText);
+
+          if (showNotifications) {
+            Notifications notifications = Notifications.create()
+                .hideAfter(Duration.seconds(5))
+                .title(song.getTitle())
+                .text(song.getDescription() + '\n' + durationText);
+            song.getAlbumArtUrl().ifPresent(url -> {
+              ImageView imageView = new ImageView(url);
+              imageView.setFitHeight(80);
+              imageView.setPreserveRatio(true);
+              notifications.graphic(imageView);
+            });
+            notifications.show();
+          }
+        } else {
+          currentTitle.setText(null);
+          currentDescription.setText(null);
+          currentDuration.setText(null);
+        }
       }
     }));
+    playerListener.onChanged(player.getState());
 
     initializeQueueListener();
   }
@@ -191,6 +222,10 @@ public class PlayerController implements Loggable, Window {
   public void showOnStage(Stage stage) {
     this.stage = stage;
     stage.setScene(new Scene(root));
+  }
+
+  public void setShowNotifications(boolean showNotifications) {
+    this.showNotifications = showNotifications;
   }
 
   private class CellFactory implements Callback<ListView<Song>, ListCell<Song>> {

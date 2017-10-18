@@ -114,6 +114,7 @@ public class MainController implements Loggable, Window {
   private MusicBot.Builder builder;
 
   private Config.StringEntry defaultSuggester;
+  private Config.BooleanEntry playNotifications;
 
   public MainController() {
   }
@@ -144,6 +145,12 @@ public class MainController implements Loggable, Window {
             false
         )
     );
+    playNotifications = config.new BooleanEntry(
+        getClass(),
+        "notifications",
+        "Show notification window if the current song changes",
+        true
+    );
 
     playbackFactoryManager = new PlaybackFactoryManager(config, Collections.emptyList());
     providerManager = ProviderManager.defaultManager();
@@ -165,7 +172,8 @@ public class MainController implements Loggable, Window {
 
     startButton.setOnMouseClicked(this::start);
 
-    pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
+    pluginConfig.getChildren()
+        .add(new BaseConfigController(config, playNotifications).createNode());
 
     closeButton.managedProperty().bind(closeButton.visibleProperty());
     closeButton.setOnMouseClicked(event -> selectNull());
@@ -290,7 +298,8 @@ public class MainController implements Loggable, Window {
         pluginName.setText("General");
         pluginPlatforms.setText("");
         this.pluginType.setText("");
-        pluginConfig.getChildren().add(new BaseConfigController(config).createNode());
+        pluginConfig.getChildren()
+            .add(new BaseConfigController(config, playNotifications).createNode());
       } else {
         pluginName.setText(newValue.getReadableName());
         pluginPlatforms.setText(getPlatformString(newValue));
@@ -495,7 +504,7 @@ public class MainController implements Loggable, Window {
         .map(ObservableAdminWrapper::getWrapped)
         .forEach(builder::addAdminPlugin);
 
-    PluginLoaderController.load(stage, builder);
+    PluginLoaderController.load(stage, builder, playNotifications.getValue());
   }
 
   @FXML
