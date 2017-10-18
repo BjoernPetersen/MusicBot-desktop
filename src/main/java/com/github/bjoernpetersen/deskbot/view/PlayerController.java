@@ -14,11 +14,23 @@ import com.github.bjoernpetersen.jmusicbot.playback.Queue;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueChangeListener;
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry;
 import com.github.bjoernpetersen.jmusicbot.playback.SongEntry;
+import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException;
+import com.github.bjoernpetersen.jmusicbot.provider.Provider;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.logging.Logger;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -157,6 +169,7 @@ public class PlayerController implements Loggable, Window {
     playerListener.onChanged(player.getState());
 
     initializeQueueListener();
+    restoreQueue();
   }
 
   private void initializeQueueListener() {
@@ -175,11 +188,65 @@ public class PlayerController implements Loggable, Window {
         })
     );
 
-    queueList.setCellFactory(new CellFactory());
+    queue.addListener((ListChangeListener<Song>) c -> dumpQueue());
 
+    queueList.setCellFactory(new CellFactory());
     queueList.setItems(queue);
   }
 
+  private void dumpQueue() {
+    File dump = new File("queue.dump");
+    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+        new FileOutputStream(dump, false),
+        StandardCharsets.UTF_8))) {
+      queue.stream()
+          .map(e -> e.getId() + ";" + e.getProvider().getId())
+          .forEachOrdered(s -> {
+            try {
+              writer.write(s);
+              writer.newLine();
+            } catch (IOException e) {
+              // ignore
+            }
+          });
+    } catch (IOException e) {
+      logInfo(e, "Could not dump queue");
+    }
+  }
+
+  private void restoreQueue() {
+    File dump = new File("queue.dump");
+    if (!dump.isFile()) {
+      return;
+    }
+
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+        new FileInputStream(dump),
+        StandardCharsets.UTF_8
+    ))) {
+      reader.lines()
+          .map(s -> s.split(";"))
+          .filter(s -> s.length == 2)
+          .map(s -> {
+            String songId = s[0];
+            String providerId = s[1];
+            Provider provider = musicBot.getProviderManager().getProvider(providerId);
+            if (provider != null) {
+              try {
+                return provider.lookup(songId);
+              } catch (NoSuchSongException e) {
+                return null;
+              }
+            } else {
+              return null;
+            }
+          })
+          .filter(Objects::nonNull)
+          .forEachOrdered(queue::add);
+    } catch (IOException e) {
+      logFinest("No dump file found");
+    }
+  }
 
   @FXML
   private void next(MouseEvent event) {
