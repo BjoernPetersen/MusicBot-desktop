@@ -29,6 +29,7 @@ import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager.ProviderWrap
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager.SuggesterWrapper;
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester;
 import com.github.bjoernpetersen.jmusicbot.user.UserManager;
+import com.github.zafarkhaja.semver.Version;
 import io.sentry.Sentry;
 import io.sentry.event.User;
 import java.io.File;
@@ -150,6 +151,9 @@ public class MainController implements Loggable, Window {
       showOutdated(e);
       return;
     }
+    Version version = MusicBot.getVersion();
+    providerManager.getAllProviders().values().forEach(p -> checkCompatible(version, p));
+    providerManager.getAllSuggesters().values().forEach(p -> checkCompatible(version, p));
     loadAdminPlugins();
     fillPluginLists();
     builder = new MusicBot.Builder(config)
@@ -181,13 +185,37 @@ public class MainController implements Loggable, Window {
       return;
     }
     adminPlugins = new ArrayList<>(plugins.size());
+    Version version = MusicBot.getVersion();
     for (AdminPlugin plugin : plugins) {
+      checkCompatible(version, plugin);
       adminPlugins.add(new ObservableAdminWrapper(config, plugin));
     }
   }
 
+  private void checkCompatible(Version version, Plugin plugin) {
+    if (plugin.getMinSupportedVersion().greaterThan(version)
+        || plugin.getMaxSupportedVersion().lessThan(version)) {
+      showIncompatible(plugin);
+      throw new IllegalStateException();
+    }
+  }
+
+  private void showIncompatible(Plugin p) {
+    logInfo("A plugin is incompatible: %s", p.getReadableName());
+    Alert alert = new Alert(AlertType.ERROR);
+    alert.setResizable(true);
+    alert.setHeaderText("Incompatible plugin");
+    String stringBuilder = "Plugin name: " + p.getReadableName() + '\n'
+        + "Supported range: " + p.getMinSupportedVersion()
+        + " - " + p.getMaxSupportedVersion() + '\n'
+        + "(Current version is " + MusicBot.getVersion() + ')';
+    alert.setContentText(stringBuilder);
+    alert.showAndWait();
+    System.exit(0);
+  }
+
   private void showOutdated(AbstractMethodError e) {
-    logInfo(e, "Some plugin is outdated");
+    logInfo(e, "A plugin is outdated");
     Alert alert = new Alert(AlertType.ERROR);
     alert.setResizable(true);
     alert.setHeaderText("Outdated plugin");
