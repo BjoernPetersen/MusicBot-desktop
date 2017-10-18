@@ -63,7 +63,7 @@ private fun <I : Any, T : Choice<I>> createNode(entry: Config.StringEntry,
   val refresh: () -> Unit = {
     val new: List<T?>? = node.refresh()
     if (new != null) {
-      items = new.toMutableList().apply { add(null) }
+      items = new.toMutableList().apply { if (entry.defaultValue == null || node.lazy) add(null) }
 
       with(choiceBox.items) {
         clear();
@@ -72,6 +72,7 @@ private fun <I : Any, T : Choice<I>> createNode(entry: Config.StringEntry,
 
       val currentId = node.converter.getWithDefault(entry)
       val current = items.firstOrNull { it?.id == currentId }
+          ?: if (entry.defaultValue != null) items.firstOrNull { it?.id == entry.defaultValue } else null
       choiceBox.selectionModel.select(current?.displayName ?: "")
     }
     choiceBox.isDisable = false
