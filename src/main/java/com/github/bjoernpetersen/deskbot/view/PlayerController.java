@@ -242,7 +242,8 @@ public class PlayerController implements Loggable, Window {
             }
           })
           .filter(Objects::nonNull)
-          .forEachOrdered(queue::add);
+          .map(s -> new QueueEntry(s, musicBot.getUserManager().getBotUser()))
+          .forEachOrdered(player.getQueue()::append);
     } catch (IOException e) {
       logFinest("No dump file found");
     }
