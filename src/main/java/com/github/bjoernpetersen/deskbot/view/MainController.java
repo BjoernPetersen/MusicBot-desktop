@@ -1,5 +1,6 @@
 package com.github.bjoernpetersen.deskbot.view;
 
+import com.github.bjoernpetersen.deskbot.DeskBot;
 import com.github.bjoernpetersen.deskbot.JavafxHostServices;
 import com.github.bjoernpetersen.deskbot.api.Broadcaster;
 import com.github.bjoernpetersen.deskbot.api.RestApi;
@@ -206,8 +207,13 @@ public class MainController implements Loggable, Window {
   private void checkCompatible(Version version, PluginWrapper<?> plugin) {
     if (plugin.getMinSupportedVersion().greaterThan(version)
         || plugin.getMaxSupportedVersion().lessThan(version)) {
-      showIncompatible(plugin);
-      throw new IllegalStateException();
+      if (!DeskBot.getInstance().isIgnoreOutdated()
+          || !plugin.getMaxSupportedVersion().lessThan(version)) {
+        showIncompatible(plugin);
+        throw new IllegalStateException();
+      } else {
+        logInfo("Allowing technically incompatible plugin " + plugin.getReadableName());
+      }
     }
     if (plugin.getSupport(Platform.get()) == Support.NO) {
       plugin.destructConfigEntries();

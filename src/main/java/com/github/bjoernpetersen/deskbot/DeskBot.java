@@ -16,6 +16,8 @@ public class DeskBot extends Application implements Loggable {
 
   private static DeskBot instance;
 
+  private boolean ignoreOutdated;
+
   static {
     try (InputStream in = DeskBot.class.getResourceAsStream("/logging.properties")) {
       LogManager.getLogManager().readConfiguration(in);
@@ -23,6 +25,10 @@ public class DeskBot extends Application implements Loggable {
       System.out.println("Can't initialize logging!");
       System.exit(100);
     }
+  }
+
+  public boolean isIgnoreOutdated() {
+    return ignoreOutdated;
   }
 
   public DeskBot() {
@@ -36,6 +42,7 @@ public class DeskBot extends Application implements Loggable {
   @Override
   public void start(Stage primaryStage) throws Exception {
     primaryStage.setTitle("DeskBot");
+    ignoreOutdated = getParameters().getUnnamed().contains("--ignore-outdated");
     initBotListener();
     primaryStage.setOnHiding(event -> BotHolder.getInstance().set(null));
 

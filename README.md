@@ -5,3 +5,4 @@ If you don't want to build the bot yourself, [download the latest master build h
 
 ## Command line options
 - <code>--no-config</code> skips the configuration window
+- <code>--ignore-outdated</code> allows you to activate plugins that only support older versions of MusicBot
