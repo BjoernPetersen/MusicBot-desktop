@@ -393,6 +393,11 @@ public class MainController implements Loggable, Window {
     return result[0];
   }
 
+  /**
+   * Gets all suggesters in CONFIG state.
+   *
+   * @return a list of suggesters
+   */
   @Nonnull
   private List<Suggester> getActiveSuggesters() {
     return suggesterList.getItems().stream()
