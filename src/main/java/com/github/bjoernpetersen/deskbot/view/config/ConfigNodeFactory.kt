@@ -34,7 +34,27 @@ private fun createNode(entry: Config.StringEntry, node: PasswordBox): Node = Pas
   this.registerListener(entry, node)
 }
 
-private fun createNode(entry: Config.StringEntry, node: NumberBox): Node = TODO()
+private fun createNode(entry: Config.StringEntry, node: NumberBox): Node = TextField().apply {
+  promptText = node.converter.getDefault(entry).toString()
+  textProperty().addListener({ _, o, n ->
+    if (o == n)
+    else if (n == null || n.isBlank())
+      node.converter.set(entry, null)
+    else try {
+      var new = Integer.parseInt(n)
+      new = when {
+        new < node.min -> node.min
+        new > node.max -> node.max
+        else -> new
+      }
+      node.converter.set(entry, new)
+      text = new.toString()
+    } catch (e: NumberFormatException) {
+      text = if (n == "-") n else o
+    }
+  })
+  text = node.converter.getWithoutDefault(entry).toString()
+}
 
 private fun createNode(entry: Config.BooleanEntry, node: CheckBox): Node = FxCheckBox().apply {
   isSelected = node.converter.getWithoutDefault(entry)
