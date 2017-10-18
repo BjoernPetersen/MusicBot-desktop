@@ -20,10 +20,12 @@ import com.github.bjoernpetersen.jmusicbot.PlaybackFactoryManager;
 import com.github.bjoernpetersen.jmusicbot.Plugin;
 import com.github.bjoernpetersen.jmusicbot.Plugin.State;
 import com.github.bjoernpetersen.jmusicbot.PluginLoader;
+import com.github.bjoernpetersen.jmusicbot.PluginWrapper;
 import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.ui.ChoiceBox;
 import com.github.bjoernpetersen.jmusicbot.config.ui.DefaultStringConverter;
 import com.github.bjoernpetersen.jmusicbot.platform.Platform;
+import com.github.bjoernpetersen.jmusicbot.platform.Support;
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager;
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager.ProviderWrapper;
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager.SuggesterWrapper;
@@ -187,16 +189,21 @@ public class MainController implements Loggable, Window {
     adminPlugins = new ArrayList<>(plugins.size());
     Version version = MusicBot.getVersion();
     for (AdminPlugin plugin : plugins) {
-      checkCompatible(version, plugin);
-      adminPlugins.add(new ObservableAdminWrapper(config, plugin));
+      ObservableAdminWrapper wrapper = new ObservableAdminWrapper(config, plugin);
+      checkCompatible(version, wrapper);
+      adminPlugins.add(wrapper);
     }
   }
 
-  private void checkCompatible(Version version, Plugin plugin) {
+  private void checkCompatible(Version version, PluginWrapper<?> plugin) {
     if (plugin.getMinSupportedVersion().greaterThan(version)
         || plugin.getMaxSupportedVersion().lessThan(version)) {
       showIncompatible(plugin);
       throw new IllegalStateException();
+    }
+    if (plugin.getSupport(Platform.get()) == Support.NO) {
+      plugin.destructConfigEntries();
+      logInfo("Plugin " + plugin.getReadableName() + " does not support the current platform.");
     }
   }
 
@@ -330,7 +337,8 @@ public class MainController implements Loggable, Window {
           return new PluginConfigController(
               config,
               p.activeProperty(),
-              p.getObservableConfigEntries()
+              p.getObservableConfigEntries(),
+              p.getSupport(Platform.get()) != Support.NO
           );
         }
     ));
@@ -339,7 +347,8 @@ public class MainController implements Loggable, Window {
           return new PluginConfigController(
               config,
               s.activeProperty(),
-              s.getObservableConfigEntries()
+              s.getObservableConfigEntries(),
+              s.getSupport(Platform.get()) != Support.NO
           );
         }
     ));
@@ -348,7 +357,8 @@ public class MainController implements Loggable, Window {
           return new PluginConfigController(
               config,
               a.activeProperty(),
-              a.getObservableConfigEntries()
+              a.getObservableConfigEntries(),
+              a.getSupport(Platform.get()) != Support.NO
           );
         }
     ));

@@ -40,7 +40,7 @@ public class PluginConfigController {
     this(config, activeProperty, configEntries, true);
   }
 
-  private PluginConfigController(Config config, BooleanProperty activeProperty,
+  public PluginConfigController(Config config, BooleanProperty activeProperty,
       ObservableList<? extends Config.Entry> configEntries, boolean isDeactivatable) {
     this.config = config;
     this.activeProperty = activeProperty;
