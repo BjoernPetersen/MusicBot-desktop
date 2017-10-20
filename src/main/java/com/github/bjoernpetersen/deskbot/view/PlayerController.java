@@ -185,6 +185,12 @@ public class PlayerController implements Loggable, Window {
           public void onRemove(@Nonnull QueueEntry entry) {
             queue.remove(entry.getSong());
           }
+
+          @Override
+          public void onMove(@Nonnull QueueEntry queueEntry, int from, int to) {
+            queue.remove(from);
+            queue.add(to, queueEntry.getSong());
+          }
         })
     );
 

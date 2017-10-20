@@ -2,19 +2,26 @@ package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 
 import com.github.bjoernpetersen.deskbot.api.swag.api.NotFoundException
 import com.github.bjoernpetersen.deskbot.api.swag.api.PlayerApiService
+import com.github.bjoernpetersen.jmusicbot.Loggable
 import com.github.bjoernpetersen.jmusicbot.MusicBot
 import com.github.bjoernpetersen.jmusicbot.playback.Player
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.user.*
+import java.util.logging.Logger
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
 
 
-class PlayerApiServiceImpl : PlayerApiService() {
+class PlayerApiServiceImpl : PlayerApiService(), Loggable {
+  private val cachedLogger: Logger = createLogger()
   private lateinit var providerManager: ProviderManager
   private lateinit var player: Player
   private lateinit var userManager: UserManager
+
+  override fun getLogger(): Logger {
+    return cachedLogger
+  }
 
   override fun initialize(bot: MusicBot) {
     providerManager = bot.providerManager
@@ -85,15 +92,20 @@ class PlayerApiServiceImpl : PlayerApiService() {
 
     if (entry == null) return Response.status(Response.Status.BAD_REQUEST).build()
     val modelSong = entry.song ?: return Response.status(Response.Status.BAD_REQUEST).build()
-    val song = lookupSong(providerManager, modelSong.id, modelSong.provider.id) ?:
-        return getQueue(securityContext)
-    val queuer = try {
-      userManager.getUser(entry.userName)
-    } catch (e: UserNotFoundException) {
-      //TODO log
+    val song = lookupSong(providerManager, modelSong.id, modelSong.provider.id)
+    if (song == null) {
+      logFine("Tried to move non-existent song")
       return getQueue(securityContext)
     }
 
+    val queuer = try {
+      userManager.getUser(entry.userName)
+    } catch (e: UserNotFoundException) {
+      logFiner("Tried to move song enqueued by unknown user ${entry.userName}")
+      return getQueue(securityContext)
+    }
+
+    logFinest("User ${user.name} moved song ${song.title} to $index")
     player.queue.move(QueueEntry(song, queuer), Math.max(0, index))
     return getQueue(securityContext)
   }
