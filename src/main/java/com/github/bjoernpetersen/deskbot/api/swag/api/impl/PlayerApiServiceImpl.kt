@@ -6,10 +6,7 @@ import com.github.bjoernpetersen.jmusicbot.MusicBot
 import com.github.bjoernpetersen.jmusicbot.playback.Player
 import com.github.bjoernpetersen.jmusicbot.playback.QueueEntry
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
-import com.github.bjoernpetersen.jmusicbot.user.InvalidTokenException
-import com.github.bjoernpetersen.jmusicbot.user.Permission
-import com.github.bjoernpetersen.jmusicbot.user.User
-import com.github.bjoernpetersen.jmusicbot.user.UserManager
+import com.github.bjoernpetersen.jmusicbot.user.*
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
 
@@ -70,6 +67,35 @@ class PlayerApiServiceImpl : PlayerApiService() {
     } else {
       return Response.status(Response.Status.NOT_FOUND).build()
     }
+  }
+
+  @Throws(NotFoundException::class)
+  override fun moveEntry(authorization: String, index: Int,
+      entry: ModelQueueEntry?,
+      securityContext: SecurityContext): Response {
+    val user: User = try {
+      userManager.fromToken(authorization)
+    } catch (e: InvalidTokenException) {
+      return Response.status(Response.Status.UNAUTHORIZED).build()
+    }
+
+    if (!user.permissions.contains(Permission.MOVE)) {
+      return Response.status(Response.Status.FORBIDDEN).build()
+    }
+
+    if (entry == null) return Response.status(Response.Status.BAD_REQUEST).build()
+    val modelSong = entry.song ?: return Response.status(Response.Status.BAD_REQUEST).build()
+    val song = lookupSong(providerManager, modelSong.id, modelSong.provider.id) ?:
+        return getQueue(securityContext)
+    val queuer = try {
+      userManager.getUser(entry.userName)
+    } catch (e: UserNotFoundException) {
+      //TODO log
+      return getQueue(securityContext)
+    }
+
+    player.queue.move(QueueEntry(song, queuer), Math.max(0, index))
+    return getQueue(securityContext)
   }
 
   @Throws(NotFoundException::class)

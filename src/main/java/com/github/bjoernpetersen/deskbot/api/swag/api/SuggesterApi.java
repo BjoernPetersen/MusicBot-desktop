@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -80,7 +81,7 @@ public class SuggesterApi {
   public Response suggestSong(
       @ApiParam(value = "A suggester ID", required = true) @PathParam("suggesterId") String suggesterId
       ,
-      @ApiParam(value = "The maximum size of the response. Defaults to 16.") @QueryParam("max") Integer max
+      @ApiParam(value = "The maximum size of the response. Defaults to 32.", defaultValue = "32") @DefaultValue("32") @QueryParam("max") Integer max
       , @Context SecurityContext securityContext)
       throws NotFoundException {
     return delegate.suggestSong(suggesterId, max, securityContext);

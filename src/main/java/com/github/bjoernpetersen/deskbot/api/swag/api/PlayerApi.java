@@ -103,6 +103,29 @@ public class PlayerApi {
   }
 
   @PUT
+  @Path("/queue/order")
+  @Consumes({"application/json"})
+  @Produces({"application/json"})
+  @ApiOperation(value = "Moves a song entry to another index in the queue", notes = "", response = QueueEntry.class, responseContainer = "List", tags = {})
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "The new queue", response = QueueEntry.class, responseContainer = "List"),
+
+      @ApiResponse(code = 400, message = "A parameter is missing", response = QueueEntry.class, responseContainer = "List"),
+
+      @ApiResponse(code = 401, message = "Invalid or missing Authorization token", response = QueueEntry.class, responseContainer = "List"),
+
+      @ApiResponse(code = 403, message = "Not authorized", response = QueueEntry.class, responseContainer = "List")})
+  public Response moveEntry(
+      @ApiParam(value = "Authorization token with 'move' permission", required = true) @HeaderParam("Authorization") String authorization
+      ,
+      @ApiParam(value = "The index to move to", required = true) @QueryParam("index") Integer index
+      , @ApiParam(value = "The song entry to move.") QueueEntry entry
+      , @Context SecurityContext securityContext)
+      throws NotFoundException {
+    return delegate.moveEntry(authorization, index, entry, securityContext);
+  }
+
+  @PUT
   @Path("/next")
   @Consumes({"application/json"})
   @Produces({"application/json"})
