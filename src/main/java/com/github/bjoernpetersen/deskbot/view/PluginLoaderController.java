@@ -135,14 +135,14 @@ public final class PluginLoaderController implements InitStateWriter, Loggable {
   }
 
   @Override
-  public void state(String s) {
+  public void state(@Nonnull String s) {
+    logFiner("State from plugin %s: %s", pluginName, s);
     Platform.runLater(() -> alert.setContentText(s));
   }
 
   @Override
   public void warning(@Nonnull String s) {
-    // TODO save warnings
-    logWarning("Warning from plugin %s: %s", pluginName, s);
+    logInfo("Warning from plugin %s: %s", pluginName, s);
     Platform.runLater(() -> alert.setContentText(s));
   }
 
