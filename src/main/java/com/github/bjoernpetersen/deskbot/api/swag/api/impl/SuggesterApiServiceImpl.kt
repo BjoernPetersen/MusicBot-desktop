@@ -34,12 +34,12 @@ class SuggesterApiServiceImpl : SuggesterApiService() {
       max: Int?,
       securityContext: SecurityContext): Response {
     val suggester = lookupSuggester(providerManager, suggesterId)
-    if (suggester != null) {
-      val maxSuggestions = if (max == null || max < 1 || max > 64) 16 else max
+    return if (suggester != null) {
+      val maxSuggestions = if (max == null || max < 1 || max > 64) 32 else max
       val suggestions = suggester.getNextSuggestions(maxSuggestions).map { it.convert() }
-      return Response.ok(suggestions).build()
+      Response.ok(suggestions).build()
     } else {
-      return Response.status(Response.Status.NOT_FOUND).build()
+      Response.status(Response.Status.NOT_FOUND).build()
     }
   }
 
