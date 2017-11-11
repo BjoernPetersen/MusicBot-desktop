@@ -74,6 +74,8 @@ class UserApiServiceImpl : UserApiService() {
       Response.serverError().build()
     } catch (e: DuplicateUserException) {
       Response.serverError().build()
+    } catch (e: IllegalArgumentException) {
+      Response.status(400).build()
     }
 
   }
