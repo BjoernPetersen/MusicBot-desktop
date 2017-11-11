@@ -498,7 +498,7 @@ public class MainController implements Loggable, Window {
     this.defaultSuggester.set(defaultSuggester == null ? null : defaultSuggester.getId());
 
     try {
-      builder.userManager(new UserManager(config, "jdbc:sqlite:users.db"));
+      builder.userManager(new UserManager(config, "jdbc:sqlite:users2.db"));
     } catch (SQLException e) {
       logSevere(e, "Could not connect to database: ");
       return;
