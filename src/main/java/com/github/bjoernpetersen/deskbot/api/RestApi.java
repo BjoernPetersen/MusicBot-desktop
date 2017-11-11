@@ -6,6 +6,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.PlayerApiServiceFactory;
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.ProviderApiServiceFactory;
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.SuggesterApiServiceFactory;
+import com.github.bjoernpetersen.deskbot.api.swag.api.factories.TokenApiServiceFactory;
 import com.github.bjoernpetersen.deskbot.api.swag.api.factories.UserApiServiceFactory;
 import com.github.bjoernpetersen.jmusicbot.InitializationException;
 import com.github.bjoernpetersen.jmusicbot.MusicBot;
@@ -46,6 +47,7 @@ public class RestApi implements Closeable {
     ProviderApiServiceFactory.getProviderApi().initialize(bot);
     SuggesterApiServiceFactory.getSuggesterApi().initialize(bot);
     UserApiServiceFactory.getUserApi().initialize(bot);
+    TokenApiServiceFactory.getTokenApi().initialize(bot);
   }
 
   @Override

@@ -19,50 +19,29 @@ import java.util.Objects;
 import javax.validation.constraints.NotNull;
 
 /**
- * NamedPlugin
+ * RegisterCredentials
  */
 
-public class NamedPlugin {
-
-  @JsonProperty("id")
-  private String id = null;
+public class RegisterCredentials {
 
   @JsonProperty("name")
   private String name = null;
 
-  public NamedPlugin id(String id) {
-    this.id = id;
-    return this;
-  }
+  @JsonProperty("uuid")
+  private String uuid = null;
 
-  /**
-   * Get id
-   *
-   * @return id
-   **/
-  @JsonProperty("id")
-  @ApiModelProperty(example = "playmusic", required = true, value = "")
-  @NotNull
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public NamedPlugin name(String name) {
+  public RegisterCredentials name(String name) {
     this.name = name;
     return this;
   }
 
   /**
-   * Get name
+   * The user name.
    *
    * @return name
    **/
   @JsonProperty("name")
-  @ApiModelProperty(example = "Google Play Music", required = true, value = "")
+  @ApiModelProperty(required = true, value = "The user name.")
   @NotNull
   public String getName() {
     return name;
@@ -70,6 +49,26 @@ public class NamedPlugin {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public RegisterCredentials uuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  /**
+   * The user's UUID.
+   *
+   * @return uuid
+   **/
+  @JsonProperty("uuid")
+  @ApiModelProperty(value = "The user's UUID.")
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
   }
 
 
@@ -81,24 +80,24 @@ public class NamedPlugin {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    NamedPlugin namedPlugin = (NamedPlugin) o;
-    return Objects.equals(this.id, namedPlugin.id) &&
-        Objects.equals(this.name, namedPlugin.name);
+    RegisterCredentials registerCredentials = (RegisterCredentials) o;
+    return Objects.equals(this.name, registerCredentials.name) &&
+        Objects.equals(this.uuid, registerCredentials.uuid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name);
+    return Objects.hash(name, uuid);
   }
 
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class NamedPlugin {\n");
+    sb.append("class RegisterCredentials {\n");
 
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    uuid: ").append(toIndentedString(uuid)).append("\n");
     sb.append("}");
     return sb.toString();
   }

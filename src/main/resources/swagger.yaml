@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 0.7.0
+  version: 0.8.0
   title: JMusicBot
   license:
     name: MIT
@@ -21,18 +21,11 @@ paths:
         Adds a new guest user to the database. The user is identified by his
         username.
       parameters:
-        - name: userName
-          in: header
-          description: The desired user name
-          type: string
-          required: true
-        - name: uuid
-          in: header
-          description: >-
-            A uuid (or device ID) to authenticate the user while he doesn't have
-            a password
-          type: string
-          format: password
+        - name: credentials
+          in: body
+          description: The new user's credentials.
+          schema:
+            $ref: '#/definitions/RegisterCredentials'
           required: true
       responses:
         '201':
@@ -59,17 +52,11 @@ paths:
           type: string
           format: password
           required: true
-        - name: oldPassword
-          in: header
-          description: The users old password. Only required if the user is no guest
-          type: string
-          format: password
-          required: false
-        - name: password
-          in: header
-          description: A password
-          type: string
-          format: password
+        - name: passwordChange
+          in: body
+          description: The users old password (if he's no guest) and new password.
+          schema:
+            $ref: '#/definitions/PasswordChange'
           required: true
       responses:
         '200':
@@ -109,7 +96,8 @@ paths:
           description: Invalid or missing token
           schema:
             type: string
-    get:
+  /token:
+    put:
       operationId: login
       summary: Retrieves a token for a user
       produces:
@@ -118,25 +106,12 @@ paths:
         Retrieves an Authorization token for a user. Either a password or a UUID
         must be supplied. Not both.
       parameters:
-        - name: userName
-          in: header
-          description: The user to log in as
-          type: string
+        - name: credentials
+          in: body
+          description: The user credentials to log in with.
+          schema:
+            $ref: '#/definitions/LoginCredentials'
           required: true
-        - name: password
-          in: header
-          description: The users password. Guest users should use the uuid parameter.
-          type: string
-          format: password
-          required: false
-        - name: uuid
-          in: header
-          description: >-
-            The UUID (or device ID) authenticating this guest user. Full users
-            should use the password parameter.
-          type: string
-          format: password
-          required: false
       responses:
         '200':
           description: An authorization token
@@ -584,6 +559,47 @@ definitions:
       userName:
         description: The user who put the song in the queue
         type: string
+  RegisterCredentials:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        description: The user name.
+        type: string
+      uuid:
+        description: The user's UUID.
+        type: string
+        format: password
+  LoginCredentials:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        description: The user name.
+        type: string
+      password:
+        description: The user's password if he is a full user.
+        type: string
+        format: password
+      uuid:
+        description: The user's UUID if he is a guest.
+        type: string
+        format: password
+  PasswordChange:
+    type: object
+    required:
+      - newPassword
+    properties:
+      oldPassword:
+        description: The old password. Only required if the user is no guest.
+        type: string
+        format: password
+      newPassword:
+        description: The new password.
+        type: string
+        format: password
 responses:
   ParameterIsMissingResponse:
     description: A parameter is missing

@@ -2,8 +2,13 @@ package com.github.bjoernpetersen.deskbot.api.swag.api.impl
 
 import com.github.bjoernpetersen.deskbot.api.swag.api.NotFoundException
 import com.github.bjoernpetersen.deskbot.api.swag.api.UserApiService
+import com.github.bjoernpetersen.deskbot.api.swag.model.PasswordChange
+import com.github.bjoernpetersen.deskbot.api.swag.model.RegisterCredentials
 import com.github.bjoernpetersen.jmusicbot.MusicBot
-import com.github.bjoernpetersen.jmusicbot.user.*
+import com.github.bjoernpetersen.jmusicbot.user.DuplicateUserException
+import com.github.bjoernpetersen.jmusicbot.user.InvalidTokenException
+import com.github.bjoernpetersen.jmusicbot.user.User
+import com.github.bjoernpetersen.jmusicbot.user.UserManager
 import java.sql.SQLException
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
@@ -35,49 +40,17 @@ class UserApiServiceImpl : UserApiService() {
   }
 
   @Throws(NotFoundException::class)
-  override fun login(userName: String, password: String?, uuid: String?,
+  override fun registerUser(credentials: RegisterCredentials,
       securityContext: SecurityContext): Response {
-    val user: User
-    try {
-      user = userManager.getUser(userName)
-    } catch (e: UserNotFoundException) {
-      return Response.status(Response.Status.NOT_FOUND).build()
-    }
-
-    if (user.isTemporary) {
-      if (uuid == null) {
-        return Response.status(Response.Status.UNAUTHORIZED).build()
-      }
-      if (user.hasUuid(uuid)) {
-        return Response.ok(userManager.toToken(user)).build()
-      } else {
-        return Response.status(Response.Status.BAD_REQUEST).build()
-      }
-    } else {
-      if (password == null) {
-        return Response.status(Response.Status.UNAUTHORIZED).build()
-      }
-      if (user.hasPassword(password)) {
-        return Response.ok(userManager.toToken(user)).build()
-      } else {
-        return Response.status(Response.Status.FORBIDDEN).build()
-      }
-    }
-  }
-
-  @Throws(NotFoundException::class)
-  override fun registerUser(userName: String, uuid: String,
-      securityContext: SecurityContext): Response {
-    try {
-      val user = userManager.createTemporaryUser(userName, uuid)
-      return Response.status(Response.Status.CREATED).entity(userManager.toToken(user)).build()
+    return try {
+      val user = userManager.createTemporaryUser(credentials.name, credentials.uuid)
+      Response.status(Response.Status.CREATED).entity(userManager.toToken(user)).build()
     } catch (e: DuplicateUserException) {
-      return Response.status(Response.Status.CONFLICT).build()
+      Response.status(Response.Status.CONFLICT).build()
     }
-
   }
 
-  override fun changePassword(authorization: String, password: String, oldPassword: String?,
+  override fun changePassword(authorization: String, change: PasswordChange,
       securityContext: SecurityContext): Response {
     val user: User
     try {
@@ -87,19 +60,20 @@ class UserApiServiceImpl : UserApiService() {
     }
 
     if (!user.isTemporary) {
+      val oldPassword = change.oldPassword
       if (oldPassword == null
           || !user.hasPassword(oldPassword)) {
         return Response.status(Response.Status.FORBIDDEN).build()
       }
     }
 
-    try {
-      val newUser = userManager.updateUser(user, password)
-      return Response.ok(userManager.toToken(newUser)).build()
+    return try {
+      val newUser = userManager.updateUser(user, change.newPassword)
+      Response.ok(userManager.toToken(newUser)).build()
     } catch (e: SQLException) {
-      return Response.serverError().build()
+      Response.serverError().build()
     } catch (e: DuplicateUserException) {
-      return Response.serverError().build()
+      Response.serverError().build()
     }
 
   }
