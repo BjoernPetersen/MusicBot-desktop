@@ -3,7 +3,7 @@ package com.github.bjoernpetersen.deskbot;
 import com.github.bjoernpetersen.jmusicbot.platform.ContextSupplier;
 import com.github.bjoernpetersen.jmusicbot.platform.HostServices;
 import java.net.URL;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class JavafxHostServices implements HostServices {
 
@@ -12,7 +12,7 @@ public class JavafxHostServices implements HostServices {
     DeskBot.getInstance().getHostServices().showDocument(url.toExternalForm());
   }
 
-  @NotNull
+  @Nonnull
   @Override
   public ContextSupplier contextSupplier() throws IllegalStateException {
     throw new IllegalStateException("Context not available on Desktop systems");
