@@ -6,7 +6,6 @@ import com.github.bjoernpetersen.jmusicbot.config.Config;
 import com.github.bjoernpetersen.jmusicbot.config.Config.Entry;
 import com.github.bjoernpetersen.jmusicbot.config.Config.ReadOnlyStringEntry;
 import com.github.bjoernpetersen.jmusicbot.config.ConfigListener;
-import com.github.bjoernpetersen.jmusicbot.config.WeakConfigListener;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.LinkedList;
@@ -99,7 +98,7 @@ public final class ConfigController {
           warningNode.setVisible(warning != null);
         };
         validityListeners.add(listener);
-        stringEntry.addListener(new WeakConfigListener<>(listener));
+        stringEntry.addListener(listener);
         listener.onChange(null, stringEntry.getValue());
       }
     }

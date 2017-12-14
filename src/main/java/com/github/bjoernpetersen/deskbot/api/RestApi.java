@@ -24,7 +24,7 @@ public class RestApi implements Closeable {
   private final MusicBot bot;
   private final HttpServer server;
 
-  public RestApi(MusicBot bot, int port) throws InitializationException {
+  public RestApi(MusicBot bot, int port) throws InitializationException, InterruptedException {
     this.bot = bot;
     URI baseUri = URI.create(String.format(BASE_URI_TEMPLATE, port));
     server = GrizzlyHttpServerFactory.createHttpServer(
@@ -38,6 +38,9 @@ public class RestApi implements Closeable {
     try {
       server.start();
     } catch (IOException e) {
+      if (e.getCause() instanceof InterruptedException) {
+        throw (InterruptedException) e.getCause();
+      }
       throw new InitializationException(e);
     }
   }

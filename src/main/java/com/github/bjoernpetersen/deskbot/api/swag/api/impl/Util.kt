@@ -11,6 +11,7 @@ import com.github.bjoernpetersen.jmusicbot.provider.NoSuchSongException
 import com.github.bjoernpetersen.jmusicbot.provider.Provider
 import com.github.bjoernpetersen.jmusicbot.provider.ProviderManager
 import com.github.bjoernpetersen.jmusicbot.provider.Suggester
+import java.util.*
 import java.util.stream.Stream
 import kotlin.streams.toList
 
@@ -63,10 +64,8 @@ fun List<QueueEntry>.convert(): List<ModelQueueEntry> = this.map { it.convert() 
 
 fun PlayerState.convert(): ModelPlayerState {
   val result = ModelPlayerState()
-  result.state = ModelPlayerStateEnum.valueOf(this.state.name)
-  result.songEntry = this.entry
-      .map { it.convert() }
-      .orElse(null)
+  result.state = ModelPlayerStateEnum.fromValue(this.name.toUpperCase(Locale.US))
+  result.songEntry = this.entry?.convert()
   return result
 }
 
