@@ -4,10 +4,12 @@ import com.github.bjoernpetersen.deskbot.DeskBot
 import com.github.bjoernpetersen.deskbot.api.Broadcaster
 import com.github.bjoernpetersen.deskbot.api.RestApi
 import com.github.bjoernpetersen.deskbot.model.*
+import com.github.bjoernpetersen.deskbot.view.config.WeakConfigListener
 import com.github.bjoernpetersen.deskbot.view.config.createNode
 import com.github.bjoernpetersen.jmusicbot.*
 import com.github.bjoernpetersen.jmusicbot.config.Config
 import com.github.bjoernpetersen.jmusicbot.config.ConfigChecker
+import com.github.bjoernpetersen.jmusicbot.config.ConfigListener
 import com.github.bjoernpetersen.jmusicbot.config.ui.Choice
 import com.github.bjoernpetersen.jmusicbot.config.ui.ChoiceBox
 import com.github.bjoernpetersen.jmusicbot.config.ui.DefaultStringConverter
@@ -24,7 +26,10 @@ import javafx.beans.property.SimpleListProperty
 import javafx.collections.ObservableList
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
+import javafx.scene.Node
 import javafx.scene.control.Alert
+import javafx.scene.control.Label
+import javafx.scene.control.Tooltip
 import javafx.scene.layout.Priority
 import tornadofx.*
 import java.io.File
@@ -127,15 +132,42 @@ class MissingConfigDialog : Fragment() {
 
 class ConfigPane : Fragment() {
   val entries: ListProperty<Config.Entry> by param()
+  val listeners: MutableList<ConfigListener<String?>> = LinkedList()
   override val root = form {
     fieldset {
       bindChildren(entries, { entry ->
         field(entry.key) {
           label(entry.description)
           this += createNode({ currentWindow!! }, entry)
+          if (entry is Config.ReadOnlyStringEntry) this += createWarning(entry)
         }
       })
     }
+  }
+
+  private fun createWarning(entry: Config.ReadOnlyStringEntry): Node {
+    val warningNode = Label()
+    warningNode.styleClass.addAll("alert", "warning", "dialog-pane")
+    val tooltip = Tooltip()
+    Tooltip.install(warningNode, tooltip)
+    val listener = object : ConfigListener<String?> {
+      override fun onChange(oldValue: String?, newValue: String?) {
+        val warning = entry.checkError()
+        if (warning != null) {
+          tooltip.text = warning
+        }
+        warningNode.isVisible = warning != null
+      }
+    }
+    listeners.add(listener)
+    entry.addListener(WeakConfigListener(entry, listener))
+    listener.onChange(null, entry.value)
+    return warningNode
+  }
+
+  override fun onUndock() {
+    super.onUndock()
+    listeners.clear()
   }
 }
 
@@ -349,7 +381,7 @@ class ConfigController : Controller() {
     private set
 
   private fun createData(): BotData = BotData(
-      Config(ConfigStorage(File("config.properties"), File("secret.properties")),
+      Config(ConfigStorage(File("config.properties"), File("secrets.properties")),
           JavaFxHostServices()),
       (app as DeskBot).ignoreOutdated)
 
