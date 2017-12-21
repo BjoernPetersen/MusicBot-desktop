@@ -150,18 +150,16 @@ class ConfigPane : Fragment() {
     warningNode.styleClass.addAll("alert", "warning", "dialog-pane")
     val tooltip = Tooltip()
     Tooltip.install(warningNode, tooltip)
-    val listener = object : ConfigListener<String?> {
-      override fun onChange(oldValue: String?, newValue: String?) {
-        val warning = entry.checkError()
-        if (warning != null) {
-          tooltip.text = warning
-        }
-        warningNode.isVisible = warning != null
+    val listener = { oldValue: String?, newValue: String? ->
+      val warning = entry.checkError()
+      if (warning != null) {
+        tooltip.text = warning
       }
+      warningNode.isVisible = warning != null
     }
     listeners.add(listener)
     entry.addListener(WeakConfigListener(entry, listener))
-    listener.onChange(null, entry.value)
+    listener(null, entry.value)
     return warningNode
   }
 
@@ -235,6 +233,9 @@ class ConfigWindow : Fragment("DeskBot Config"), Loggable {
         .apiInitializer(::RestApi)
         .broadcasterInitializer(::Broadcaster)
         .configurator(this@ConfigWindow::askForMissingConfig)
+
+    data.adminPlugins.forEach { builder.addAdminPlugin(it) }
+
     try {
       builder.userManager(UserManager(data.config, "jdbc:sqlite:users2.db"))
     } catch (e: SQLException) {
@@ -311,7 +312,7 @@ class BotData(val config: Config, private val ignoreOutdated: Boolean) : Loggabl
     Sentry.setUser(user)
   }
 
-  private fun loadAdminPlugins(): ObservableList<ObservablePluginWrapper<AdminPlugin>> {
+  private fun loadAdminPlugins(): ObservableList<ObservableAdminPluginWrapper> {
     val pluginFolderName = config.defaults.pluginFolder.value!!
     val pluginFolder = File(pluginFolderName)
     val loader = PluginLoader(pluginFolder, AdminPlugin::class.java)
@@ -323,7 +324,7 @@ class BotData(val config: Config, private val ignoreOutdated: Boolean) : Loggabl
       throw InitializationException("Outdated plugin")
     }
 
-    val result = ArrayList<ObservablePluginWrapper<AdminPlugin>>(plugins.size)
+    val result = ArrayList<ObservableAdminPluginWrapper>(plugins.size)
     val version = MusicBot.getVersion()
     for (plugin in plugins) {
       val wrapper = ObservableAdminPluginWrapper(config, plugin)
