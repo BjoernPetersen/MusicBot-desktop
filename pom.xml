@@ -58,6 +58,7 @@
     <rxkotlinfx.version>2.2.0</rxkotlinfx.version>
     <rxjavafx.version>2.2.0</rxjavafx.version>
     <tornadofx.version>1.7.12</tornadofx.version>
+    <jersey-hk2.version>2.27</jersey-hk2.version>
   </properties>
   <dependencies>
     <dependency>
@@ -107,6 +108,12 @@
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>${jersey.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
+      <version>${jersey-hk2.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
