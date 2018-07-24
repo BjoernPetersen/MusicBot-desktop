@@ -52,7 +52,8 @@
     <slf4j.version>1.7.25</slf4j.version>
     <sentry.version>1.2.1</sentry.version>
     <swagger.version>1.5.12</swagger.version>
-    <jersey.version>2.25.1</jersey.version>
+    <jersey.version>2.27</jersey.version>
+    <jackson.version>2.9.6</jackson.version>
     <controlsfx.version>8.40.14</controlsfx.version>
     <rxkotlinfx.version>2.2.0</rxkotlinfx.version>
     <rxjavafx.version>2.2.0</rxjavafx.version>
@@ -130,6 +131,12 @@
       <groupId>com.github.thomasnield</groupId>
       <artifactId>rxkotlinfx</artifactId>
       <version>${rxkotlinfx.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <version>${jackson.version}</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
