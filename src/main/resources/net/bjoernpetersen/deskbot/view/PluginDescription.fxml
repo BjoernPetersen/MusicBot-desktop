@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<GridPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="net.bjoernpetersen.deskbot.view.PluginDescription"
+  fx:id="root">
+  <Label fx:id="nameLabel" GridPane.rowIndex="0"/>
+  <Label fx:id="idLabel" GridPane.rowIndex="1"/>
+  <Label fx:id="descriptionLabel" GridPane.rowIndex="2"/>
+</GridPane>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="net.bjoernpetersen.deskbot.view.Overview"
+  fx:id="root"
+  prefHeight="400.0" prefWidth="800.0">
+
+  <center>
+    <TabPane tabClosingPolicy="UNAVAILABLE">
+      <Tab fx:id="providerTab" text="%category.provider">
+        <fx:include source="Activation.fxml" fx:id="providerActivation"/>
+      </Tab>
+      <Tab fx:id="suggesterTab" text="%category.suggester">
+        <fx:include source="Activation.fxml" fx:id="suggesterActivation"/>
+      </Tab>
+      <Tab fx:id="genericTab" text="%category.generic">
+        <fx:include source="Activation.fxml" fx:id="genericActivation"/>
+      </Tab>
+    </TabPane>
+  </center>
+
+  <bottom>
+    <ButtonBar>
+      <buttons>
+        <Button fx:id="startButton" text="%action.start" onAction="#start"
+          ButtonBar.buttonData="LEFT"/>
+        <Button fx:id="configButton" text="%action.configure" onAction="#onConfig"
+          ButtonBar.buttonData="LEFT"/>
+        <Button fx:id="exitButton" text="%action.exit" onAction="#exit"
+          ButtonBar.buttonData="RIGHT"/>
+      </buttons>
+    </ButtonBar>
+  </bottom>
+</BorderPane>

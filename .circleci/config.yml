@@ -2,51 +2,33 @@ version: 2
 jobs:
   build:
     docker:
-    - image: fbrissi/maven-openjfx:jdk-8
+    - image: nishtahir/openjfx:8-jdk
     working_directory: ~/app
     steps:
     - checkout
+    - run: chmod +x gradlew
 
     - restore_cache:
         keys:
-        - v1-{{ checksum "pom.xml" }}
-        - v1-
+          - v2-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
+          - v2-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}
+          - v2-{{ checksum "build.gradle.kts" }}
+          # fallback to using the latest cache if no exact match is found
+          - v2-
         paths:
         - ~/.m2
 
-    - run:
-        command: mvn -U test
-        name: Running unit tests
-        when: always
-    - deploy:
-        command: |
-          mkdir -p target/junit/
-          find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} target/junit/ \;
-        name: Copy test artifacts
-    - store_test_results:
-        path: target/junit/
-    - store_artifacts:
-        path: target/junit/
-
-    - deploy:
-        command: mvn site -P report
-        name: Building reports
-    - store_artifacts:
-        path: target/site/
-
-    - deploy:
-        command: mvn package -DskipTests
-        name: Building .jar
-    - run:
-        command: |
-          mkdir jar
-          cp target/musicbot-desktop-*jar-with-dependencies.jar jar/musicbot-desktop.jar
-        name: Renaming .jar
-        when: on_success
-    - store_artifacts:
-        path: jar/
+    - run: ./gradlew dependencies
 
     - save_cache:
-        key: v1-{{ checksum "pom.xml" }}
+        key: v2-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
         paths:
-        - ~/.m2
+          - ~/.m2
+
+    - run:
+        command: ./gradlew test
+        name: Running unit tests
+        when: always
+
+    - store_test_results:
+        path: build/test-results

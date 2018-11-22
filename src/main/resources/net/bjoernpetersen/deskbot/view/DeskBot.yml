@@ -1,0 +1,46 @@
+category:
+  main: Main
+  generic: Generic
+  playbackFactory: Playback
+  provider: Provider
+  suggester: Suggester
+
+action:
+  start: Start
+  configure: Configure
+  exit: Exit
+  enable: Enable
+  disable: Disable
+  refresh: Refresh
+  close: Close
+  userManagement: Manage users
+
+window:
+  dependencies: Dependencies
+  config: Configuration
+  initialization: Initializing...
+  player: Player
+  userManagement: User management
+
+dependency:
+  dependencies: Dependencies
+
+choose:
+  file: Choose file
+  dir: Choose directory
+
+description:
+  mainConfig: >
+    Configuration affecting the bot itself, not any plugin.
+  suggested: Suggested
+  permission: >
+    Check the permissions a user should have.
+    Users may need to refresh their permissions before they are applied in the client.
+
+task:
+  parent:
+    title: Initializing plugins
+    description: This may take a while
+  plugin:
+    title: 'Loading %s: %s'
+    waiting: 'Waiting for other plugin: %s %s'
