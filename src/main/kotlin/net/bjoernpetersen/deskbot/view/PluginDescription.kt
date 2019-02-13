@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderWidths
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
+import javafx.scene.text.Text
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 
 class PluginDescription : Controller {
@@ -24,7 +25,7 @@ class PluginDescription : Controller {
     @FXML
     private lateinit var idLabel: Label
     @FXML
-    private lateinit var descriptionLabel: Label
+    private lateinit var descriptionText: Text
 
     val pluginProperty: ObjectProperty<Plugin> = SimpleObjectProperty()
     var plugin by property(pluginProperty)
@@ -39,7 +40,7 @@ class PluginDescription : Controller {
             .bind(createStringBinding(pluginProperty) { plugin?.name })
         idLabel.textProperty()
             .bind(createStringBinding(pluginProperty) { plugin?.let { it::class.qualifiedName } })
-        descriptionLabel.textProperty()
+        descriptionText.textProperty()
             .bind(createStringBinding(pluginProperty) { plugin?.description })
     }
 }
