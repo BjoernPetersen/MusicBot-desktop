@@ -2,6 +2,7 @@ package net.bjoernpetersen.deskbot.view.property
 
 import javafx.application.Platform
 import javafx.beans.value.ObservableValue
+import javafx.scene.control.Control
 import javafx.scene.control.TextField
 import net.bjoernpetersen.deskbot.view.createObjectBinding
 import net.bjoernpetersen.musicbot.api.config.Config
@@ -11,27 +12,37 @@ import org.controlsfx.property.editor.AbstractPropertyEditor
 class NumberBoxPropertyEditor(
     item: ConfigEntryItem<Int>,
     entry: Config.SerializedEntry<Int>,
-    numberBox: NumberBox
-) : AbstractPropertyEditor<Int, TextField>(item, TextField()) {
+    private val numberBox: NumberBox
+) : AbstractPropertyEditor<Int, TextField>(item, TextField()), Validatable<Int> {
 
-    init {
-        editor.promptText = entry.default?.toString()
-        observableValue.addListener { _, _, number ->
-            Platform.runLater {
-                number?.let {
-                    when {
-                        it < numberBox.min -> value = numberBox.min
-                        it > numberBox.max -> value = numberBox.max
+    private var observable: ObservableValue<Int>? = null
+        set(value) {
+            field = value
+            value?.addListener { _, _, number ->
+                Platform.runLater {
+                    number?.let {
+                        when {
+                            it < numberBox.min -> this.value = numberBox.min
+                            it > numberBox.max -> this.value = numberBox.max
+                        }
                     }
                 }
             }
         }
+
+    init {
+        editor.promptText = entry.default?.toString()
     }
 
-    override fun getObservableValue(): ObservableValue<Int> =
-        createObjectBinding(editor.textProperty()) {
+    override val control: Control
+        get() = editor
+
+    override fun getObservableValue(): ObservableValue<Int> = if (observable == null) {
+        observable = createObjectBinding(editor.textProperty()) {
             editor.text?.toIntOrNull()
         }
+        observable!!
+    } else observable!!
 
     override fun setValue(value: Int?) {
         editor.text = value?.toString()

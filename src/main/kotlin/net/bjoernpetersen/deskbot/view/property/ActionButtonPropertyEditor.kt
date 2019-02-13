@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Orientation
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.Control
 import javafx.scene.control.TextField
 import javafx.scene.control.ToolBar
 import javafx.scene.layout.Background
@@ -19,12 +20,15 @@ import kotlin.concurrent.thread
 class ActionButtonPropertyEditor<T : Any>(
     private val item: ConfigEntryItem<T>,
     private val actionButton: ActionButton<T>
-) : PropertyEditor<T> {
+) : PropertyEditor<T>, Validatable<T> {
 
     private val logger = KotlinLogging.logger { }
 
     private val node = node(actionButton)
     private val observableValue: ObjectProperty<T> = SimpleObjectProperty(item.entry.get())
+
+    override val control: Control
+        get() = editor.textField
 
     init {
         val button = editor.button

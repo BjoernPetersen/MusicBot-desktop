@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Orientation
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.Control
 import javafx.scene.control.TextField
 import javafx.scene.control.ToolBar
 import javafx.scene.layout.Background
@@ -20,11 +21,14 @@ private typealias FxFileChooser = javafx.stage.FileChooser
 
 class FileChooserPropertyEditor(
     private val item: ConfigEntryItem<File>,
-    fileChooser: FileChooser) : PropertyEditor<File> {
+    fileChooser: FileChooser) : PropertyEditor<File>, Validatable<File> {
 
     private val fileProperty: ObjectProperty<File> = SimpleObjectProperty(item.entry.get())
     private var file by property(fileProperty)
     private val node = node(fileChooser)
+
+    override val control: Control
+        get() = node.button
 
     init {
         fileProperty.addListener { _, _, file ->

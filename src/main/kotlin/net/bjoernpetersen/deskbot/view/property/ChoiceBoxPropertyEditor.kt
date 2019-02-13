@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue
 import javafx.geometry.Orientation
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.Control
 import javafx.scene.control.ToolBar
 import javafx.scene.layout.Background
 import javafx.scene.layout.HBox
@@ -21,7 +22,7 @@ private typealias FxChoiceBox<T> = javafx.scene.control.ChoiceBox<T>
 class ChoiceBoxPropertyEditor<T : Any>(
     private val item: ConfigEntryItem<T>,
     private val configNode: ChoiceBox<T>
-) : AbstractPropertyEditor<T, Node>(item, node<T>()) {
+) : AbstractPropertyEditor<T, Node>(item, node<T>()), Validatable<T> {
 
     private val logger = KotlinLogging.logger { }
 
@@ -31,6 +32,9 @@ class ChoiceBoxPropertyEditor<T : Any>(
     @Suppress("UNCHECKED_CAST")
     private val choiceBox: FxChoiceBox<T>
         get() = (editor as ToolBar).items[1] as FxChoiceBox<T>
+
+    override val control: Control
+        get() = button
 
     init {
         choiceBox.converter = stringConverter { it?.let(configNode.descriptor) }

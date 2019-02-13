@@ -13,6 +13,7 @@ import net.bjoernpetersen.musicbot.api.config.TextBox
 import org.controlsfx.control.PropertySheet
 import org.controlsfx.property.editor.DefaultPropertyEditorFactory
 import org.controlsfx.property.editor.PropertyEditor
+import org.controlsfx.validation.ValidationSupport
 import java.io.File
 
 class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
@@ -37,7 +38,7 @@ class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
             is PasswordBox -> TextFieldPropertyEditor(
                 item as ConfigEntryItem<String>,
                 item.entry as Config.StringEntry, PasswordField())
-            is CheckBox -> super.call(item)
+            is CheckBox -> ValidatableWrapper(super.call(item))
             is NumberBox -> NumberBoxPropertyEditor(
                 item as ConfigEntryItem<Int>,
                 item.entry as Config.SerializedEntry<Int>,
@@ -55,6 +56,9 @@ class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
                 logger.warn { "Not implemented: ${uiNode::class.simpleName}" }
                 null
             }
+        }?.also {
+            val validation = ValidationSupport()
+            validation.registerValidator(it.control, false, ValidatorAdapter(entry))
         }
     }
 }
