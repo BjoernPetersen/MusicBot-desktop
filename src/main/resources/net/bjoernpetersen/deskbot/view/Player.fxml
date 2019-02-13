@@ -10,9 +10,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Background?>
-<?import javafx.scene.layout.BackgroundFill?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.CornerRadii?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.StackPane?>
 <BorderPane xmlns="http://javafx.com/javafx"
@@ -44,17 +42,10 @@
 
         <AnchorPane GridPane.rowIndex="1" GridPane.halignment="CENTER">
           <ToggleButton fx:id="pauseButton" onAction="#playPause"
-            AnchorPane.leftAnchor="40" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="10">
+            AnchorPane.leftAnchor="40" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="10"
+            style="-fx-border-style: solid inside; -fx-border-width: 2; -fx-border-radius: 5; -fx-border-color: grey;">
             <background>
-              <Background>
-                <fills>
-                  <BackgroundFill fill="lightgrey">
-                    <radii>
-                      <CornerRadii radius="20"/>
-                    </radii>
-                  </BackgroundFill>
-                </fills>
-              </Background>
+              <Background/>
             </background>
             <graphic>
               <ImageView fx:id="playPauseImage" fitWidth="70" fitHeight="70" preserveRatio="true">
@@ -64,17 +55,10 @@
           </ToggleButton>
 
           <Button fx:id="skipButton" onAction="#skip"
-            AnchorPane.rightAnchor="40" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="10">
+            AnchorPane.rightAnchor="40" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="10"
+            style="-fx-border-style: solid inside; -fx-border-width: 2; -fx-border-radius: 5; -fx-border-color: grey;">
             <background>
-              <Background>
-                <fills>
-                  <BackgroundFill fill="lightgrey">
-                    <radii>
-                      <CornerRadii radius="20"/>
-                    </radii>
-                  </BackgroundFill>
-                </fills>
-              </Background>
+              <Background/>
             </background>
             <graphic>
               <ImageView fitWidth="70" fitHeight="70">
