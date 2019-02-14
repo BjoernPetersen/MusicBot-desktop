@@ -9,19 +9,17 @@ import javafx.concurrent.Task
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
 import net.bjoernpetersen.deskbot.impl.FileConfigStorage
+import net.bjoernpetersen.deskbot.impl.MainConfigEntries
 import net.bjoernpetersen.deskbot.impl.SongPlayedNotifierModule
 import net.bjoernpetersen.deskbot.rest.RestModule
 import net.bjoernpetersen.deskbot.rest.RestServer
 import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.get
 import net.bjoernpetersen.deskbot.view.show
-import net.bjoernpetersen.musicbot.api.config.ChoiceBox
-import net.bjoernpetersen.musicbot.api.config.Config
+import net.bjoernpetersen.musicbot.api.auth.DefaultPermissions
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
-import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.PluginConfigScope
-import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.module.BrowserOpenerModule
 import net.bjoernpetersen.musicbot.api.module.ConfigModule
 import net.bjoernpetersen.musicbot.api.module.DefaultPlayerModule
@@ -37,13 +35,9 @@ import net.bjoernpetersen.musicbot.api.plugin.management.DefaultDependencyManage
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.player.Player
-import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
-import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
-import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.category
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import net.bjoernpetersen.musicbot.spi.util.BrowserOpener
 import org.controlsfx.control.TaskProgressView
@@ -52,7 +46,6 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
-import kotlin.reflect.KClass
 
 class Lifecyclist {
     private val logger = KotlinLogging.logger {}
@@ -64,11 +57,11 @@ class Lifecyclist {
     private lateinit var configManager: ConfigManager
     private lateinit var classLoader: ClassLoader
     private lateinit var dependencyManager: DependencyManager
-    private lateinit var defaultSuggester: Config.SerializedEntry<Suggester>
 
     // Injected stage vars
     private lateinit var pluginFinder: PluginFinder
     private lateinit var injector: Injector
+    private lateinit var mainConfig: MainConfigEntries
 
     private fun <T> staged(stage: Stage, exact: Boolean = true, action: () -> T): T {
         if (exact) {
@@ -80,16 +73,14 @@ class Lifecyclist {
     }
 
     fun getConfigManager() = staged(Stage.Created, false) { configManager }
-    fun getPluginClassLoader() = staged(
-        Stage.Created, false) { classLoader }
+    fun getPluginClassLoader() = staged(Stage.Created, false) { classLoader }
 
     fun getDependencyManager() = staged(
         Stage.Created, false) { dependencyManager }
 
-    fun getDefaultSuggester() = staged(Stage.Created, false) { defaultSuggester }
-
     fun getPluginFinder() = staged(Stage.Injected, false) { pluginFinder }
     fun getInjector() = staged(Stage.Injected, false) { injector }
+    fun getMainConfig() = staged(Stage.Injected, false) { mainConfig }
 
     private fun createConfig() {
         configManager = ConfigManager(
@@ -108,13 +99,6 @@ class Lifecyclist {
     fun create(pluginDir: File): DependencyManager = staged(Stage.New) {
         createConfig()
         createPlugins(pluginDir)
-
-        defaultSuggester = configManager[MainConfigScope].state.SerializedEntry(
-            key = "defaultSuggester",
-            description = "The suggester providing songs if the queue is empty",
-            serializer = SuggesterSerializer(classLoader, dependencyManager),
-            configChecker = { null },
-            uiNode = ChoiceBox({ it.name }, { dependencyManager.findEnabledSuggester() }, true))
 
         stage = Stage.Created
         dependencyManager
@@ -137,7 +121,7 @@ class Lifecyclist {
     fun inject(browserOpener: BrowserOpener) = staged(Stage.Created) {
         pluginFinder = dependencyManager.finish()
 
-        val suggester = defaultSuggester.get()
+        val suggester = mainConfig.defaultSuggester.get()
         logger.info { "Default suggester: ${suggester?.name}" }
 
         injector = Guice.createInjector(modules(browserOpener, suggester))
@@ -158,6 +142,8 @@ class Lifecyclist {
             it.createStateEntries(configs.state)
         }
 
+        mainConfig = injector.getInstance(MainConfigEntries::class.java)
+
         stage = Stage.Injected
     }
 
@@ -169,6 +155,8 @@ class Lifecyclist {
                 result(it)
                 return@start
             }
+            DefaultPermissions.defaultPermissions = mainConfig.defaultPermissions.get()!!
+
             injector.getInstance(Player::class.java).start()
 
             val vertx = injector.getInstance(Vertx::class.java)
@@ -305,34 +293,5 @@ private class Initializer(private val finder: PluginFinder) {
                 task.run()
             }
         }
-    }
-}
-
-private fun Plugin.findSpecialized(): KClass<out Plugin> {
-    return when (this) {
-        is GenericPlugin -> GenericPlugin::class
-        is PlaybackFactory -> PlaybackFactory::class
-        is Provider -> Provider::class
-        is Suggester -> Suggester::class
-        else -> throw IllegalArgumentException()
-    }
-}
-
-private class SuggesterSerializer(
-    private val classLoader: ClassLoader,
-    private val dependencyManager: DependencyManager) : ConfigSerializer<Suggester> {
-
-    override fun serialize(obj: Suggester): String {
-        return obj.id.qualifiedName!!
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun deserialize(string: String): Suggester {
-        val type = try {
-            classLoader.loadClass(string)
-        } catch (e: ClassNotFoundException) {
-            throw SerializationException()
-        } as Class<out Suggester>
-        return dependencyManager.getDefault(type.kotlin) ?: throw SerializationException()
     }
 }

@@ -26,9 +26,16 @@ class MainConfig : Controller {
         lifecycleProperty.addListener { _, _, lifecycle ->
             propertySheet.items.clear()
             if (lifecycle != null) {
-                propertySheet.items
-                    .add(ConfigEntryItem.forEntry(lifecycle.getDefaultSuggester(), false))
+                propertySheet.items.addAll(
+                    lifecycle.getMainConfig().allPlain
+                        .map { ConfigEntryItem.forEntry(it, false) })
+
+                propertySheet.items.addAll(
+                    lifecycle.getMainConfig().allSecret
+                        .map { ConfigEntryItem.forEntry(it, true) })
             }
         }
+
+        // TODO show default permissions
     }
 }
