@@ -9,6 +9,7 @@ import javafx.concurrent.Task
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
 import net.bjoernpetersen.deskbot.impl.FileConfigStorage
+import net.bjoernpetersen.deskbot.impl.FileStorageImpl
 import net.bjoernpetersen.deskbot.impl.MainConfigEntries
 import net.bjoernpetersen.deskbot.impl.SongPlayedNotifierModule
 import net.bjoernpetersen.deskbot.rest.RestModule
@@ -27,6 +28,7 @@ import net.bjoernpetersen.musicbot.api.module.DefaultQueueModule
 import net.bjoernpetersen.musicbot.api.module.DefaultResourceCacheModule
 import net.bjoernpetersen.musicbot.api.module.DefaultSongLoaderModule
 import net.bjoernpetersen.musicbot.api.module.DefaultUserDatabaseModule
+import net.bjoernpetersen.musicbot.api.module.FileStorageModule
 import net.bjoernpetersen.musicbot.api.module.InstanceStopper
 import net.bjoernpetersen.musicbot.api.module.PluginClassLoaderModule
 import net.bjoernpetersen.musicbot.api.module.PluginModule
@@ -115,7 +117,8 @@ class Lifecyclist {
         BrowserOpenerModule(browserOpener),
         SongPlayedNotifierModule(),
         RestModule(),
-        DefaultResourceCacheModule()
+        DefaultResourceCacheModule(),
+        FileStorageModule(FileStorageImpl::class)
     )
 
     fun inject(browserOpener: BrowserOpener) = staged(Stage.Created) {
