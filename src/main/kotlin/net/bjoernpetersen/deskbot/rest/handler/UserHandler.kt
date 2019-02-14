@@ -42,8 +42,6 @@ class UserHandler @Inject constructor(
             val user = ctx.authUser
             val newPass = ctx.bodyAs<PasswordChange>()
             val new = userManager.updateUser(user, newPass.newPassword)
-            // TODO remove
-            userManager.updateUser(new, Permission.values().toSet())
             userManager.toToken(new)
         } success {
             ctx.response().end(it)
