@@ -12,11 +12,8 @@ import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class MainConfigEntries @Inject private constructor(
+class MainConfigEntries(
     configManager: ConfigManager,
     dependencyManager: DependencyManager,
     classLoader: ClassLoader) {
