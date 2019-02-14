@@ -124,6 +124,8 @@ class Lifecyclist {
     fun inject(browserOpener: BrowserOpener) = staged(Stage.Created) {
         pluginFinder = dependencyManager.finish()
 
+        mainConfig = injector.getInstance(MainConfigEntries::class.java)
+
         val suggester = mainConfig.defaultSuggester.get()
         logger.info { "Default suggester: ${suggester?.name}" }
 
@@ -144,8 +146,6 @@ class Lifecyclist {
             it.createSecretEntries(configs.secrets)
             it.createStateEntries(configs.state)
         }
-
-        mainConfig = injector.getInstance(MainConfigEntries::class.java)
 
         stage = Stage.Injected
     }

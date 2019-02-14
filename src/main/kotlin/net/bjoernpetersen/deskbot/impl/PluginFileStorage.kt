@@ -5,6 +5,7 @@ import net.bjoernpetersen.musicbot.spi.util.FileStorage
 import java.io.File
 
 class FileStorageImpl : FileStorage {
+    // TODO should be configurable
     private val parent = File("storage")
 
     override fun forPlugin(plugin: Plugin, clean: Boolean): File {
