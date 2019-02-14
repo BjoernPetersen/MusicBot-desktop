@@ -66,7 +66,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
             duration.text = it.entry?.song?.duration?.let { total ->
                 val minutes = total / 60
                 val seconds = total % 60
-                "$minutes:$seconds"
+                "%d:%02d".format(minutes, seconds)
             }
             albumArtView.image = it.entry?.song?.albumArtUrl?.let { url -> Image(url) }
         }
