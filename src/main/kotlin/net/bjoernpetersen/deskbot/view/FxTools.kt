@@ -12,7 +12,7 @@ val Controller.stage: Stage
     get() = this.root.scene.window as Stage
 
 fun Controller.closeWindow() {
-    (this as? Stage)?.close() ?: IllegalStateException()
+    stage.close()
 }
 
 fun Parent.show(wait: Boolean = false, modal: Boolean = false, title: String = ""): Stage {
