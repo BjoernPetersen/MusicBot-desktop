@@ -3,7 +3,7 @@ package net.bjoernpetersen.deskbot.view
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.layout.Region
-import net.bjoernpetersen.deskbot.fximpl.JavaFxBrowserOpener
+import net.bjoernpetersen.deskbot.fximpl.SwingBrowserOpener
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
@@ -34,7 +34,7 @@ class Config : Controller {
         thread(name = "ConfigLoader", isDaemon = true) {
             val lifecycle = Lifecyclist().apply {
                 create(File("plugins"))
-                inject(JavaFxBrowserOpener(DeskBot.hostServices))
+                inject(SwingBrowserOpener())
             }
             Platform.runLater {
                 mainConfigController.lifecycle = lifecycle

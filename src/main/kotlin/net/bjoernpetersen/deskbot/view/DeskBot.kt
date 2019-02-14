@@ -1,7 +1,6 @@
 package net.bjoernpetersen.deskbot.view
 
 import javafx.application.Application
-import javafx.application.HostServices
 import javafx.scene.Scene
 import javafx.stage.Stage
 import mu.KotlinLogging
@@ -13,7 +12,6 @@ class DeskBot : Application() {
     private val logger = KotlinLogging.logger {}
 
     override fun start(primaryStage: Stage) {
-        DeskBot.hostServices = hostServices
         primaryStage.title = "DeskBot"
 
         primaryStage.scene = Scene(load<Overview>().root)
@@ -29,9 +27,6 @@ class DeskBot : Application() {
     }
 
     companion object {
-        lateinit var hostServices: HostServices
-            private set
-
         var runningInstance: Lifecyclist? = null
         val resources: ResourceBundle
             get() = ResourceBundle.getBundle(DeskBot::class.java.name, YamlResourceBundle.Control)

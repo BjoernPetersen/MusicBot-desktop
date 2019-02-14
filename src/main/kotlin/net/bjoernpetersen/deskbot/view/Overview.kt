@@ -5,7 +5,7 @@ import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.layout.Region
 import mu.KotlinLogging
-import net.bjoernpetersen.deskbot.fximpl.JavaFxBrowserOpener
+import net.bjoernpetersen.deskbot.fximpl.SwingBrowserOpener
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
@@ -60,7 +60,7 @@ class Overview : Controller {
         logger.debug { "Start button pressed." }
         val cycle = Lifecyclist()
         cycle.create(File("plugins"))
-        cycle.inject(JavaFxBrowserOpener(DeskBot.hostServices))
+        cycle.inject(SwingBrowserOpener())
         cycle.run {
             if (it != null) {
                 logger.error(it) { "Failed to start" }
