@@ -8,11 +8,11 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Background?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
   xmlns:fx="http://javafx.com/fxml"
   fx:id="root"
@@ -36,47 +36,42 @@
       <padding>
         <Insets topRightBottomLeft="50"/>
       </padding>
-      <GridPane alignment="CENTER">
-        <ImageView fx:id="albumArtView"
-          fitWidth="280" fitHeight="280" preserveRatio="true"/>
+      <VBox spacing="10" alignment="CENTER">
+        <ImageView fx:id="albumArtView" fitWidth="300" fitHeight="300" preserveRatio="true"/>
 
-        <AnchorPane GridPane.rowIndex="1" GridPane.halignment="CENTER">
+        <HBox spacing="30" alignment="CENTER">
+
           <ToggleButton fx:id="pauseButton" onAction="#playPause"
-            AnchorPane.leftAnchor="40" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="10"
             style="-fx-border-style: solid inside; -fx-border-width: 2; -fx-border-radius: 5; -fx-border-color: grey;">
             <background>
               <Background/>
             </background>
             <graphic>
-              <ImageView fx:id="playPauseImage" fitWidth="70" fitHeight="70" preserveRatio="true">
+              <ImageView fx:id="playPauseImage" fitWidth="50" fitHeight="50" preserveRatio="true">
                 <Image smooth="true" url="/net/bjoernpetersen/deskbot/view/icons/pause.png"/>
               </ImageView>
             </graphic>
           </ToggleButton>
 
           <Button fx:id="skipButton" onAction="#skip"
-            AnchorPane.rightAnchor="40" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="10"
             style="-fx-border-style: solid inside; -fx-border-width: 2; -fx-border-radius: 5; -fx-border-color: grey;">
             <background>
               <Background/>
             </background>
             <graphic>
-              <ImageView fitWidth="70" fitHeight="70">
+              <ImageView fitWidth="50" fitHeight="50">
                 <Image smooth="true" url="/net/bjoernpetersen/deskbot/view/icons/skip.png"/>
               </ImageView>
             </graphic>
           </Button>
-        </AnchorPane>
 
-        <Label fx:id="title" GridPane.rowIndex="2" GridPane.halignment="CENTER"
-          style="-fx-font-size: 25; -fx-font-weight: bold;"/>
-        <Label fx:id="description" GridPane.rowIndex="3" GridPane.halignment="CENTER"
-          style="-fx-font-size: 25;"/>
-        <Label fx:id="duration" GridPane.rowIndex="4" GridPane.halignment="CENTER"
-          style="-fx-font-size: 25; -fx-font-style: italic;"/>
-        <Label fx:id="enqueuer" GridPane.rowIndex="5" GridPane.halignment="CENTER"
-          style="-fx-font-size: 25;"/>
-      </GridPane>
+        </HBox>
+
+        <Label fx:id="title" style="-fx-font-size: 25; -fx-font-weight: bold;"/>
+        <Label fx:id="description" style="-fx-font-size: 25;"/>
+        <Label fx:id="duration" style="-fx-font-size: 25; -fx-font-style: italic;"/>
+        <Label fx:id="enqueuer" style="-fx-font-size: 25;"/>
+      </VBox>
     </StackPane>
 
   </center>
