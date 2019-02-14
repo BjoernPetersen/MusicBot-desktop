@@ -6,11 +6,12 @@ import net.bjoernpetersen.deskbot.rest.HandlerController
 import net.bjoernpetersen.deskbot.rest.Status
 import net.bjoernpetersen.deskbot.rest.async
 import net.bjoernpetersen.deskbot.rest.bodyAs
+import net.bjoernpetersen.deskbot.rest.end
 import net.bjoernpetersen.deskbot.rest.model.PasswordChange
 import net.bjoernpetersen.deskbot.rest.model.RegisterCredentials
+import net.bjoernpetersen.deskbot.rest.model.toInfo
 import net.bjoernpetersen.deskbot.rest.setStatus
 import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
-import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.auth.UserManager
 import javax.inject.Inject
 
@@ -22,6 +23,7 @@ class UserHandler @Inject constructor(
         routerFactory.addHandlerByOperationId("changePassword", ::changePassword)
         routerFactory.addHandlerByOperationId("loginUser", ::loginUser)
         routerFactory.addHandlerByOperationId("deleteUser", ::deleteUser)
+        routerFactory.addHandlerByOperationId("getMe", ::getMe)
     }
 
     private fun registerUser(ctx: RoutingContext) {
@@ -67,6 +69,17 @@ class UserHandler @Inject constructor(
             userManager.deleteUser(user)
         } success {
             ctx.response().setStatus(Status.NO_CONTENT).end()
+        } failure {
+            ctx.fail(it)
+        }
+    }
+
+    private fun getMe(ctx: RoutingContext) {
+        ctx.async {
+            val user = ctx.authUser
+            user.toInfo()
+        } success {
+            ctx.response().end(it)
         } failure {
             ctx.fail(it)
         }

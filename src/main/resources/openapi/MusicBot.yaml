@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.2
 info:
   title: MusicBot
   description: >
@@ -7,12 +7,26 @@ info:
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-servers:
-- url: /v2
 security:
-- Token: []
+  - Token: []
 paths:
   /user:
+    get:
+      operationId: getMe
+      summary: Retrieves information about the calling user
+      description: >
+        Checks if the user's token is valid, decodes it, and returns the information stored inside.
+        This is a relatively cheap operation and may be used for reasonably frequent token validity checks.
+        This may also be used to decode the token payload, especially by clients that can't easily do so themselves.
+      responses:
+        200:
+          description: Information about the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        401:
+          $ref: '#/components/responses/Unauthenticated'
     post:
       operationId: registerUser
       summary: Registers a new user.
@@ -49,7 +63,7 @@ paths:
         Sets a new password for the caller.
         If the user was a guest account, this makes him a full user.
       security:
-      - Token: []
+        - Token: []
       requestBody:
         required: true
         description: The users new password.
@@ -79,8 +93,8 @@ paths:
       summary: Deletes a user
       description: Deletes the user associated with the Authorization token.
       security:
-      - Basic: []
-      - Token: []
+        - Basic: []
+        - Token: []
       responses:
         204:
           description: Successfully deleted.
@@ -93,7 +107,7 @@ paths:
       operationId: loginUser
       summary: Retrieves a token for a user
       security:
-      - Basic: []
+        - Basic: []
       description: >
         Retrieves an Authorization token for a user.
       responses:
@@ -133,10 +147,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
     put:
       operationId: setPlayerState
-      summary: Pauses the player.
+      summary: Changes the player state.
       description: >
-        Pauses the current playback. If the current player state is not PLAY,
-        does nothing.
+        Changes the current player state, i.e. pauses, resumes or skips the current song.
       requestBody:
         required: true
         description: The desired player state change.
@@ -190,18 +203,18 @@ paths:
         Adds the specified Song to the current queue. If the queue already
         contains the Song, it won't be added.
       parameters:
-      - name: songId
-        in: query
-        description: The song's ID
-        required: true
-        schema:
-          type: string
-      - name: providerId
-        in: query
-        description: The ID of the provider the song is from.
-        required: true
-        schema:
-          type: string
+        - name: songId
+          in: query
+          description: The song's ID
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: query
+          description: The ID of the provider the song is from.
+          required: true
+          schema:
+            type: string
       responses:
         200:
           $ref: '#/components/responses/Queue'
@@ -220,18 +233,18 @@ paths:
         Removes the specified Song from the current queue. If the queue did not
         contain the song, nothing happens.
       parameters:
-      - name: songId
-        in: query
-        schema:
-          type: string
-        description: the song ID of the song to dequeue.
-        required: true
-      - name: providerId
-        in: query
-        schema:
-          type: string
-        description: the provider ID of the song to dequeue.
-        required: true
+        - name: songId
+          in: query
+          schema:
+            type: string
+          description: the song ID of the song to dequeue.
+          required: true
+        - name: providerId
+          in: query
+          schema:
+            type: string
+          description: the provider ID of the song to dequeue.
+          required: true
       responses:
         200:
           $ref: '#/components/responses/Queue'
@@ -248,13 +261,13 @@ paths:
       operationId: moveEntry
       summary: Moves a song entry to another index in the queue.
       parameters:
-      - name: index
-        in: query
-        description: The index to move to.
-        schema:
-          type: integer
-          minimum: 0
-        required: true
+        - name: index
+          in: query
+          description: The index to move to.
+          schema:
+            type: integer
+            minimum: 0
+          required: true
       requestBody:
         description: The song entry to move.
         required: true
@@ -293,18 +306,18 @@ paths:
       operationId: searchSong
       summary: Searches for songs
       parameters:
-      - name: providerId
-        in: path
-        schema:
-          type: string
-        description: The provider with which to search.
-        required: true
-      - name: query
-        in: query
-        description: A search query
-        required: true
-        schema:
-          type: string
+        - name: providerId
+          in: path
+          schema:
+            type: string
+          description: The provider with which to search.
+          required: true
+        - name: query
+          in: query
+          description: A search query
+          required: true
+          schema:
+            type: string
       responses:
         200:
           description: A list of results.
@@ -333,18 +346,18 @@ paths:
       summary: Looks up a song
       description: Looks up a song using its ID and a provider ID.
       parameters:
-      - name: songId
-        in: path
-        description: A song ID
-        schema:
-          type: string
-        required: true
-      - name: providerId
-        in: path
-        description: A provider ID
-        schema:
-          type: string
-        required: true
+        - name: songId
+          in: path
+          description: A song ID
+          schema:
+            type: string
+          required: true
+        - name: providerId
+          in: path
+          description: A provider ID
+          schema:
+            type: string
+          required: true
       responses:
         200:
           description: The looked up song
@@ -378,21 +391,21 @@ paths:
       operationId: suggestSong
       summary: Returns a list of suggestions.
       parameters:
-      - name: suggesterId
-        in: path
-        description: A suggester ID
-        schema:
-          type: string
-        required: true
-      - name: max
-        in: query
-        description: The maximum size of the response. Defaults to 32.
-        schema:
-          type: integer
-          default: 32
-          minimum: 1
-          maximum: 64
-        required: false
+        - name: suggesterId
+          in: path
+          description: A suggester ID
+          schema:
+            type: string
+          required: true
+        - name: max
+          in: query
+          description: The maximum size of the response. Defaults to 32.
+          schema:
+            type: integer
+            default: 32
+            minimum: 1
+            maximum: 64
+          required: false
       responses:
         200:
           description: A list of suggested songs.
@@ -418,24 +431,24 @@ paths:
       operationId: removeSuggestion
       summary: Removes a song from the suggestions.
       parameters:
-      - name: suggesterId
-        in: path
-        description: the ID of the suggester.
-        schema:
-          type: string
-        required: true
-      - name: songId
-        in: query
-        description: The ID of the song to remove.
-        schema:
-          type: string
-        required: true
-      - name: providerId
-        in: query
-        description: The ID of the provider of the song to remove.
-        schema:
-          type: string
-        required: true
+        - name: suggesterId
+          in: path
+          description: the ID of the suggester.
+          schema:
+           type: string
+          required: true
+        - name: songId
+          in: query
+          description: The ID of the song to remove.
+          schema:
+            type: string
+          required: true
+        - name: providerId
+          in: query
+          description: The ID of the provider of the song to remove.
+          schema:
+            type: string
+          required: true
       responses:
         204:
           description: >
@@ -455,22 +468,22 @@ components:
     NamedPlugin:
       type: object
       required:
-      - id
-      - name
+        - id
+        - name
       properties:
         id:
           type: string
-          example: net.bjoernpetersen.spotify.SpotifyProvider
+          example: com.github.bjoernpetersen.spotify.SpotifyProvider
         name:
           type: string
-          example: Google Play Music
+          example: Spotify
     Song:
       type: object
       required:
-      - id
-      - provider
-      - title
-      - description
+        - id
+        - provider
+        - title
+        - description
       properties:
         id:
           type: string
@@ -498,32 +511,32 @@ components:
     PlayerState:
       type: object
       required:
-      - state
+        - state
       properties:
         state:
           type: string
           enum:
-          - PLAY
-          - PAUSE
-          - STOP
-          - ERROR
+            - PLAY
+            - PAUSE
+            - STOP
+            - ERROR
         songEntry:
           $ref: '#/components/schemas/SongEntry'
     PlayerStateChange:
       type: object
       required:
-      - action
+        - action
       properties:
         action:
           type: string
           enum:
-          - PLAY
-          - PAUSE
-          - SKIP
+            - PLAY
+            - PAUSE
+            - SKIP
     SongEntry:
       type: object
       required:
-      - song
+        - song
       properties:
         song:
           $ref: '#/components/schemas/Song'
@@ -534,30 +547,46 @@ components:
     QueueEntry:
       type: object
       required:
-      - song
-      - userName
+        - song
+        - userName
       properties:
         song:
           $ref: '#/components/schemas/Song'
         userName:
           description: The user who put the song in the queue.
           type: string
+    UserInfo:
+      type: object
+      required:
+        - name
+        - permissions
+      properties:
+        name:
+          description: The user name.
+          type: string
+        permissions:
+          description: A list of permission identifiers for this user.
+          type: array
+          items:
+            type: string
     RegisterCredentials:
       type: object
       required:
-      - name
-      - userId
+        - name
+        - userId
       properties:
         name:
           description: The user name.
           type: string
         userId:
-          description: Some unique identifier for the user. Typically a UUID or Android device ID.
+          description: >
+            Some unique identifier for the user. Typically a UUID or Android device ID.
+            Note that uniqueness isn't enforced, as the ID is basically used in lieu of a password for guest users.
           type: string
     PasswordChange:
       type: object
       required:
-      - newPassword
+        - newPassword
       properties:
         newPassword:
           description: The new password.
@@ -565,22 +594,22 @@ components:
     AuthExpectation:
       type: object
       required:
-      - format
+        - format
       properties:
         format:
           description: The required authentication format.
           type: string
           enum:
-          - Token
-          - Basic
+            - Token
+            - Basic
         type:
           description: >
             Basic auth: If authorization failed, this describes the type of the user the login attempt was for.
             If the user is a Full user, a password is expected. Otherwise some unique identifier.
           type: string
           enum:
-          - Guest
-          - Full
+            - Guest
+            - Full
         permissions:
           description: >
             Token auth: Required permissions for the endpoint.
@@ -601,14 +630,14 @@ components:
     ParameterIsMissing:
       description: A parameter is missing.
       content:
-        application/json:
+        text/plain:
           schema:
             type: string
             example: 'Missing parameter: <PARAMETER_NAME>'
     SongNotFound:
       description: The song could not be found.
       content:
-        application/json:
+        text/plain:
           schema:
             type: string
             example: 'Song not found.'
