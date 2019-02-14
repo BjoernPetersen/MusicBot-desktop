@@ -11,6 +11,7 @@ import javafx.scene.control.ToolBar
 import javafx.scene.layout.Background
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import javafx.stage.DirectoryChooser
 import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.property
 import net.bjoernpetersen.musicbot.api.config.FileChooser
@@ -36,13 +37,22 @@ class FileChooserPropertyEditor(
             value = file
         }
         node.button.setOnAction {
-            val chooser = FxFileChooser().apply {
-                val file = file
-                initialDirectory = file?.findDir() ?: File(".")
-                if (file?.isFile == true) initialFileName = file.name
+            val file = if (fileChooser.isDirectory) {
+                val chooser = DirectoryChooser().apply {
+                    val file = file
+                    initialDirectory = file?.findDir() ?: File(".")
+                }
+                chooser.showDialog(null)
+            } else {
+                val chooser = FxFileChooser().apply {
+                    val file = file
+                    initialDirectory = file?.findDir() ?: File(".")
+                    if (file?.isFile == true) initialFileName = file.name
+                }
+                if (fileChooser.isOpen) chooser.showOpenDialog(null)
+                else chooser.showSaveDialog(null)
             }
-            val file = if (fileChooser.isOpen) chooser.showOpenDialog(null)
-            else chooser.showSaveDialog(null)
+
             if (file != null) {
                 this.file = file
             }
