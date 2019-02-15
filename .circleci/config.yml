@@ -1,32 +1,84 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+executors:
+  jfx:
     docker:
       - image: nishtahir/openjfx:8-jdk
-    working_directory: ~/app
-    steps:
-      - checkout
-      - run: chmod +x gradlew
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false
 
+commands:
+  with_cache:
+    parameters:
+      steps:
+        type: steps
+    steps:
       - restore_cache:
           keys:
-            - v3-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
-            - v3-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}
-            - v3-{{ checksum "build.gradle.kts" }}
-            # fallback to using the latest cache if no exact match is found
-            - v3-
+            - v4-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
+            - v4-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}
+            - v4-{{ checksum "build.gradle.kts" }}
+            - v4-
+      - steps: << parameters.steps >>
 
-      - run: ./gradlew dependencies
+jobs:
+  compile:
+    executor: jfx
+    steps:
+      - checkout
+      - with_cache:
+          steps:
+            - run:
+                command: ./gradlew classes
+                name: Compiling main classes
+            - save_cache:
+                key: v4-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
+                paths:
+                  - ~/.gradle
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - build
+                  - buildSrc/build
 
-      - save_cache:
-          key: v3-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
-          paths:
-            - ~/.gradle
+  check:
+    executor: jfx
+    steps:
+      - checkout
+      - with_cache:
+          steps:
+            - attach_workspace:
+                at: .
+            - run:
+                command: ./gradlew check
+                name: Running tests
+            - store_test_results:
+                path: build/test-results
+            - store_artifacts:
+                path: build/reports
 
-      - run:
-          command: ./gradlew test
-          name: Running unit tests
-          when: always
+  build:
+    executor: jfx
+    steps:
+      - checkout
+      - with_cache:
+          steps:
+            - attach_workspace:
+                at: .
+            - run:
+                command: ./gradlew distZip
+                name: Running tests
+            - store_artifacts:
+                path: build/distributions
+                destination: dist
 
-      - store_test_results:
-          path: build/test-results
+workflows:
+  full_workflow:
+    jobs:
+      - compile
+      - check:
+          requires:
+            - compile
+      - build:
+          requires:
+            - compile
