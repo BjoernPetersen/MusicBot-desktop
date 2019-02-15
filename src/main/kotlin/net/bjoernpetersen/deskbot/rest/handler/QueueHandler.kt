@@ -75,8 +75,8 @@ class QueueHandler @Inject constructor(
     private fun dequeue(ctx: RoutingContext) {
         ctx.async {
             ctx.require(Permission.SKIP)
-            val songId = ctx.request().getHeader("songId")!!
-            val providerId = ctx.request().getHeader("providerId")!!
+            val songId = ctx.queryParam("songId").first()!!
+            val providerId = ctx.queryParam("providerId").first()!!
             if (songId.isBlank() || providerId.isBlank()) {
                 throw StatusException(Status.BAD_REQUEST, "providerId and songId are required")
             }
