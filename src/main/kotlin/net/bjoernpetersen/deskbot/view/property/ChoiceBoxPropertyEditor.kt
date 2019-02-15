@@ -64,7 +64,11 @@ class ChoiceBoxPropertyEditor<T : Any>(
                 // TODO handle failure
                 if (data != null) {
                     val active = item.entry.get()
-                    choiceBox.items.setAll(data)
+                    val withEmpty = ArrayList<T?>(data.size + 1).apply {
+                        add(null)
+                        addAll(data)
+                    }
+                    choiceBox.items.setAll(withEmpty)
                     choiceBox.selectionModel.select(active)
                 }
             }
