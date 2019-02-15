@@ -60,7 +60,9 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
         player.addUiListener {
             pauseButton.isSelected = it is PauseState
 
-            enqueuer.text = it.entry?.user?.name ?: res["description.suggested"]
+            enqueuer.text = it.entry?.let { entry ->
+                entry.user?.name ?: res["description.suggested"]
+            }
             title.text = it.entry?.song?.title
             description.text = it.entry?.song?.description
             duration.text = it.entry?.song?.duration?.let { total ->
