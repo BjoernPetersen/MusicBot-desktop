@@ -6,16 +6,21 @@ import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
+import net.bjoernpetersen.musicbot.api.config.FileChooser
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.SerializationException
+import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.id
-import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Named
 
-class MainConfigEntries(
+class MainConfigEntries @Inject constructor(
     configManager: ConfigManager,
-    dependencyManager: DependencyManager,
+    pluginFinder: PluginFinder,
+    @Named("PluginClassLoader")
     classLoader: ClassLoader) {
 
     private val plain = configManager[MainConfigScope].plain
@@ -24,9 +29,9 @@ class MainConfigEntries(
     val defaultSuggester = configManager[MainConfigScope].plain.SerializedEntry(
         key = "defaultSuggester",
         description = "The suggester providing songs if the queue is empty",
-        serializer = SuggesterSerializer(classLoader, dependencyManager),
+        serializer = SuggesterSerializer(classLoader, pluginFinder),
         configChecker = { null },
-        uiNode = ChoiceBox({ it.name }, { dependencyManager.findEnabledSuggester() }, true))
+        uiNode = ChoiceBox({ it.name }, { pluginFinder.suggesters }))
 
     val defaultPermissions: Config.SerializedEntry<Set<Permission>> = plain.SerializedEntry(
         key = "defaultPermissions",
@@ -35,8 +40,21 @@ class MainConfigEntries(
         configChecker = NonnullConfigChecker,
         default = Permission.getDefaults())
 
+    val storageDir: Config.SerializedEntry<File> = plain.SerializedEntry(
+        key = "storageDir",
+        description = "Directory to store plugin files in." +
+            " This should preferably be somewhere with a lot of free space.",
+        serializer = FileConfigSerializer,
+        configChecker = {
+            if (it != null && it.isDirectory) null
+            else "Must be an existing directory"
+        },
+        uiNode = FileChooser(),
+        default = File("storage"))
+
     val allPlain: List<Config.Entry<*>> = listOf(
-        defaultSuggester
+        defaultSuggester,
+        storageDir
     )
     val allSecret: List<Config.Entry<*>> = listOf(
     )
@@ -44,7 +62,7 @@ class MainConfigEntries(
 
 private class SuggesterSerializer(
     private val classLoader: ClassLoader,
-    private val dependencyManager: DependencyManager) : ConfigSerializer<Suggester> {
+    private val pluginFinder: PluginFinder) : ConfigSerializer<Suggester> {
 
     override fun serialize(obj: Suggester): String {
         return obj.id.qualifiedName!!
@@ -57,7 +75,7 @@ private class SuggesterSerializer(
         } catch (e: ClassNotFoundException) {
             throw SerializationException()
         } as Class<out Suggester>
-        return dependencyManager.getDefault(type.kotlin) ?: throw SerializationException()
+        return pluginFinder[type.kotlin] ?: throw SerializationException()
     }
 }
 

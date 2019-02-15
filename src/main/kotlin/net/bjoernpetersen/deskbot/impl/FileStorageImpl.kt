@@ -3,13 +3,12 @@ package net.bjoernpetersen.deskbot.impl
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.util.FileStorage
 import java.io.File
+import javax.inject.Inject
 
-class FileStorageImpl : FileStorage {
-    // TODO should be configurable
-    private val parent = File("storage")
-
+class FileStorageImpl @Inject private constructor(mainConfig: MainConfigEntries) : FileStorage {
+    private val root: File = mainConfig.storageDir.get()!!
     override fun forPlugin(plugin: Plugin, clean: Boolean): File {
-        val dir = File(parent, plugin::class.qualifiedName)
+        val dir = File(root, plugin::class.qualifiedName)
         if (dir.isDirectory && clean) {
             dir.walkBottomUp()
                 .filter { it != dir }

@@ -124,7 +124,7 @@ class Lifecyclist {
     fun inject(browserOpener: BrowserOpener) = staged(Stage.Created) {
         pluginFinder = dependencyManager.finish()
 
-        mainConfig = MainConfigEntries(configManager, dependencyManager, classLoader)
+        mainConfig = MainConfigEntries(configManager, pluginFinder, classLoader)
 
         val suggester = mainConfig.defaultSuggester.get()
         logger.info { "Default suggester: ${suggester?.name}" }
