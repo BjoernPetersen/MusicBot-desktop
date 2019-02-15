@@ -52,8 +52,8 @@ class SuggesterHandler @Inject constructor(
         ctx.async {
             ctx.require(Permission.DISLIKE)
             val suggesterId = ctx.pathParam("suggesterId")!!
-            val providerId = ctx.pathParam("providerId")!!
-            val songId = ctx.pathParam("songId")!!
+            val providerId = ctx.queryParam("providerId").first()
+            val songId = ctx.queryParam("songId").first()
             val suggester = pluginFinder.findSuggester(suggesterId, classLoader)
             val provider = pluginFinder.findProvider(providerId, classLoader)
             val song = provider.lookup(songId)
