@@ -36,7 +36,7 @@ class SuggesterHandler @Inject constructor(
     private fun suggestSongs(ctx: RoutingContext) {
         ctx.async {
             val suggesterId = ctx.pathParam("suggesterId")!!
-            val max = ctx.pathParam("max").toInt()
+            val max = ctx.queryParam("max").firstOrNull()?.toInt() ?: 32
             val suggester = pluginFinder.findSuggester(suggesterId, classLoader)
             suggester.getNextSuggestions(max)
         } success {
