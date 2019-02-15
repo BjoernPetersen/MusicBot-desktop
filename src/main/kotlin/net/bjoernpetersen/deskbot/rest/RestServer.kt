@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
-import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.json.Json
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
+import io.vertx.kotlin.core.http.httpServerOptionsOf
 import io.vertx.kotlin.ext.web.api.contract.routerFactoryOptionsOf
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.rest.handler.BasicSecurityHandler
@@ -59,11 +59,7 @@ class RestServer @Inject constructor(
                 }
                 router.route().failureHandler(FailureHandler())
 
-                val serverOptions = HttpServerOptions().apply {
-                    // TODO these should be in some config
-                    host = "localhost"
-                    port = 42945
-                }
+                val serverOptions = httpServerOptionsOf(port = 42945)
                 val server = vertx.createHttpServer(serverOptions)
                 server.requestHandler(router).listen()
                 startFuture.complete()
