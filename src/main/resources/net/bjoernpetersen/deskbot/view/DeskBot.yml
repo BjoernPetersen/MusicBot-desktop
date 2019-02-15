@@ -17,12 +17,13 @@ action:
   reset: Reset
 
 window:
+  overview: DeskBot
   dependencies: Dependencies
-  config: Configuration
+  config: DeskBot configuration
   initialization: Initializing...
-  player: Player
+  player: DeskBot player
   userManagement: User management
-  defaultPermission: Default user permissions
+  defaultPermission: Default permission config
 
 dependency:
   dependencies: Dependencies

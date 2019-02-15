@@ -12,8 +12,6 @@ class DeskBot : Application() {
     private val logger = KotlinLogging.logger {}
 
     override fun start(primaryStage: Stage) {
-        primaryStage.title = "DeskBot"
-
         primaryStage.scene = Scene(load<Overview>().root)
         primaryStage.show()
     }
