@@ -1,3 +1,4 @@
-# MusicBot-desktop
+# MusicBot-desktop [![CircleCI](https://circleci.com/gh/BjoernPetersen/MusicBot-desktop/tree/develop.svg?style=svg)](https://circleci.com/gh/BjoernPetersen/MusicBot-desktop/tree/develop)
 
-MusicBot implementation for desktop operating Systems (Windows, Linux, Mac). Works on desktop computers with Java 8 and JavaFX installed.
+MusicBot implementation for desktop machines (Windows, Linux, Mac).
+Requires Java 8 and JavaFX to be installed.
