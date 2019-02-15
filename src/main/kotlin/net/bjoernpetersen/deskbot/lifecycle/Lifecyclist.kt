@@ -8,6 +8,7 @@ import javafx.application.Platform
 import javafx.concurrent.Task
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
+import net.bjoernpetersen.deskbot.impl.Broadcaster
 import net.bjoernpetersen.deskbot.impl.FileConfigStorage
 import net.bjoernpetersen.deskbot.impl.FileStorageImpl
 import net.bjoernpetersen.deskbot.impl.MainConfigEntries
@@ -64,6 +65,9 @@ class Lifecyclist {
     private lateinit var pluginFinder: PluginFinder
     private lateinit var injector: Injector
     private lateinit var mainConfig: MainConfigEntries
+
+    // Run stage vars
+    private lateinit var broadcaster: Broadcaster
 
     private fun <T> staged(stage: Stage, exact: Boolean = true, action: () -> T): T {
         if (exact) {
@@ -166,6 +170,8 @@ class Lifecyclist {
             val rest = injector.getInstance(RestServer::class.java)
             vertx.deployVerticle(rest)
 
+            broadcaster = Broadcaster().apply { start() }
+
             DeskBot.runningInstance = this
             stage = Stage.Running
             result(null)
@@ -173,6 +179,12 @@ class Lifecyclist {
     }
 
     fun stop() = staged(Stage.Running) {
+        try {
+            broadcaster.close()
+        } catch (e: Exception) {
+            logger.error(e) { "Could not close broadcaster" }
+        }
+
         val stopper = InstanceStopper(injector).apply {
             register(Vertx::class.java) { vertx ->
                 val lock: Lock = ReentrantLock()
