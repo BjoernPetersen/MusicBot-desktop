@@ -1,7 +1,12 @@
 package net.bjoernpetersen.deskbot.impl
 
+import javafx.application.Platform
 import mu.KotlinLogging
+import net.bjoernpetersen.deskbot.view.DefaultPermissionConfig
+import net.bjoernpetersen.deskbot.view.load
+import net.bjoernpetersen.deskbot.view.show
 import net.bjoernpetersen.musicbot.api.auth.Permission
+import net.bjoernpetersen.musicbot.api.config.ActionButton
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
@@ -14,8 +19,11 @@ import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.id
 import java.io.File
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.concurrent.withLock
 
 class MainConfigEntries @Inject constructor(
     configManager: ConfigManager,
@@ -35,9 +43,25 @@ class MainConfigEntries @Inject constructor(
 
     val defaultPermissions: Config.SerializedEntry<Set<Permission>> = plain.SerializedEntry(
         key = "defaultPermissions",
-        description = "",
+        description = "Permissions for new users and guests",
         serializer = PermissionSetSerializer,
         configChecker = NonnullConfigChecker,
+        uiNode = ActionButton("Edit", { it.sorted().joinToString() }) {
+            val lock: Lock = ReentrantLock()
+            val cond = lock.newCondition()
+            lock.withLock {
+                Platform.runLater {
+                    load<DefaultPermissionConfig>().apply {
+                        configEntry = defaultPermissions()
+                        root.show(modal = true, wait = true)
+                    }
+                    lock.withLock { cond.signal() }
+                }
+
+                cond.await()
+            }
+            true
+        },
         default = Permission.getDefaults())
 
     val storageDir: Config.SerializedEntry<File> = plain.SerializedEntry(
@@ -54,10 +78,13 @@ class MainConfigEntries @Inject constructor(
 
     val allPlain: List<Config.Entry<*>> = listOf(
         defaultSuggester,
-        storageDir
+        storageDir,
+        defaultPermissions
     )
     val allSecret: List<Config.Entry<*>> = listOf(
     )
+
+    private fun defaultPermissions() = defaultPermissions
 }
 
 private class SuggesterSerializer(
@@ -82,7 +109,8 @@ private class SuggesterSerializer(
 private object PermissionSetSerializer : ConfigSerializer<Set<Permission>> {
     private val logger = KotlinLogging.logger { }
     override fun deserialize(string: String): Set<Permission> {
-        return string
+        return if (string == "NONE") emptySet()
+        else string
             .split(',')
             .mapNotNull {
                 try {
@@ -96,7 +124,8 @@ private object PermissionSetSerializer : ConfigSerializer<Set<Permission>> {
     }
 
     override fun serialize(obj: Set<Permission>): String {
-        return obj.joinToString(",") { it.label }
+        return if (obj.isEmpty()) "NONE"
+        else obj.joinToString(",") { it.label }
     }
 
 }

@@ -14,6 +14,7 @@ action:
   refresh: Refresh
   close: Close
   userManagement: Manage users
+  reset: Reset
 
 window:
   dependencies: Dependencies
@@ -21,6 +22,7 @@ window:
   initialization: Initializing...
   player: Player
   userManagement: User management
+  defaultPermission: Default user permissions
 
 dependency:
   dependencies: Dependencies
@@ -36,6 +38,8 @@ description:
   permission: >
     Check the permissions a user should have.
     Users may need to refresh their permissions before they are applied in the client.
+  defaultPermissionConfig: >
+    Select the permissions new users and guest users should have.
 
 task:
   parent:

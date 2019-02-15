@@ -35,7 +35,5 @@ class MainConfig : Controller {
                         .map { ConfigEntryItem.forEntry(it, true) })
             }
         }
-
-        // TODO show default permissions
     }
 }
