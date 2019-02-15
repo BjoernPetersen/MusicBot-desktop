@@ -41,7 +41,6 @@ spotbugs {
 }
 
 configurations.all {
-    // TODO remove or comment out when MusicBot refactor is released
     resolutionStrategy.cacheChangingModulesFor(1, TimeUnit.MINUTES)
 }
 
@@ -94,13 +93,10 @@ dependencies {
     implementation(
         group = "com.github.bjoernpetersen",
         name = "musicbot",
-        version = Lib.MUSICBOT) {
-        isChanging = true
-    }
+        version = Lib.MUSICBOT)
 
     // Vertx
     implementation(group = "io.vertx", name = "vertx-web-api-contract", version = Lib.VERTX)
-    implementation("io.swagger.parser.v3:swagger-parser-v3:2.0.5")
     implementation(group = "io.vertx", name = "vertx-lang-kotlin", version = Lib.VERTX) {
         exclude(group = "org.jetbrains.kotlin")
     }
