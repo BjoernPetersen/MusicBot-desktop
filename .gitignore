@@ -65,3 +65,4 @@ gradle.properties
 /state/
 /plugins/
 UserDatabase.db
+/storage/
