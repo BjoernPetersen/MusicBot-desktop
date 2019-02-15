@@ -36,7 +36,6 @@ class DefaultPermissionConfig : Controller {
         Permission.values().forEach { permission ->
             val checked = permissionList.getItemBooleanProperty(permission)
             checked.addListener { _, _, isEnabled ->
-                logger.debug { "${permission.label} enabled: $isEnabled" }
                 if (isEnabled) permissions.add(permission)
                 else permissions.remove(permission)
                 configEntry?.set(permissions)
