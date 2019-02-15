@@ -60,19 +60,25 @@ class Overview : Controller {
     private fun start(event: ActionEvent? = null) {
         logger.debug { "Start button pressed." }
         val cycle = Lifecyclist()
-        cycle.create(File("plugins"))
-        cycle.inject(SwingBrowserOpener())
-        cycle.run {
-            if (it != null) {
-                logger.error(it) { "Failed to start" }
-                ExceptionDialog(it).apply {
-                    headerText = "An exception occurred while starting the bot"
-                }.showAndWait()
-                load<Overview>().root.show()
-            } else {
-                val playerUi = Player(cycle)
-                replaceWindow(load(playerUi).root)
+        try {
+            cycle.create(File("plugins"))
+            cycle.inject(SwingBrowserOpener())
+            cycle.run {
+                if (it != null) {
+                    logger.error(it) { "Failed to start" }
+                    ExceptionDialog(it).apply {
+                        headerText = "An exception occurred while starting the bot"
+                    }.showAndWait()
+                    load<Overview>().root.show()
+                } else {
+                    val playerUi = Player(cycle)
+                    replaceWindow(load(playerUi).root)
+                }
             }
+        } catch (e: Throwable) {
+            ExceptionDialog(e).apply {
+                headerText = "Could not initialize bot"
+            }.show()
         }
     }
 
