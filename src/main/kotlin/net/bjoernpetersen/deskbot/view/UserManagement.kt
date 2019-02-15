@@ -13,7 +13,6 @@ class UserManagement : Controller {
     override lateinit var root: Region
         private set
 
-    private val res = DeskBot.resources
     private lateinit var userManager: UserManager
 
     @FXML
@@ -24,7 +23,7 @@ class UserManagement : Controller {
 
     @FXML
     override fun initialize() {
-        Platform.runLater { stage.title = res["window.userManagement"] }
+        Platform.runLater { stage.title = DeskBot.resources["window.userManagement"] }
         userList.setCellFactory {
             TextFieldListCell(stringConverter { it?.name })
         }
@@ -32,6 +31,7 @@ class UserManagement : Controller {
             permissionManagementController.setUser(userManager, user) { updatedUser ->
                 val index = userList.items.indexOfFirst { updatedUser.name == it.name }
                 userList.items[index] = updatedUser
+                userList.selectionModel.select(index)
             }
         }
     }
