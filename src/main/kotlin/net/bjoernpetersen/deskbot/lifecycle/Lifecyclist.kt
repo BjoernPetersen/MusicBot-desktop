@@ -18,6 +18,7 @@ import net.bjoernpetersen.deskbot.rest.RestServer
 import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.get
 import net.bjoernpetersen.deskbot.view.show
+import net.bjoernpetersen.musicbot.api.auth.BotUser
 import net.bjoernpetersen.musicbot.api.auth.DefaultPermissions
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
@@ -33,12 +34,16 @@ import net.bjoernpetersen.musicbot.api.module.FileStorageModule
 import net.bjoernpetersen.musicbot.api.module.InstanceStopper
 import net.bjoernpetersen.musicbot.api.module.PluginClassLoaderModule
 import net.bjoernpetersen.musicbot.api.module.PluginModule
+import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
 import net.bjoernpetersen.musicbot.api.plugin.management.DefaultDependencyManager
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.player.Player
+import net.bjoernpetersen.musicbot.spi.player.SongQueue
+import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
+import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.category
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
@@ -47,8 +52,11 @@ import org.controlsfx.control.TaskProgressView
 import java.io.File
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
+import javax.inject.Inject
+import javax.inject.Named
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
+import kotlin.reflect.KClass
 
 class Lifecyclist {
     private val logger = KotlinLogging.logger {}
@@ -172,6 +180,8 @@ class Lifecyclist {
 
             broadcaster = Broadcaster().apply { start() }
 
+            injector.getInstance(QueueDumper::class.java).restoreQueue()
+
             DeskBot.runningInstance = this
             stage = Stage.Running
             result(null)
@@ -202,6 +212,7 @@ class Lifecyclist {
             }
         }
         stopper.stop()
+        injector.getInstance(QueueDumper::class.java).dumpQueue()
         stage = Stage.Stopped
     }
 
@@ -307,6 +318,55 @@ private class Initializer(private val finder: PluginFinder) {
             thread(isDaemon = true, name = "Init${plugin.category.simpleName}${plugin.name}") {
                 task.run()
             }
+        }
+    }
+}
+
+private class QueueDumper @Inject private constructor(
+    private val queue: SongQueue,
+    @Named("PluginClassLoader")
+    private val classLoader: ClassLoader,
+    private val pluginFinder: PluginFinder) {
+
+    fun dumpQueue() {
+        val file = File("queue.dump")
+        file.bufferedWriter().use { writer ->
+            queue.toList().asSequence()
+                .map { it.song }
+                .map { "${it.provider.id}|${it.id}\n" }
+                .forEach { writer.write(it) }
+        }
+    }
+
+    fun restoreQueue() {
+        val file = File("queue.dump")
+        if (!file.isFile) return
+        file.bufferedReader().useLines { lines ->
+            lines
+                .map { it.split('|') }
+                .filter { it.size == 2 }
+                .mapNotNull {
+                    try {
+                        classLoader.loadClass(it[0]).kotlin to it[1]
+                    } catch (e: ClassNotFoundException) {
+                        null
+                    }
+                }
+                .mapNotNull {
+                    @Suppress("UNCHECKED_CAST")
+                    pluginFinder[it.first as KClass<out Provider>]?.let { provider ->
+                        provider to it.second
+                    }
+                }
+                .mapNotNull {
+                    try {
+                        it.first.lookup(it.second)
+                    } catch (e: NoSuchSongException) {
+                        null
+                    }
+                }
+                .map { QueueEntry(it, BotUser) }
+                .forEach { queue.insert(it) }
         }
     }
 }

@@ -83,6 +83,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
         queueList.setCellFactory {
             TextFieldListCell(stringConverter { it?.song?.title })
         }
+        queue.toList().forEach { queueList.items.add(it) }
         queue.addUiListener(object : QueueChangeListener {
             override fun onAdd(entry: QueueEntry) {
                 queueList.items.add(entry)
