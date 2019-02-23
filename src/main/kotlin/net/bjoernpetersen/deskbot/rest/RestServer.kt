@@ -20,6 +20,7 @@ import net.bjoernpetersen.deskbot.rest.handler.SuggesterHandler
 import net.bjoernpetersen.deskbot.rest.handler.UserHandler
 import net.bjoernpetersen.deskbot.rest.handler.VersionHandler
 import net.bjoernpetersen.deskbot.rest.handler.VolumeHandler
+import net.bjoernpetersen.musicbot.ServerConstraints
 import javax.inject.Inject
 
 class RestServer @Inject constructor(
@@ -65,7 +66,9 @@ class RestServer @Inject constructor(
                 }
                 router.route().failureHandler(FailureHandler())
 
-                val serverOptions = httpServerOptionsOf(port = 42945)
+                val serverOptions = httpServerOptionsOf(
+                    port = ServerConstraints.port
+                )
                 val server = vertx.createHttpServer(serverOptions)
                 server.requestHandler(router).listen()
                 startFuture.complete()
