@@ -35,7 +35,14 @@ class ProviderHandler @Inject constructor(
         ctx.async {
             val id = ctx.pathParam("providerId")!!
             val provider = pluginFinder.findProvider(id, classLoader)
-            provider.search(ctx.queryParam("query").first())
+
+            val query = ctx.queryParam("query").first()
+            val offset = ctx.queryParam("offset").firstOrNull()?.toInt() ?: 0
+            val limit = ctx.queryParam("limit").firstOrNull()?.toInt()
+
+            // TODO if search gets a limit parameter, this should be changed
+            provider.search(query, offset)
+                .let { if (limit == null) it else it.subList(0, Math.min(limit, it.size)) }
         } success {
             ctx.response().end(it)
         } failure {
