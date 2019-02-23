@@ -11,7 +11,7 @@ sealed class ConfigEntryItem<T : Any>(
     private val type: KClass<T>,
     private val isSecret: Boolean) : PropertySheet.Item {
 
-    abstract val entry: Config.Entry<out T>
+    abstract val entry: Config.Entry<T>
 
     override fun getName(): String = entry.key
     override fun getDescription(): String = entry.description

@@ -36,7 +36,7 @@ class ActionButtonPropertyEditor<T : Any>(
             button.isDisable = true
             thread(name = "Action ${item.entry.key}", isDaemon = true) {
                 val success = try {
-                    actionButton.action()
+                    actionButton.action(item.entry)
                 } catch (e: Throwable) {
                     logger.error(e) { "Action button failed" }
                     false

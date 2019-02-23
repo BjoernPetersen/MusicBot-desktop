@@ -3,13 +3,25 @@ info:
   title: MusicBot
   description: >
     HTTP API for the MusicBot project.
-  version: 0.10.0
+  version: 0.11.0
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
 security:
   - Token: []
 paths:
+  /version:
+    get:
+      operationId: getVersion
+      summary: Retrieves version information about the bot.
+      security: []
+      responses:
+        200:
+          description: Information about the bot instance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionInfo'
   /user:
     get:
       operationId: getMe
@@ -94,7 +106,6 @@ paths:
       description: Deletes the user associated with the Authorization token.
       security:
         - Basic: []
-        - Token: []
       responses:
         204:
           description: Successfully deleted.
@@ -259,22 +270,32 @@ paths:
   /player/queue/order:
     put:
       operationId: moveEntry
-      summary: Moves a song entry to another index in the queue.
+      summary: Moves a entry in the queue.
+      description: >
+        Moves a song, which is already in the queue, to another position in the queue.
+        If the song is not in the queue, the queue is not changed.
       parameters:
         - name: index
           in: query
-          description: The index to move to.
+          description: >
+            The index to move to.
+            If the index is greater than the size of the queue, the entry will be moved to the end of the queue.
           schema:
             type: integer
             minimum: 0
           required: true
-      requestBody:
-        description: The song entry to move.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QueueEntry'
+        - name: songId
+          in: query
+          description: The ID of the moved song.
+          schema:
+            type: string
+          required: true
+        - name: providerId
+          in: query
+          description: The provider ID of the moved song.
+          schema:
+            type: string
+          required: true
       responses:
         200:
           $ref: '#/components/responses/Queue'
@@ -318,6 +339,21 @@ paths:
           required: true
           schema:
             type: string
+        - name: limit
+          in: query
+          description: The maximum size of the result array.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: offset
+          in: query
+          description: An offset for the resulting array to enable pagination.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+
       responses:
         200:
           description: A list of results.
@@ -435,7 +471,7 @@ paths:
           in: path
           description: the ID of the suggester.
           schema:
-           type: string
+            type: string
           required: true
         - name: songId
           in: query
@@ -463,8 +499,78 @@ paths:
             text/plain:
               schema:
                 type: string
+
+  /volume:
+    get:
+      operationId: getVolume
+      summary: Gets the current volume.
+      description: >
+        Gets the current volume. If the bot doesn't have the means to access/control the volume, the response will
+        indicate that, but still have the same format.
+      responses:
+        200:
+          description: The current volume.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Volume'
+    put:
+      operationId: setVolume
+      summary: Sets the current volume.
+      parameters:
+        - name: value
+          in: query
+          required: true
+          description: The new volume between 0 and 100.
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+      responses:
+        200:
+          description: >
+            The new volume information. Note that this might not reflect the requested value if volume control is
+            unsupported by the bot.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Volume'
+
 components:
   schemas:
+    VersionInfo:
+      description: Describes the bot version.
+      type: object
+      required:
+        - apiVersion
+        - implementation
+      properties:
+        apiVersion:
+          example: 1.0.0
+          description: The API version.
+          type: string
+        implementation:
+          $ref: "#/components/schemas/ImplementationInfo"
+    ImplementationInfo:
+      description: Information about the implementation serving the API.
+      type: object
+      required:
+        - name
+        - version
+      properties:
+        name:
+          description: The name of the server implementation.
+          example: DeskBot
+          type: string
+        version:
+          description: The version of the implementation.
+          example: 1.0.0
+          type: string
+        projectInfo:
+          description: URL to the project website.
+          example: https://github.com/BjoernPetersen/MusicBot-desktop
+          type: string
+
     NamedPlugin:
       type: object
       required:
@@ -616,6 +722,23 @@ components:
           type: array
           items:
             type: string
+    Volume:
+      type: object
+      description: >
+        Information about the bot volume.
+      required:
+        - volume
+        - isSupported
+      properties:
+        volume:
+          description: The volume between 0 and 100.
+          type: integer
+          minimum: 0
+          maximum: 100
+        isSupported:
+          description: Whether volume control is actually supported by the bot.
+          type: boolean
+
   securitySchemes:
     Token:
       type: http

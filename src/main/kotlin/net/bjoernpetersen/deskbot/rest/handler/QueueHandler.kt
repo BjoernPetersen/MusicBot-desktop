@@ -7,15 +7,11 @@ import net.bjoernpetersen.deskbot.rest.NotFoundException
 import net.bjoernpetersen.deskbot.rest.Status
 import net.bjoernpetersen.deskbot.rest.StatusException
 import net.bjoernpetersen.deskbot.rest.async
-import net.bjoernpetersen.deskbot.rest.bodyAs
 import net.bjoernpetersen.deskbot.rest.end
 import net.bjoernpetersen.deskbot.rest.findProvider
 import net.bjoernpetersen.deskbot.rest.model.CoreQueueEntry
-import net.bjoernpetersen.deskbot.rest.model.QueueEntry
-import net.bjoernpetersen.deskbot.rest.model.toCore
 import net.bjoernpetersen.deskbot.rest.model.toModel
 import net.bjoernpetersen.musicbot.api.auth.Permission
-import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.player.PlayerHistory
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
@@ -23,12 +19,11 @@ import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import javax.inject.Inject
 import javax.inject.Named
 
-class QueueHandler @Inject constructor(
+class QueueHandler @Inject private constructor(
     private val queue: SongQueue,
     private val pluginFinder: PluginFinder,
     @Named("PluginClassLoader")
     private val classLoader: ClassLoader,
-    private val userManager: UserManager,
     private val playerHistory: PlayerHistory) : HandlerController {
 
     override fun register(routerFactory: OpenAPI3RouterFactory) {
@@ -99,9 +94,15 @@ class QueueHandler @Inject constructor(
     private fun moveEntry(ctx: RoutingContext) {
         ctx.async {
             ctx.require(Permission.MOVE)
-            val entry = ctx.bodyAs<QueueEntry>()
+
+            val providerId = ctx.queryParam("providerId").first()
+            val provider = pluginFinder.findProvider(providerId, classLoader)
+
+            val songId = ctx.queryParam("songId").first()
+            val song = provider.lookup(songId)
+
             val index = ctx.queryParam("index").first().toInt()
-            queue.move(entry.toCore(userManager), index)
+            queue.move(song, index)
             queue.toModel()
         } success {
             ctx.response().end(it)

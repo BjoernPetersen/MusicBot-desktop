@@ -64,6 +64,14 @@ tasks {
         kotlinOptions.jvmTarget = "1.8"
     }
 
+    "processResources"(ProcessResources::class) {
+        filesMatching("**/version.properties") {
+            filter {
+                it.replace("%APP_VERSION%", version.toString())
+            }
+        }
+    }
+
     "test"(Test::class) {
         useJUnitPlatform()
     }

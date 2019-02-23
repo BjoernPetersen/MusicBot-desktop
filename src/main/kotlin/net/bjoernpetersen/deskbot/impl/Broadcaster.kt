@@ -2,6 +2,7 @@ package net.bjoernpetersen.deskbot.impl
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.ServerConstraints
 import java.io.Closeable
 import java.io.IOException
 import java.net.DatagramPacket
@@ -12,17 +13,14 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-// TODO these should be in the core library
-private const val MESSAGE = "MusicBot"
-private const val PORT = 42945
-private const val GROUP_ADDRESS = "224.0.0.142"
+private typealias Constraints = ServerConstraints.Broadcast
 
 class Broadcaster @Throws(IOException::class) constructor() : Closeable {
 
     private val logger = KotlinLogging.logger {}
 
-    private val groupAddress: InetAddress = InetAddress.getByName(GROUP_ADDRESS)
-    private val message: ByteArray = MESSAGE.toByteArray(Charsets.UTF_8)
+    private val groupAddress: InetAddress = InetAddress.getByName(Constraints.groupAdress)
+    private val message: ByteArray = Constraints.message.toByteArray(Charsets.UTF_8)
     private val scheduler: ScheduledExecutorService = Executors
         .newSingleThreadScheduledExecutor(ThreadFactoryBuilder()
             .setDaemon(true)
@@ -68,7 +66,7 @@ class Broadcaster @Throws(IOException::class) constructor() : Closeable {
     }
 
     private fun createPacket(): DatagramPacket {
-        return DatagramPacket(message, message.size, groupAddress, PORT)
+        return DatagramPacket(message, message.size, groupAddress, Constraints.port)
     }
 
     @Throws(IOException::class)

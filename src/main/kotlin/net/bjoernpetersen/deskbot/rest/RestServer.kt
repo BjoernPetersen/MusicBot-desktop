@@ -18,16 +18,20 @@ import net.bjoernpetersen.deskbot.rest.handler.ProviderHandler
 import net.bjoernpetersen.deskbot.rest.handler.QueueHandler
 import net.bjoernpetersen.deskbot.rest.handler.SuggesterHandler
 import net.bjoernpetersen.deskbot.rest.handler.UserHandler
+import net.bjoernpetersen.deskbot.rest.handler.VersionHandler
+import net.bjoernpetersen.deskbot.rest.handler.VolumeHandler
 import javax.inject.Inject
 
 class RestServer @Inject constructor(
     private val bearerSecurityHandler: BearerSecurityHandler,
     private val basicSecurityHandler: BasicSecurityHandler,
+    private val versionHandler: VersionHandler,
     private val userHandler: UserHandler,
     private val playerHandler: PlayerHandler,
     private val queueHandler: QueueHandler,
     private val providerHandler: ProviderHandler,
-    private val suggesterHandler: SuggesterHandler) : AbstractVerticle() {
+    private val suggesterHandler: SuggesterHandler,
+    private val volumeHandler: VolumeHandler) : AbstractVerticle() {
 
     private val logger = KotlinLogging.logger {}
 
@@ -41,11 +45,13 @@ class RestServer @Inject constructor(
                     mountNotImplementedHandler = true) // TODO remove
 
                 routerFactory
+                    .register(versionHandler)
                     .register(userHandler)
                     .register(playerHandler)
                     .register(queueHandler)
                     .register(providerHandler)
                     .register(suggesterHandler)
+                    .register(volumeHandler)
 
                 routerFactory.addSecurityHandler("Token", bearerSecurityHandler)
                 routerFactory.addSecurityHandler("Basic", basicSecurityHandler)
