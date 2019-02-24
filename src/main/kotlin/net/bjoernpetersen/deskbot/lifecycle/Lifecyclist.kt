@@ -142,15 +142,10 @@ class Lifecyclist {
         logger.info { "Default suggester: ${suggester?.name}" }
 
         injector = Guice.createInjector(modules(browserOpener, suggester))
-        sequenceOf(
-            pluginFinder.genericPlugins,
-            pluginFinder.playbackFactories,
-            pluginFinder.providers,
-            pluginFinder.suggesters)
-            .flatMap { it.asSequence() }
-            .forEach {
-                injector.injectMembers(it)
-            }
+
+        pluginFinder.allPlugins().forEach {
+            injector.injectMembers(it)
+        }
 
         pluginFinder.allPlugins().forEach {
             val configs = configManager[PluginConfigScope(it::class)]
