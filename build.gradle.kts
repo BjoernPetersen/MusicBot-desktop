@@ -6,9 +6,9 @@ plugins {
 
     kotlin("jvm") version Plugin.KOTLIN
     application
-    id("org.jetbrains.dokka") version Plugin.DOKKA
     idea
 
+    id("org.jetbrains.dokka") version Plugin.DOKKA
     id("com.github.spotbugs") version Plugin.SPOTBUGS_PLUGIN
 }
 
@@ -89,19 +89,23 @@ dependencies {
     implementation(
         group = "io.github.microutils",
         name = "kotlin-logging",
-        version = Lib.KOTLIN_LOGGING)
+        version = Lib.KOTLIN_LOGGING
+    )
     implementation(
         group = "org.slf4j",
         name = "slf4j-api",
-        version = Lib.SLF4J)
+        version = Lib.SLF4J
+    )
     implementation(
         group = "org.slf4j",
         name = "slf4j-simple",
-        version = Lib.SLF4J)
+        version = Lib.SLF4J
+    )
     implementation(
         group = "com.github.bjoernpetersen",
         name = "musicbot",
-        version = Lib.MUSICBOT)
+        version = Lib.MUSICBOT
+    )
 
     // Vertx
     implementation(group = "io.vertx", name = "vertx-web-api-contract", version = Lib.VERTX)
@@ -115,28 +119,34 @@ dependencies {
     implementation(
         group = "com.fasterxml.jackson.core",
         name = "jackson-databind",
-        version = Lib.JACKSON)
+        version = Lib.JACKSON
+    )
     implementation(
         group = "com.fasterxml.jackson.module",
         name = "jackson-module-kotlin",
-        version = Lib.JACKSON)
+        version = Lib.JACKSON
+    )
     implementation(
         group = "com.fasterxml.jackson.dataformat",
         name = "jackson-dataformat-yaml",
-        version = Lib.JACKSON)
+        version = Lib.JACKSON
+    )
 
     testRuntime(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
-        version = Lib.JUNIT)
+        version = Lib.JUNIT
+    )
     testImplementation(
         group = "org.junit.jupiter",
         name = "junit-jupiter-api",
-        version = Lib.JUNIT)
+        version = Lib.JUNIT
+    )
     testImplementation(
         group = "name.falgout.jeffrey.testing.junit5",
         name = "guice-extension",
-        version = Lib.JUNIT_GUICE)
+        version = Lib.JUNIT_GUICE
+    )
     testImplementation(group = "io.mockk", name = "mockk", version = Lib.MOCK_K)
     testImplementation(group = "org.assertj", name = "assertj-core", version = Lib.ASSERT_J)
 }
