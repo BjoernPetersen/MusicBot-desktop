@@ -96,7 +96,7 @@ dependencies {
         name = "slf4j-api",
         version = Lib.SLF4J
     )
-    implementation(
+    runtime(
         group = "org.slf4j",
         name = "slf4j-simple",
         version = Lib.SLF4J
