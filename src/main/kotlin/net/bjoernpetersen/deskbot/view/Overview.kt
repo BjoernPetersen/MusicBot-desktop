@@ -4,6 +4,7 @@ import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.layout.Region
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.SwingBrowserOpener
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
@@ -63,16 +64,18 @@ class Overview : Controller {
         try {
             cycle.create(File("plugins"))
             cycle.inject(SwingBrowserOpener())
-            cycle.run {
-                if (it != null) {
-                    logger.error(it) { "Failed to start" }
-                    ExceptionDialog(it).apply {
-                        headerText = "An exception occurred while starting the bot"
-                    }.showAndWait()
-                    load<Overview>().root.show()
-                } else {
-                    val playerUi = Player(cycle)
-                    replaceWindow(load(playerUi).root)
+            runBlocking {
+                cycle.run {
+                    if (it != null) {
+                        logger.error(it) { "Failed to start" }
+                        ExceptionDialog(it).apply {
+                            headerText = "An exception occurred while starting the bot"
+                        }.showAndWait()
+                        load<Overview>().root.show()
+                    } else {
+                        val playerUi = Player(cycle)
+                        replaceWindow(load(playerUi).root)
+                    }
                 }
             }
         } catch (e: Throwable) {

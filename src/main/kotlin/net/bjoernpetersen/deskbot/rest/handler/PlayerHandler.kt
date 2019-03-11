@@ -3,7 +3,6 @@ package net.bjoernpetersen.deskbot.rest.handler
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
 import net.bjoernpetersen.deskbot.rest.HandlerController
-import net.bjoernpetersen.deskbot.rest.async
 import net.bjoernpetersen.deskbot.rest.bodyAs
 import net.bjoernpetersen.deskbot.rest.end
 import net.bjoernpetersen.deskbot.rest.model.PlayerStateAction
@@ -15,7 +14,7 @@ import javax.inject.Inject
 
 class PlayerHandler @Inject constructor(private val player: Player) : HandlerController {
 
-    override fun register(routerFactory: OpenAPI3RouterFactory) {
+    override suspend fun register(routerFactory: OpenAPI3RouterFactory) {
         routerFactory.addHandlerByOperationId("getPlayerState", ::getPlayerState)
         routerFactory.addHandlerByOperationId("setPlayerState", ::setPlayerState)
     }
@@ -24,34 +23,25 @@ class PlayerHandler @Inject constructor(private val player: Player) : HandlerCon
         ctx.response().end(player.state.toModel())
     }
 
-    private fun resume(ctx: RoutingContext) {
-        ctx.async {
-            ctx.require(Permission.PAUSE)
-            player.play()
-        } success {
-            getPlayerState(ctx)
-        } failure { ctx.fail(it) }
+    private suspend fun resume(ctx: RoutingContext) {
+        ctx.require(Permission.PAUSE)
+        player.play()
+        getPlayerState(ctx)
     }
 
-    private fun pause(ctx: RoutingContext) {
-        ctx.async {
-            ctx.require(Permission.PAUSE)
-            player.pause()
-        } success {
-            getPlayerState(ctx)
-        } failure { ctx.fail(it) }
+    private suspend fun pause(ctx: RoutingContext) {
+        ctx.require(Permission.PAUSE)
+        player.pause()
+        getPlayerState(ctx)
     }
 
-    private fun skip(ctx: RoutingContext) {
-        ctx.async {
-            ctx.require(Permission.SKIP)
-            player.next()
-        } success {
-            getPlayerState(ctx)
-        } failure { ctx.fail(it) }
+    private suspend fun skip(ctx: RoutingContext) {
+        ctx.require(Permission.SKIP)
+        player.next()
+        getPlayerState(ctx)
     }
 
-    private fun setPlayerState(ctx: RoutingContext) {
+    private suspend fun setPlayerState(ctx: RoutingContext) {
         when (ctx.bodyAs<PlayerStateChange>().action) {
             PlayerStateAction.PLAY -> resume(ctx)
             PlayerStateAction.PAUSE -> pause(ctx)

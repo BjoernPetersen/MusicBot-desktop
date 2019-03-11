@@ -1,43 +1,32 @@
 package net.bjoernpetersen.deskbot.fximpl
 
-import javafx.application.Platform
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import net.bjoernpetersen.deskbot.view.DeskBot
-import net.bjoernpetersen.deskbot.view.get
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.category
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
+import kotlin.coroutines.CoroutineContext
 
-class FxInitStateWriter(
-    private val updateTitle: (String) -> Unit,
-    private val updateMessage: (String) -> Unit) : InitStateWriter {
+class FxInitStateWriter(private val updateMessage: (String) -> Unit) : InitStateWriter,
+    CoroutineScope {
 
-    private val res = DeskBot.resources
     private val logger = KotlinLogging.logger { }
-    private lateinit var plugin: Plugin
 
-    override fun begin(plugin: Plugin) {
-        Platform.runLater {
-            updateTitle(res["task.plugin.title"].format(plugin.category.simpleName, plugin.name))
-        }
-    }
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
     override fun state(state: String) {
-        Platform.runLater {
+        launch {
             updateMessage(state)
         }
     }
 
     override fun warning(warning: String) {
-        Platform.runLater {
+        launch {
             updateMessage("WARNING: $warning")
-            logger.warn { "${plugin.describe()}: $warning" }
-        }
-    }
-
-    override fun close() {
-        Platform.runLater {
-            updateMessage("Done.")
+            logger.warn { warning }
         }
     }
 }

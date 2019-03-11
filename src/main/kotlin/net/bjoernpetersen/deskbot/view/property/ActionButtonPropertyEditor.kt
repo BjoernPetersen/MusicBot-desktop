@@ -1,6 +1,5 @@
 package net.bjoernpetersen.deskbot.view.property
 
-import javafx.application.Platform
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Orientation
@@ -12,10 +11,13 @@ import javafx.scene.control.ToolBar
 import javafx.scene.layout.Background
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ActionButton
 import org.controlsfx.property.editor.PropertyEditor
-import kotlin.concurrent.thread
 
 class ActionButtonPropertyEditor<T : Any>(
     private val item: ConfigEntryItem<T>,
@@ -34,7 +36,7 @@ class ActionButtonPropertyEditor<T : Any>(
         val button = editor.button
         button.setOnAction {
             button.isDisable = true
-            thread(name = "Action ${item.entry.key}", isDaemon = true) {
+            CoroutineScope(Dispatchers.Default).launch {
                 val success = try {
                     actionButton.action(item.entry)
                 } catch (e: Throwable) {
@@ -45,7 +47,7 @@ class ActionButtonPropertyEditor<T : Any>(
                 // TODO react to failure
                 logger.debug { "Action successful: $success" }
 
-                Platform.runLater {
+                withContext(Dispatchers.Main) {
                     button.isDisable = false
                     observableValue.value = item.entry.get()
                 }

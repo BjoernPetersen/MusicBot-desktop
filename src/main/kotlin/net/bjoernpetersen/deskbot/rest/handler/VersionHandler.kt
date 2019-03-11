@@ -21,7 +21,7 @@ class VersionHandler @Inject private constructor() : HandlerController {
 
     private val versionInfo: VersionInfo by lazy { loadInfo() }
 
-    override fun register(routerFactory: OpenAPI3RouterFactory) {
+    override suspend fun register(routerFactory: OpenAPI3RouterFactory) {
         routerFactory.addHandlerByOperationId("getVersion", ::getVersion)
     }
 
@@ -38,11 +38,13 @@ class VersionHandler @Inject private constructor() : HandlerController {
     private companion object {
         fun loadInfo(): VersionInfo {
             val implVersion = loadImplementationVersion()
-            return VersionInfo(API_VERSION, ImplementationInfo(
-                PROJECT_PAGE,
-                PROJECT_NAME,
-                implVersion
-            ))
+            return VersionInfo(
+                API_VERSION, ImplementationInfo(
+                    PROJECT_PAGE,
+                    PROJECT_NAME,
+                    implVersion
+                )
+            )
         }
 
         private fun loadImplementationVersion() = try {

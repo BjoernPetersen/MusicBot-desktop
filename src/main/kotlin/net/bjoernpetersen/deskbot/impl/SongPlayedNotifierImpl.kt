@@ -32,7 +32,7 @@ class SongPlayedNotifierImpl @Inject private constructor(
         }
     }
 
-    override fun notifyPlayed(songEntry: SongEntry) {
+    override suspend fun notifyPlayed(songEntry: SongEntry) {
         val permissions = songEntry.user?.permissions ?: return
 
         if (Permission.ALTER_SUGGESTIONS !in permissions) {

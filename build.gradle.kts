@@ -9,7 +9,6 @@ plugins {
     idea
 
     id("org.jetbrains.dokka") version Plugin.DOKKA
-    id("com.github.spotbugs") version Plugin.SPOTBUGS_PLUGIN
 }
 
 group = "com.github.bjoernpetersen"
@@ -17,7 +16,11 @@ version = "0.16.0-SNAPSHOT"
 
 repositories {
     jcenter()
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://oss.sonatype.org/content/repositories/snapshots") {
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
 }
 
 application {
@@ -28,16 +31,6 @@ idea {
     module {
         isDownloadJavadoc = true
     }
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-spotbugs {
-    isIgnoreFailures = true
-    toolVersion = Plugin.SPOTBUGS_TOOL
 }
 
 configurations.all {
@@ -84,18 +77,6 @@ tasks {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", Lib.KOTLIN))
-    implementation(kotlin("reflect", Lib.KOTLIN))
-    implementation(
-        group = "io.github.microutils",
-        name = "kotlin-logging",
-        version = Lib.KOTLIN_LOGGING
-    )
-    implementation(
-        group = "org.slf4j",
-        name = "slf4j-api",
-        version = Lib.SLF4J
-    )
     runtime(
         group = "org.slf4j",
         name = "slf4j-simple",
@@ -106,10 +87,18 @@ dependencies {
         name = "musicbot",
         version = Lib.MUSICBOT
     )
+    implementation(
+        group = "org.jetbrains.kotlinx",
+        name = "kotlinx-coroutines-javafx",
+        version = Lib.KOTLIN_COROUTINES
+    )
 
     // Vertx
     implementation(group = "io.vertx", name = "vertx-web-api-contract", version = Lib.VERTX)
     implementation(group = "io.vertx", name = "vertx-lang-kotlin", version = Lib.VERTX) {
+        exclude(group = "org.jetbrains.kotlin")
+    }
+    implementation(group = "io.vertx", name = "vertx-lang-kotlin-coroutines", version = Lib.VERTX) {
         exclude(group = "org.jetbrains.kotlin")
     }
 

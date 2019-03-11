@@ -4,9 +4,21 @@ import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
 import io.vertx.core.Vertx
+import io.vertx.kotlin.core.closeAwait
 import javafx.application.Platform
 import javafx.concurrent.Task
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import net.bjoernpetersen.deskbot.async.await
+import net.bjoernpetersen.deskbot.async.defer
+import net.bjoernpetersen.deskbot.async.pMap
+import net.bjoernpetersen.deskbot.async.pMapIfPresent
 import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
 import net.bjoernpetersen.deskbot.impl.Broadcaster
 import net.bjoernpetersen.deskbot.impl.FileConfigStorage
@@ -43,6 +55,7 @@ import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
+import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.category
@@ -53,13 +66,16 @@ import java.io.File
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
-import javax.inject.Named
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
-import kotlin.reflect.KClass
+import kotlin.coroutines.CoroutineContext
 
-class Lifecyclist {
+class Lifecyclist : CoroutineScope {
     private val logger = KotlinLogging.logger {}
+
+    private lateinit var job: Job
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default + job
 
     var stage: Stage = Stage.New
         private set
@@ -77,7 +93,7 @@ class Lifecyclist {
     // Run stage vars
     private lateinit var broadcaster: Broadcaster
 
-    private fun <T> staged(stage: Stage, exact: Boolean = true, action: () -> T): T {
+    private fun <T> stagedBlock(stage: Stage, exact: Boolean = true, action: () -> T): T {
         if (exact) {
             if (this.stage != stage) throw IllegalStateException()
         } else {
@@ -86,15 +102,29 @@ class Lifecyclist {
         return action()
     }
 
-    fun getConfigManager() = staged(Stage.Created, false) { configManager }
-    fun getPluginClassLoader() = staged(Stage.Created, false) { classLoader }
+    private suspend fun <T> staged(
+        stage: Stage,
+        exact: Boolean = true,
+        action: suspend () -> T
+    ): T {
+        if (exact) {
+            if (this.stage != stage) throw IllegalStateException()
+        } else {
+            if (this.stage < stage) throw IllegalStateException()
+        }
+        return action()
+    }
 
-    fun getDependencyManager() = staged(
-        Stage.Created, false) { dependencyManager }
+    fun getConfigManager() = stagedBlock(Stage.Created, false) { configManager }
+    fun getPluginClassLoader() = stagedBlock(Stage.Created, false) { classLoader }
 
-    fun getPluginFinder() = staged(Stage.Injected, false) { pluginFinder }
-    fun getInjector() = staged(Stage.Injected, false) { injector }
-    fun getMainConfig() = staged(Stage.Injected, false) { mainConfig }
+    fun getDependencyManager() = stagedBlock(
+        Stage.Created, false
+    ) { dependencyManager }
+
+    fun getPluginFinder() = stagedBlock(Stage.Injected, false) { pluginFinder }
+    fun getInjector() = stagedBlock(Stage.Injected, false) { injector }
+    fun getMainConfig() = stagedBlock(Stage.Injected, false) { mainConfig }
 
     private fun createConfig() {
         configManager = ConfigManager(
@@ -110,7 +140,8 @@ class Lifecyclist {
         classLoader = loader.loader
     }
 
-    fun create(pluginDir: File): DependencyManager = staged(Stage.New) {
+    fun create(pluginDir: File): DependencyManager = stagedBlock(Stage.New) {
+        job = Job()
         createConfig()
         createPlugins(pluginDir)
 
@@ -133,7 +164,7 @@ class Lifecyclist {
         FileStorageModule(FileStorageImpl::class)
     )
 
-    fun inject(browserOpener: BrowserOpener) = staged(Stage.Created) {
+    fun inject(browserOpener: BrowserOpener) = stagedBlock(Stage.Created) {
         pluginFinder = dependencyManager.finish()
 
         mainConfig = MainConfigEntries(configManager, pluginFinder, classLoader)
@@ -157,58 +188,57 @@ class Lifecyclist {
         stage = Stage.Injected
     }
 
-    fun run(result: (Throwable?) -> Unit) = staged(Stage.Injected) {
+    suspend fun run(result: (Throwable?) -> Unit) = staged(Stage.Injected) {
         // TODO rollback in case of failure
-        Initializer(pluginFinder).start {
-            if (it != null) {
-                logger.error(it) { "Could not initialize!" }
-                result(it)
-                return@start
+        coroutineScope {
+            Initializer(pluginFinder).start {
+                if (it != null) {
+                    logger.error(it) { "Could not initialize!" }
+                    result(it)
+                    return@start
+                }
+                DefaultPermissions.defaultPermissions = mainConfig.defaultPermissions.get()!!
+
+                injector.getInstance(Player::class.java).start()
+
+                val vertx = injector.getInstance(Vertx::class.java)
+                val rest = injector.getInstance(RestServer::class.java)
+                vertx.deployVerticle(rest)
+
+                broadcaster = Broadcaster().apply { start() }
+
+                launch { injector.getInstance(QueueDumper::class.java).restoreQueue() }
+
+                DeskBot.runningInstance = this@Lifecyclist
+                stage = Stage.Running
+                result(null)
             }
-            DefaultPermissions.defaultPermissions = mainConfig.defaultPermissions.get()!!
-
-            injector.getInstance(Player::class.java).start()
-
-            val vertx = injector.getInstance(Vertx::class.java)
-            val rest = injector.getInstance(RestServer::class.java)
-            vertx.deployVerticle(rest)
-
-            broadcaster = Broadcaster().apply { start() }
-
-            injector.getInstance(QueueDumper::class.java).restoreQueue()
-
-            DeskBot.runningInstance = this
-            stage = Stage.Running
-            result(null)
         }
     }
 
-    fun stop() = staged(Stage.Running) {
+    fun stop() = stagedBlock(Stage.Running) {
         try {
             broadcaster.close()
         } catch (e: Exception) {
             logger.error(e) { "Could not close broadcaster" }
         }
 
-        val stopper = InstanceStopper(injector).apply {
-            register(Vertx::class.java) { vertx ->
-                val lock: Lock = ReentrantLock()
-                val cond = lock.newCondition()
-                vertx.close {
-                    if (it.succeeded()) logger.debug { "Vertx close successful" }
-                    else logger.error(it.cause()) { "Could not close Vertx" }
-
-                    lock.withLock {
-                        cond.signalAll()
+        runBlocking {
+            coroutineScope {
+                withContext(coroutineContext) {
+                    val stopper = InstanceStopper(injector).apply {
+                        register(Vertx::class.java) { vertx ->
+                            vertx.closeAwait()
+                        }
                     }
+                    stopper.stop()
+                    injector.getInstance(QueueDumper::class.java).dumpQueue()
+                    stage = Stage.Stopped
                 }
-
-                lock.withLock { cond.await() }
             }
+
+            job.cancel()
         }
-        stopper.stop()
-        injector.getInstance(QueueDumper::class.java).dumpQueue()
-        stage = Stage.Stopped
     }
 
     enum class Stage {
@@ -273,10 +303,12 @@ private class Initializer(private val finder: PluginFinder) {
 
         finder.allPlugins().forEach { plugin ->
             val task = object : Task<Unit>() {
-                val writer = FxInitStateWriter(::updateTitle, ::updateMessage)
+                val writer = FxInitStateWriter(::updateMessage)
 
                 override fun call() {
-                    writer.begin(plugin)
+                    updateTitle(
+                        res["task.plugin.title"].format(plugin.category.simpleName, plugin.name)
+                    )
                     plugin.findDependencies()
                         .asSequence()
                         .map { finder[it]!! }
@@ -286,7 +318,8 @@ private class Initializer(private val finder: PluginFinder) {
                                 lock.withLock {
                                     while (it !in finished) {
                                         writer.state(
-                                            res["task.plugin.waiting"].format(type, it.name))
+                                            res["task.plugin.waiting"].format(type, it.name)
+                                        )
                                         done.await()
                                     }
                                 }
@@ -294,13 +327,13 @@ private class Initializer(private val finder: PluginFinder) {
                         }
                     writer.state("Starting...")
 
-                    try {
-                        plugin.initialize(writer)
-                    } catch (e: Throwable) {
-                        logger.error(e) { "Could not initialize $plugin" }
-                        throw e
-                    } finally {
-                        writer.close()
+                    runBlocking {
+                        try {
+                            plugin.initialize(writer)
+                        } catch (e: Throwable) {
+                            logger.error(e) { "Could not initialize $plugin" }
+                            throw e
+                        }
                     }
 
                     lock.withLock {
@@ -319,9 +352,8 @@ private class Initializer(private val finder: PluginFinder) {
 
 private class QueueDumper @Inject private constructor(
     private val queue: SongQueue,
-    @Named("PluginClassLoader")
-    private val classLoader: ClassLoader,
-    private val pluginFinder: PluginFinder) {
+    private val pluginLookup: PluginLookup
+) {
 
     fun dumpQueue() {
         val file = File("queue.dump")
@@ -333,35 +365,29 @@ private class QueueDumper @Inject private constructor(
         }
     }
 
-    fun restoreQueue() {
+    suspend fun restoreQueue() {
         val file = File("queue.dump")
         if (!file.isFile) return
-        file.bufferedReader().useLines { lines ->
-            lines
-                .map { it.split('|') }
-                .filter { it.size == 2 }
-                .mapNotNull {
-                    try {
-                        classLoader.loadClass(it[0]).kotlin to it[1]
-                    } catch (e: ClassNotFoundException) {
-                        null
+
+        withContext(Dispatchers.IO) {
+            file.bufferedReader().useLines { lines ->
+                lines
+                    .map { it.split('|') }
+                    .filter { it.size == 2 }
+                    .map { pluginLookup.lookup<Provider>(it[0]) to it[1] }
+                    .defer()
+                    .pMap {
+                        try {
+                            it.first?.lookup(it.second)
+                        } catch (e: NoSuchSongException) {
+                            null
+                        }
                     }
-                }
-                .mapNotNull {
-                    @Suppress("UNCHECKED_CAST")
-                    pluginFinder[it.first as KClass<out Provider>]?.let { provider ->
-                        provider to it.second
-                    }
-                }
-                .mapNotNull {
-                    try {
-                        it.first.lookup(it.second)
-                    } catch (e: NoSuchSongException) {
-                        null
-                    }
-                }
-                .map { QueueEntry(it, BotUser) }
-                .forEach { queue.insert(it) }
+                    .pMapIfPresent { QueueEntry(it, BotUser) }
+                    .await()
+                    .filterNotNull()
+                    .forEach { queue.insert(it) }
+            }
         }
     }
 }

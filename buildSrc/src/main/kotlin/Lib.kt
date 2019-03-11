@@ -1,9 +1,9 @@
 object Lib {
     const val KOTLIN = Plugin.KOTLIN
-    const val KOTLIN_LOGGING = "1.6.25"
+    const val KOTLIN_COROUTINES = "1.1.1"
     const val SLF4J = "1.8.0-beta4"
 
-    const val MUSICBOT = "0.18.1"
+    const val MUSICBOT = "0.19.0"
 
     const val CONTROLS_FX = "8.40.14"
 

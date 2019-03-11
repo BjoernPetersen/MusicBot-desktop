@@ -11,6 +11,11 @@ import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Region
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.api.auth.UserManager
@@ -18,13 +23,17 @@ import net.bjoernpetersen.musicbot.api.player.PauseState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
-import kotlin.concurrent.thread
+import kotlin.coroutines.CoroutineContext
 
 private typealias LibPlayer = net.bjoernpetersen.musicbot.spi.player.Player
 
-class Player(private val lifecycle: Lifecyclist) : Controller {
+class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     private val logger = KotlinLogging.logger {}
     private val res = DeskBot.resources
+
+    private lateinit var job: Job
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default + job
 
     private val player: LibPlayer = lifecycle.getInjector().getInstance(LibPlayer::class.java)
     private val queue: SongQueue = lifecycle.getInjector().getInstance(SongQueue::class.java)
@@ -55,6 +64,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
 
     @FXML
     override fun initialize() {
+        job = Job()
         Platform.runLater { stage.title = DeskBot.resources.getString("window.player") }
         setupQueue()
         player.addUiListener {
@@ -104,12 +114,12 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
     @FXML
     private fun playPause(event: ActionEvent? = null) {
         pauseButton.isDisable = true
-        if (pauseButton.isSelected) thread(name = "Pause", isDaemon = true) {
+        if (pauseButton.isSelected) launch {
             player.pause()
-            Platform.runLater { pauseButton.isDisable = false }
-        } else thread(name = "Play", isDaemon = true) {
+            withContext(Dispatchers.Main) { pauseButton.isDisable = false }
+        } else launch {
             player.play()
-            Platform.runLater { pauseButton.isDisable = false }
+            withContext(Dispatchers.Main) { pauseButton.isDisable = false }
         }
     }
 
@@ -117,9 +127,9 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
     @FXML
     private fun skip(event: ActionEvent? = null) {
         skipButton.isDisable = true
-        thread(name = "Skip", isDaemon = true) {
+        launch {
             player.next()
-            Platform.runLater { skipButton.isDisable = false }
+            withContext(Dispatchers.Main) { skipButton.isDisable = false }
         }
     }
 
@@ -135,6 +145,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
     @Suppress("UNUSED_PARAMETER", "unused")
     @FXML
     private fun close(event: ActionEvent? = null) {
+        job.cancel()
         lifecycle.stop()
         DeskBot.runningInstance = null
         replaceWindow(load<Overview>().root)
@@ -143,6 +154,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller {
     @Suppress("UNUSED_PARAMETER", "unused")
     @FXML
     private fun exit(event: ActionEvent? = null) {
+        job.cancel()
         closeWindow()
     }
 }

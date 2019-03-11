@@ -22,10 +22,12 @@ class Broadcaster @Throws(IOException::class) constructor() : Closeable {
     private val groupAddress: InetAddress = InetAddress.getByName(Constraints.groupAdress)
     private val message: ByteArray = Constraints.message.toByteArray(Charsets.UTF_8)
     private val scheduler: ScheduledExecutorService = Executors
-        .newSingleThreadScheduledExecutor(ThreadFactoryBuilder()
-            .setDaemon(true)
-            .setNameFormat("UDP-broadcast-%d")
-            .build())
+        .newSingleThreadScheduledExecutor(
+            ThreadFactoryBuilder()
+                .setDaemon(true)
+                .setNameFormat("UDP-broadcast-%d")
+                .build()
+        )
 
     private val sockets: List<MulticastSocket> = findNetworkInterfaces().map {
         val socket = MulticastSocket()
@@ -51,7 +53,8 @@ class Broadcaster @Throws(IOException::class) constructor() : Closeable {
                 { sockets.forEach { broadcast(it) } },
                 1,
                 2,
-                TimeUnit.SECONDS)
+                TimeUnit.SECONDS
+            )
     }
 
     private fun broadcast(socket: MulticastSocket) {

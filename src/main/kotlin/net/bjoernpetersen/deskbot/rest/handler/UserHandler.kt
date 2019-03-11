@@ -16,9 +16,10 @@ import net.bjoernpetersen.musicbot.api.auth.UserManager
 import javax.inject.Inject
 
 class UserHandler @Inject constructor(
-    private val userManager: UserManager) : HandlerController {
+    private val userManager: UserManager
+) : HandlerController {
 
-    override fun register(routerFactory: OpenAPI3RouterFactory) {
+    override suspend fun register(routerFactory: OpenAPI3RouterFactory) {
         routerFactory.addHandlerByOperationId("registerUser", ::registerUser)
         routerFactory.addHandlerByOperationId("changePassword", ::changePassword)
         routerFactory.addHandlerByOperationId("loginUser", ::loginUser)

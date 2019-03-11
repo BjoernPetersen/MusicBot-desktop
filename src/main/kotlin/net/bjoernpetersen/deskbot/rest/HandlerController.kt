@@ -4,6 +4,9 @@ import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.json.Json
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import net.bjoernpetersen.deskbot.rest.handler.authUser
 import net.bjoernpetersen.deskbot.rest.model.tokenExpect
 import net.bjoernpetersen.musicbot.api.auth.Permission
@@ -54,7 +57,22 @@ interface HandlerController {
      *
      * @param routerFactory the RouterFactory to configure
      */
-    fun register(routerFactory: OpenAPI3RouterFactory)
+    suspend fun register(routerFactory: OpenAPI3RouterFactory)
+
+    suspend fun OpenAPI3RouterFactory.addHandlerByOperationId(
+        operationId: String,
+        handler: suspend (RoutingContext) -> Unit
+    ) {
+        addHandlerByOperationId(operationId) { ctx ->
+            CoroutineScope(ctx.vertx().dispatcher()).launch {
+                try {
+                    handler(ctx)
+                } catch (e: Throwable) {
+                    ctx.fail(e)
+                }
+            }
+        }
+    }
 
     fun RoutingContext.require(vararg permissions: Permission) = require(permissions.toList())
     fun RoutingContext.require(permissions: List<Permission>) {

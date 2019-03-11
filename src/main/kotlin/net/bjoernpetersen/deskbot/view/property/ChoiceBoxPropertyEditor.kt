@@ -1,6 +1,5 @@
 package net.bjoernpetersen.deskbot.view.property
 
-import javafx.application.Platform
 import javafx.beans.value.ObservableValue
 import javafx.geometry.Orientation
 import javafx.scene.Node
@@ -10,12 +9,15 @@ import javafx.scene.control.ToolBar
 import javafx.scene.layout.Background
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.stringConverter
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import org.controlsfx.property.editor.AbstractPropertyEditor
-import kotlin.concurrent.thread
 
 private typealias FxChoiceBox<T> = javafx.scene.control.ChoiceBox<T>
 
@@ -50,7 +52,7 @@ class ChoiceBoxPropertyEditor<T : Any>(
 
     private fun refresh() {
         button.isDisable = true
-        thread(name = "Refresh ${item.entry.key}", isDaemon = true) {
+        CoroutineScope(Dispatchers.Default).launch {
             val data = try {
                 configNode.refresh()
             } catch (e: Throwable) {
@@ -58,7 +60,7 @@ class ChoiceBoxPropertyEditor<T : Any>(
                 null
             }
 
-            Platform.runLater {
+            withContext(Dispatchers.Main) {
                 choiceBox.isDisable = false
                 button.isDisable = false
                 // TODO handle failure
