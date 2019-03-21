@@ -11,8 +11,8 @@ object Lib {
 
     const val JACKSON = "2.9.8"
 
-    const val JUNIT = "5.4.0"
-    const val JUNIT_GUICE = "1.1.0"
-    const val MOCK_K = "1.9.1"
-    const val ASSERT_J = "3.12.1"
+    const val JUNIT = "5.4.1"
+    const val JUNIT_GUICE = "1.1.1"
+    const val MOCK_K = "1.9.2"
+    const val ASSERT_J = "3.12.2"
 }
