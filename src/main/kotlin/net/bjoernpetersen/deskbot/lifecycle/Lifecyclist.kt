@@ -45,6 +45,7 @@ import net.bjoernpetersen.musicbot.api.module.InstanceStopper
 import net.bjoernpetersen.musicbot.api.module.PluginClassLoaderModule
 import net.bjoernpetersen.musicbot.api.module.PluginModule
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
 import net.bjoernpetersen.musicbot.api.plugin.management.DefaultDependencyManager
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
@@ -352,17 +353,24 @@ private class Initializer(private val finder: PluginFinder) {
 
 private class QueueDumper @Inject private constructor(
     private val queue: SongQueue,
+    private val player: Player,
     private val pluginLookup: PluginLookup
 ) {
     private val logger = KotlinLogging.logger {}
+
+    private fun Song.toDumpString() = "${provider.id}|$id\n"
 
     fun dumpQueue() {
         logger.info { "Dumping queue" }
         val file = File("queue.dump")
         file.bufferedWriter().use { writer ->
+            val state = player.state
+            if (state.hasSong()) {
+                state.entry?.song?.let { writer.write(it.toDumpString()) }
+            }
             queue.toList().asSequence()
                 .map { it.song }
-                .map { "${it.provider.id}|${it.id}\n" }
+                .map { it.toDumpString() }
                 .forEach { writer.write(it) }
         }
     }
