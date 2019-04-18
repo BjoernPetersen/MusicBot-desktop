@@ -232,8 +232,8 @@ class Lifecyclist : CoroutineScope {
                             vertx.closeAwait()
                         }
                     }
-                    stopper.stop()
                     injector.getInstance(QueueDumper::class.java).dumpQueue()
+                    stopper.stop()
                     stage = Stage.Stopped
                 }
             }
@@ -367,7 +367,10 @@ private class QueueDumper @Inject private constructor(
             val currentEntry = player.state.entry
             // Assert that there is a current song and that it wasn't suggested
             if (currentEntry != null && currentEntry.user != null) {
+                logger.debug { "Dumping current song first" }
                 writer.write(currentEntry.song.toDumpString())
+            } else {
+                logger.debug { "Not dumping current song. State: ${player.state}" }
             }
 
             queue.toList().asSequence()
