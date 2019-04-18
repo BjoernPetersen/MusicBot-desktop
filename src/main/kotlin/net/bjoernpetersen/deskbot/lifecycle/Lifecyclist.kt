@@ -364,10 +364,12 @@ private class QueueDumper @Inject private constructor(
         logger.info { "Dumping queue" }
         val file = File("queue.dump")
         file.bufferedWriter().use { writer ->
-            val state = player.state
-            if (state.hasSong()) {
-                state.entry?.song?.let { writer.write(it.toDumpString()) }
+            val currentEntry = player.state.entry
+            // Assert that there is a current song and that it wasn't suggested
+            if (currentEntry != null && currentEntry.user != null) {
+                writer.write(currentEntry.song.toDumpString())
             }
+
             queue.toList().asSequence()
                 .map { it.song }
                 .map { it.toDumpString() }
