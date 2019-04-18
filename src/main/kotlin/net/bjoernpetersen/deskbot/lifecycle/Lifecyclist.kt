@@ -9,6 +9,7 @@ import javafx.application.Platform
 import javafx.concurrent.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -207,7 +208,9 @@ class Lifecyclist : CoroutineScope {
 
                 broadcaster = Broadcaster().apply { start() }
 
-                launch { injector.getInstance(QueueDumper::class.java).restoreQueue() }
+                GlobalScope.launch {
+                    injector.getInstance(QueueDumper::class.java).restoreQueue()
+                }
 
                 DeskBot.runningInstance = this@Lifecyclist
                 stage = Stage.Running
@@ -354,8 +357,10 @@ private class QueueDumper @Inject private constructor(
     private val queue: SongQueue,
     private val pluginLookup: PluginLookup
 ) {
+    private val logger = KotlinLogging.logger {}
 
     fun dumpQueue() {
+        logger.info { "Dumping queue" }
         val file = File("queue.dump")
         file.bufferedWriter().use { writer ->
             queue.toList().asSequence()
@@ -369,6 +374,7 @@ private class QueueDumper @Inject private constructor(
         val file = File("queue.dump")
         if (!file.isFile) return
 
+        logger.info("Restoring queue")
         withContext(Dispatchers.IO) {
             file.bufferedReader().useLines { lines ->
                 lines
