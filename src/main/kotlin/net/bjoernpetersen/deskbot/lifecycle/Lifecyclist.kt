@@ -11,15 +11,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import net.bjoernpetersen.deskbot.async.await
-import net.bjoernpetersen.deskbot.async.defer
-import net.bjoernpetersen.deskbot.async.pMap
-import net.bjoernpetersen.deskbot.async.pMapIfPresent
 import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
 import net.bjoernpetersen.deskbot.impl.Broadcaster
 import net.bjoernpetersen.deskbot.impl.FileConfigStorage
@@ -377,23 +374,31 @@ private class QueueDumper @Inject private constructor(
         logger.info("Restoring queue")
         withContext(Dispatchers.IO) {
             file.bufferedReader().useLines { lines ->
-                lines
+                val songs = lines
                     .map { it.split('|') }
                     .filter { it.size == 2 }
                     .map { pluginLookup.lookup<Provider>(it[0]) to it[1] }
-                    .defer()
-                    .pMap {
-                        try {
-                            it.first?.lookup(it.second)
-                        } catch (e: NoSuchSongException) {
-                            null
+                    .map {
+                        async {
+                            try {
+                                it.first?.lookup(it.second)
+                            } catch (e: NoSuchSongException) {
+                                null
+                            }
                         }
                     }
-                    .pMapIfPresent { QueueEntry(it, BotUser) }
-                    .await()
-                    .filterNotNull()
-                    .forEach { queue.insert(it) }
+                    .toList()
+
+                withContext(Dispatchers.IO) {
+                    songs.forEach {
+                        val song = it.await()
+                        if (song != null) {
+                            queue.insert(QueueEntry(song, BotUser))
+                        }
+                    }
+                }
             }
+
         }
     }
 }
