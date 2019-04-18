@@ -86,7 +86,9 @@ dependencies {
         group = "com.github.bjoernpetersen",
         name = "musicbot",
         version = Lib.MUSICBOT
-    )
+    ) {
+        isChanging = Lib.MUSICBOT.contains("SNAPSHOT")
+    }
     implementation(
         group = "org.jetbrains.kotlinx",
         name = "kotlinx-coroutines-javafx",
