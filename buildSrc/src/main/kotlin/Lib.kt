@@ -7,7 +7,7 @@ object Lib {
 
     const val CONTROLS_FX = "8.40.14"
 
-    const val VERTX = "3.6.3"
+    const val VERTX = "3.7.0"
 
     const val JACKSON = "2.9.8"
 
