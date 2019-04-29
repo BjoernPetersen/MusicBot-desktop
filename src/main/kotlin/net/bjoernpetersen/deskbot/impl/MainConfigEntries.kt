@@ -12,6 +12,7 @@ import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import net.bjoernpetersen.musicbot.api.config.FileChooser
+import net.bjoernpetersen.musicbot.api.config.FileSerializer
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.SerializationException
@@ -68,7 +69,7 @@ class MainConfigEntries @Inject constructor(
         key = "storageDir",
         description = "Directory to store plugin files in." +
             " This should preferably be somewhere with a lot of free space.",
-        serializer = FileConfigSerializer,
+        serializer = FileSerializer,
         configChecker = {
             if (it != null && it.isDirectory) null
             else "Must be an existing directory"
