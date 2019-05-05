@@ -2,6 +2,7 @@ package net.bjoernpetersen.deskbot.rest.handler
 
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
+import net.bjoernpetersen.deskbot.rest.AuthException
 import net.bjoernpetersen.deskbot.rest.HandlerController
 import net.bjoernpetersen.deskbot.rest.Status
 import net.bjoernpetersen.deskbot.rest.StatusException
@@ -9,6 +10,7 @@ import net.bjoernpetersen.deskbot.rest.end
 import net.bjoernpetersen.deskbot.rest.findProvider
 import net.bjoernpetersen.deskbot.rest.model.CoreQueueEntry
 import net.bjoernpetersen.deskbot.rest.model.toModel
+import net.bjoernpetersen.deskbot.rest.model.tokenExpect
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.spi.player.PlayerHistory
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
@@ -53,11 +55,18 @@ class QueueHandler @Inject private constructor(
     }
 
     private suspend fun dequeue(ctx: RoutingContext) {
-        ctx.require(Permission.SKIP)
         val songId = ctx.queryParam("songId").first()!!
         val providerId = ctx.queryParam("providerId").first()!!
         if (songId.isBlank() || providerId.isBlank()) {
             throw StatusException(Status.BAD_REQUEST, "providerId and songId are required")
+        }
+
+        val hasPermission = ctx.authUser.permissions.contains(Permission.SKIP)
+            || queue.toList().firstOrNull { it.song.id == songId }?.let { it.user == ctx.authUser }
+            ?: return ctx.response().end(queue.toModel())
+
+        if (!hasPermission) {
+            throw AuthException(Status.FORBIDDEN, tokenExpect(listOf(Permission.SKIP)))
         }
 
         val provider = pluginLookup.findProvider(providerId)
