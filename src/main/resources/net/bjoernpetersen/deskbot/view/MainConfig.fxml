@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import org.controlsfx.control.PropertySheet?>
+<GridPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="root"
+  fx:controller="net.bjoernpetersen.deskbot.view.MainConfig">
+  <Label text="%description.mainConfig" style="-fx-font-size: 14; -fx-font-style: italic;">
+    <padding>
+      <Insets topRightBottomLeft="5"/>
+    </padding>
+  </Label>
+  <PropertySheet fx:id="propertySheet" modeSwitcherVisible="false" mode="NAME"
+    GridPane.rowIndex="1" GridPane.hgrow="ALWAYS"/>
+</GridPane>

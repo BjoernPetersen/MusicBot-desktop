@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="net.bjoernpetersen.deskbot.view.Dependencies"
+  fx:id="root">
+  <center>
+    <TreeView fx:id="tree" editable="true"/>
+  </center>
+  <bottom>
+    <ButtonBar>
+      <!-- TODO -->
+    </ButtonBar>
+  </bottom>
+</BorderPane>

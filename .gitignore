@@ -53,3 +53,16 @@ config.properties
 secrets.properties
 users*.db
 queue.dump
+
+# Gradle #
+!gradle-wrapper.jar
+build/
+out/
+gradle.properties
+
+# MusicBot #
+/config/
+/state/
+/plugins/
+UserDatabase.db
+/storage/

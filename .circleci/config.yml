@@ -1,52 +1,84 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+executors:
+  jfx:
     docker:
-    - image: fbrissi/maven-openjfx:jdk-8
-    working_directory: ~/app
+      - image: nishtahir/openjfx:8-jdk
+    environment:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false
+
+commands:
+  with_cache:
+    parameters:
+      steps:
+        type: steps
     steps:
-    - checkout
+      - restore_cache:
+          keys:
+            - v4-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
+            - v4-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}
+            - v4-{{ checksum "build.gradle.kts" }}
+            - v4-
+      - steps: << parameters.steps >>
 
-    - restore_cache:
-        keys:
-        - v1-{{ checksum "pom.xml" }}
-        - v1-
-        paths:
-        - ~/.m2
+jobs:
+  compile:
+    executor: jfx
+    steps:
+      - checkout
+      - with_cache:
+          steps:
+            - run:
+                command: ./gradlew classes
+                name: Compiling main classes
+            - save_cache:
+                key: v4-{{ checksum "build.gradle.kts" }}-{{ checksum "buildSrc/src/main/kotlin/Plugin.kt" }}-{{ checksum "buildSrc/src/main/kotlin/Lib.kt" }}
+                paths:
+                  - ~/.gradle
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - build
+                  - buildSrc/build
 
-    - run:
-        command: mvn -U test
-        name: Running unit tests
-        when: always
-    - deploy:
-        command: |
-          mkdir -p target/junit/
-          find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} target/junit/ \;
-        name: Copy test artifacts
-    - store_test_results:
-        path: target/junit/
-    - store_artifacts:
-        path: target/junit/
+  check:
+    executor: jfx
+    steps:
+      - checkout
+      - with_cache:
+          steps:
+            - attach_workspace:
+                at: .
+            - run:
+                command: ./gradlew check
+                name: Running tests
+            - store_test_results:
+                path: build/test-results
+            - store_artifacts:
+                path: build/reports
 
-    - deploy:
-        command: mvn site -P report
-        name: Building reports
-    - store_artifacts:
-        path: target/site/
+  build:
+    executor: jfx
+    steps:
+      - checkout
+      - with_cache:
+          steps:
+            - attach_workspace:
+                at: .
+            - run:
+                command: ./gradlew distZip
+                name: Running tests
+            - store_artifacts:
+                path: build/distributions
+                destination: dist
 
-    - deploy:
-        command: mvn package -DskipTests
-        name: Building .jar
-    - run:
-        command: |
-          mkdir jar
-          cp target/musicbot-desktop-*jar-with-dependencies.jar jar/musicbot-desktop.jar
-        name: Renaming .jar
-        when: on_success
-    - store_artifacts:
-        path: jar/
-
-    - save_cache:
-        key: v1-{{ checksum "pom.xml" }}
-        paths:
-        - ~/.m2
+workflows:
+  full_workflow:
+    jobs:
+      - compile
+      - check:
+          requires:
+            - compile
+      - build:
+          requires:
+            - compile

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.text.Text?>
+<?import org.controlsfx.control.CheckListView?>
+<GridPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:id="root"
+  fx:controller="net.bjoernpetersen.deskbot.view.PermissionManagement">
+  <Text text="%description.permission" wrappingWidth="400"
+    GridPane.rowIndex="0" GridPane.hgrow="ALWAYS"/>
+  <CheckListView fx:id="permissionList" disable="true"
+    GridPane.rowIndex="1" GridPane.hgrow="ALWAYS"/>
+</GridPane>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import org.controlsfx.control.PropertySheet?>
+<BorderPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="net.bjoernpetersen.deskbot.view.TypeConfig"
+  prefHeight="400.0" prefWidth="600.0">
+  <left>
+    <ListView fx:id="pluginList"/>
+  </left>
+  <center>
+    <GridPane>
+      <fx:include source="PluginDescription.fxml" fx:id="pluginDescription"
+        GridPane.rowIndex="0" GridPane.hgrow="ALWAYS"/>
+      <PropertySheet fx:id="propertySheet" mode="CATEGORY"
+        GridPane.rowIndex="1" GridPane.hgrow="ALWAYS"/>
+    </GridPane>
+  </center>
+</BorderPane>

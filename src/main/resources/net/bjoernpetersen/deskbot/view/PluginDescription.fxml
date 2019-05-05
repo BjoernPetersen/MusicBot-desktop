@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.text.Text?>
+<GridPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="net.bjoernpetersen.deskbot.view.PluginDescription"
+  fx:id="root"
+  hgap="5">
+  <Label fx:id="nameLabel" GridPane.rowIndex="0" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+  <Label fx:id="idLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"
+    style="-fx-font-size: 12;"/>
+  <Text fx:id="descriptionText" GridPane.rowIndex="2" GridPane.columnSpan="2"
+    wrappingWidth="550" style="-fx-font-size: 14;"/>
+</GridPane>
