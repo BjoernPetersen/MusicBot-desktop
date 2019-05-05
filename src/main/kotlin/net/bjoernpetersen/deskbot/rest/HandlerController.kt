@@ -76,7 +76,7 @@ interface HandlerController {
 
     fun RoutingContext.require(vararg permissions: Permission) = require(permissions.toList())
     fun RoutingContext.require(permissions: List<Permission>) {
-        if (!authUser.permissions.containsAll(permissions.toList())) {
+        if (!authUser.permissions.containsAll(permissions)) {
             throw AuthException(Status.FORBIDDEN, tokenExpect(permissions))
         }
     }
