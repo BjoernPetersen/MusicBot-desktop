@@ -51,6 +51,7 @@ import net.bjoernpetersen.musicbot.api.plugin.management.DefaultDependencyManage
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.player.Player
+import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
@@ -207,7 +208,22 @@ class Lifecyclist : CoroutineScope {
                 broadcaster = Broadcaster().apply { start() }
 
                 GlobalScope.launch {
-                    injector.getInstance(QueueDumper::class.java).restoreQueue()
+                    val dumper = injector.getInstance(QueueDumper::class.java)
+                    dumper.restoreQueue()
+                    injector.getInstance(SongQueue::class.java)
+                        .addListener(object : QueueChangeListener {
+                            override fun onAdd(entry: QueueEntry) {
+                                dumper.dumpQueue()
+                            }
+
+                            override fun onMove(entry: QueueEntry, fromIndex: Int, toIndex: Int) {
+                                dumper.dumpQueue()
+                            }
+
+                            override fun onRemove(entry: QueueEntry) {
+                                dumper.dumpQueue()
+                            }
+                        })
                 }
 
                 DeskBot.runningInstance = this@Lifecyclist
@@ -232,7 +248,6 @@ class Lifecyclist : CoroutineScope {
                             vertx.closeAwait()
                         }
                     }
-                    injector.getInstance(QueueDumper::class.java).dumpQueue()
                     stopper.stop()
                     stage = Stage.Stopped
                 }
@@ -356,6 +371,7 @@ private class QueueDumper @Inject private constructor(
     private val player: Player,
     private val pluginLookup: PluginLookup
 ) {
+
     private val logger = KotlinLogging.logger {}
 
     private fun Song.toDumpString() = "${provider.id}|$id\n"
