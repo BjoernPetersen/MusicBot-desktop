@@ -11,6 +11,10 @@ import java.util.ResourceBundle
 class DeskBot : Application() {
     private val logger = KotlinLogging.logger {}
 
+    init {
+        application = this
+    }
+
     override fun start(primaryStage: Stage) {
         primaryStage.scene = Scene(load<Overview>().root)
         primaryStage.show()
@@ -26,6 +30,8 @@ class DeskBot : Application() {
 
     companion object {
         var runningInstance: Lifecyclist? = null
+        lateinit var application: DeskBot
+            private set
         val resources: ResourceBundle
             get() = ResourceBundle.getBundle(DeskBot::class.java.name, YamlResourceBundle.Control)
 
