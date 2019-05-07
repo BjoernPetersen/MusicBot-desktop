@@ -11,13 +11,19 @@ enum class PlayerStateType {
 
 data class PlayerState(
     val state: PlayerStateType,
-    val songEntry: SongEntry?)
+    val progress: Int,
+    val songEntry: SongEntry?
+)
 
 private typealias CorePlayerState = net.bjoernpetersen.musicbot.api.player.PlayerState
 
-fun CorePlayerState.toModel() = PlayerState(when (this) {
-    is PlayState -> PlayerStateType.PLAY
-    is PauseState -> PlayerStateType.PAUSE
-    is StopState -> PlayerStateType.STOP
-    is ErrorState -> PlayerStateType.ERROR
-}, entry?.toModel())
+fun CorePlayerState.toModel(progress: Int) = PlayerState(
+    when (this) {
+        is PlayState -> PlayerStateType.PLAY
+        is PauseState -> PlayerStateType.PAUSE
+        is StopState -> PlayerStateType.STOP
+        is ErrorState -> PlayerStateType.ERROR
+    },
+    progress,
+    entry?.toModel()
+)

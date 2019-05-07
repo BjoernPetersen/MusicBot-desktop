@@ -12,6 +12,7 @@ import io.vertx.kotlin.ext.web.api.contract.routerFactoryOptionsOf
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.rest.handler.BasicSecurityHandler
 import net.bjoernpetersen.deskbot.rest.handler.BearerSecurityHandler
+import net.bjoernpetersen.deskbot.rest.handler.ExitHandler
 import net.bjoernpetersen.deskbot.rest.handler.FailureHandler
 import net.bjoernpetersen.deskbot.rest.handler.PlayerHandler
 import net.bjoernpetersen.deskbot.rest.handler.ProviderHandler
@@ -32,7 +33,8 @@ class RestServer @Inject constructor(
     private val queueHandler: QueueHandler,
     private val providerHandler: ProviderHandler,
     private val suggesterHandler: SuggesterHandler,
-    private val volumeHandler: VolumeHandler
+    private val volumeHandler: VolumeHandler,
+    private val exitHandler: ExitHandler
 ) : CoroutineVerticle() {
 
     private val logger = KotlinLogging.logger {}
@@ -56,6 +58,7 @@ class RestServer @Inject constructor(
             .register(providerHandler)
             .register(suggesterHandler)
             .register(volumeHandler)
+            .register(exitHandler)
 
         routerFactory.addSecurityHandler("Token", bearerSecurityHandler)
         routerFactory.addSecurityHandler("Basic", basicSecurityHandler)

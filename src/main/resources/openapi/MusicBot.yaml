@@ -3,7 +3,7 @@ info:
   title: MusicBot
   description: >
     HTTP API for the MusicBot project.
-  version: 0.11.0
+  version: 0.12.0
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
@@ -22,6 +22,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VersionInfo'
+  /exit:
+    post:
+      operationId: exit
+      summary: Exit the bot process.
+      description: >
+        Gracefully shuts down the bot.
+        Requires "exit" permission.
+      responses:
+        204:
+          description: The shutdown has been scheduled and will be performed soon.
   /user:
     get:
       operationId: getMe
@@ -161,6 +171,7 @@ paths:
       summary: Changes the player state.
       description: >
         Changes the current player state, i.e. pauses, resumes or skips the current song.
+        Skipping requires "skip" permission, pausing/resuming requires "pause" permission.
       requestBody:
         required: true
         description: The desired player state change.
@@ -213,6 +224,7 @@ paths:
       description: >
         Adds the specified Song to the current queue. If the queue already
         contains the Song, it won't be added.
+        Requires "enqueue" permission.
       parameters:
         - name: songId
           in: query
@@ -243,6 +255,7 @@ paths:
       description: >
         Removes the specified Song from the current queue. If the queue did not
         contain the song, nothing happens.
+        Requires "skip" permission, except for songs enqueued by the user himself.
       parameters:
         - name: songId
           in: query
@@ -274,6 +287,7 @@ paths:
       description: >
         Moves a song, which is already in the queue, to another position in the queue.
         If the song is not in the queue, the queue is not changed.
+        Requires "move" permission.
       parameters:
         - name: index
           in: query
@@ -466,6 +480,10 @@ paths:
     delete:
       operationId: removeSuggestion
       summary: Removes a song from the suggestions.
+      description: >
+        Removes a song from the upcoming suggestions of a specific suggester.
+        The song is identified by a provider ID and a song ID, as usual.
+        Requires "dislike" permission.
       parameters:
         - name: suggesterId
           in: path
@@ -517,6 +535,10 @@ paths:
     put:
       operationId: setVolume
       summary: Sets the current volume.
+      description: >
+        Changes the current volume. The exact effect this will have may vary with bot configuration.
+        Calling this endpoint may even have no effect at all, which will be reflected by the response.
+        Requires "change_volume" permission.
       parameters:
         - name: value
           in: query
@@ -628,6 +650,15 @@ components:
             - ERROR
         songEntry:
           $ref: '#/components/schemas/SongEntry'
+        progress:
+          description: >
+            Progress of the current song in seconds.
+            If no song is playing, this will be 0.
+            If the current song has a duration, this value will never be greater than that. It will
+            instead remain at the maximum value (the song's duration) until the song has actually
+            ended.
+          type: integer
+          minimum: 0
     PlayerStateChange:
       type: object
       required:
