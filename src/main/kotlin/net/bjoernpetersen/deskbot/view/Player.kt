@@ -67,7 +67,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
         job = Job()
         Platform.runLater { stage.title = DeskBot.resources.getString("window.player") }
         setupQueue()
-        player.addUiListener {
+        player.addUiListener { _, it ->
             pauseButton.isSelected = it is PauseState
 
             enqueuer.text = it.entry?.let { entry ->
