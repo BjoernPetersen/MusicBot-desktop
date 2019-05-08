@@ -67,7 +67,7 @@ jobs:
                 at: .
             - run:
                 command: ./gradlew distZip
-                name: Running tests
+                name: Building distribution zip
             - store_artifacts:
                 path: build/distributions
                 destination: dist
