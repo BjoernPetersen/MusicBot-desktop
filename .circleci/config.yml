@@ -21,6 +21,21 @@ commands:
             - v4-
       - steps: << parameters.steps >>
 
+  download_artifact:
+    parameters:
+      project:
+        type: string
+      branch:
+        type: string
+      path:
+        type: string
+      token:
+        type: string
+    steps:
+      - run:
+          working_directory: bundle/musicbot-desktop/plugins
+          command: python ../../../.circleci/load_artifact.py -p << parameters.project >> -t << parameters.token >> -a << parameters.path >> -b << parameters.branch >>
+
 jobs:
   compile:
     executor: jfx
@@ -66,7 +81,7 @@ jobs:
             - attach_workspace:
                 at: .
             - run:
-                command: ./gradlew distZip
+                command: ./gradlew distZip installDist
                 name: Building distribution zip
             - run:
                 command: mv build/distributions/musicbot-desktop-*.zip build/distributions/musicbot-desktop.zip
@@ -74,7 +89,56 @@ jobs:
             - store_artifacts:
                 path: build/distributions
                 destination: dist
+            - persist_to_workspace:
+                root: .
+                paths:
+                  - build
+                  - buildSrc/build
 
+
+  bundle:
+    docker:
+      - image: python:3-slim
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Installing python dependencies
+          command: pip install -r .circleci/requirements.txt
+      - run:
+          name: Installing zip
+          command: apt update && apt install zip -y
+      - run:
+          name: Preparing directory
+          command: |
+            mkdir bundle
+            cp -r build/install/* bundle/musicbot-desktop
+            mkdir bundle/musicbot-desktop/plugins
+      - download_artifact:
+          project: MusicBot-YouTube
+          branch: $CIRCLE_BRANCH
+          path: dist/musicbot-youtube.jar
+          token: $CIRCLE_TOKEN_YOUTUBE
+      - download_artifact:
+          project: MusicBot-mpv
+          branch: $CIRCLE_BRANCH
+          path: dist/musicbot-mpv.jar
+          token: $CIRCLE_TOKEN_MPV
+      - download_artifact:
+          project: MusicBot-Spotify
+          branch: $CIRCLE_BRANCH
+          path: dist/musicbot-spotify.jar
+          token: $CIRCLE_TOKEN_SPOTIFY
+      - run:
+          name: Zipping bundle
+          working_directory: bundle
+          command: |
+            zip -r musicbot-desktop-bundle.zip musicbot-desktop
+            rm -rf musicbot-desktop
+      - store_artifacts:
+          path: bundle
+          destination: bundle
 
 workflows:
   full_workflow:
@@ -86,3 +150,11 @@ workflows:
       - build:
           requires:
             - compile
+      - bundle:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+                - develop
