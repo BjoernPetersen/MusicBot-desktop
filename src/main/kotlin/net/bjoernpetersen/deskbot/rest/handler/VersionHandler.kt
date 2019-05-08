@@ -1,5 +1,10 @@
 package net.bjoernpetersen.deskbot.rest.handler
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.zafarkhaja.semver.ParseException
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory
@@ -13,7 +18,6 @@ import java.util.Properties
 import javax.inject.Inject
 
 // TODO: This should definitely be automatically determined
-private const val API_VERSION = "0.12.0"
 private const val PROJECT_PAGE = "https://github.com/BjoernPetersen/MusicBot-desktop"
 private const val PROJECT_NAME = "DeskBot"
 
@@ -38,8 +42,10 @@ class VersionHandler @Inject private constructor() : HandlerController {
     private companion object {
         fun loadInfo(): VersionInfo {
             val implVersion = loadImplementationVersion()
+            val apiVersion = loadApiVersion()
             return VersionInfo(
-                API_VERSION, ImplementationInfo(
+                apiVersion,
+                ImplementationInfo(
                     PROJECT_PAGE,
                     PROJECT_NAME,
                     implVersion
@@ -58,5 +64,19 @@ class VersionHandler @Inject private constructor() : HandlerController {
         } catch (e: ParseException) {
             throw IllegalStateException("Could not read version resource", e)
         }
+
+        private fun loadApiVersion(): String {
+            val openApi: MockOpenApi = ObjectMapper(YAMLFactory())
+                .registerModule(KotlinModule())
+                .readValue(this::class.java.getResource("/openapi/MusicBot.yaml"))
+
+            return openApi.info.version
+        }
+
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        private data class MockOpenApi(val info: MockInfo)
+
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        private data class MockInfo(val version: String)
     }
 }
