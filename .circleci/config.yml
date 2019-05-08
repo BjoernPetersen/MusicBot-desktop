@@ -68,9 +68,13 @@ jobs:
             - run:
                 command: ./gradlew distZip
                 name: Building distribution zip
+            - run:
+                command: mv build/distributions/musicbot-desktop-*.zip build/distributions/musicbot-desktop.zip
+                name: Renaming distributions zip
             - store_artifacts:
                 path: build/distributions
                 destination: dist
+
 
 workflows:
   full_workflow:
