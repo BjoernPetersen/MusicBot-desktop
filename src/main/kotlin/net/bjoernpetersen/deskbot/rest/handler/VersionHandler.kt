@@ -17,7 +17,6 @@ import java.io.IOException
 import java.util.Properties
 import javax.inject.Inject
 
-// TODO: This should definitely be automatically determined
 private const val PROJECT_PAGE = "https://github.com/BjoernPetersen/MusicBot-desktop"
 private const val PROJECT_NAME = "DeskBot"
 
