@@ -377,7 +377,7 @@ private class QueueDumper @Inject private constructor(
     private fun Song.toDumpString() = "${provider.id}|$id\n"
 
     fun dumpQueue() {
-        logger.info { "Dumping queue" }
+        logger.debug { "Dumping queue" }
         val file = File("queue.dump")
         file.bufferedWriter().use { writer ->
             val currentEntry = player.state.entry
