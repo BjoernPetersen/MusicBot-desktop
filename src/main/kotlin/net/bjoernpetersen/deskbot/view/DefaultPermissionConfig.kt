@@ -51,7 +51,7 @@ class DefaultPermissionConfig : Controller {
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("UNUSED_PARAMETER", "unused")
     @FXML
     private fun reset(actionEvent: ActionEvent) {
         configEntry?.let { entry ->
@@ -61,7 +61,7 @@ class DefaultPermissionConfig : Controller {
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("UNUSED_PARAMETER", "unused")
     @FXML
     private fun close(actionEvent: ActionEvent) {
         closeWindow()
