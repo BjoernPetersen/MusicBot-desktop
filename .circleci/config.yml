@@ -31,10 +31,13 @@ commands:
         type: string
       token:
         type: string
+      user:
+        type: string
+        default: BjoernPetersen
     steps:
       - run:
           working_directory: bundle/musicbot-desktop/plugins
-          command: python ../../../.circleci/load_artifact.py -p << parameters.project >> -t << parameters.token >> -a << parameters.path >> -b << parameters.branch >>
+          command: python ../../../.circleci/load_artifact.py -p << parameters.project >> -t << parameters.token >> -a << parameters.path >> -b << parameters.branch >> -u << parameters.user >>
 
 jobs:
   compile:
@@ -130,6 +133,12 @@ jobs:
           branch: $CIRCLE_BRANCH
           path: dist/musicbot-spotify.jar
           token: $CIRCLE_TOKEN_SPOTIFY
+      - download_artifact:
+          user: FelixGail
+          project: MusicBot-gplaymusic
+          branch: $CIRCLE_BRANCH
+          path: dist/musicbot-gplaymusic.jar
+          token: $CIRCLE_TOKEN_PLAY_MUSIC
       - run:
           name: Zipping bundle
           working_directory: bundle
