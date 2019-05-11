@@ -5,6 +5,8 @@ Requires Java 8 and JavaFX to be installed.
 
 ## Downloads
 
+It's recommended to use the latest build from the [releases page](https://github.com/BjoernPetersen/MusicBot-desktop/releases).
+
 You can download the latest `develop` and `master` CI builds by using one of the following links.
 The `bundle` contains several known plugins.
 
