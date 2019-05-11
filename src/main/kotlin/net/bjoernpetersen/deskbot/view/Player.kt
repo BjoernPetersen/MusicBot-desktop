@@ -21,6 +21,8 @@ import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.api.player.PauseState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
+import net.bjoernpetersen.musicbot.api.player.StopState
+import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import kotlin.coroutines.CoroutineContext
@@ -67,7 +69,8 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
         job = Job()
         Platform.runLater { stage.title = DeskBot.resources.getString("window.player") }
         setupQueue()
-        player.addUiListener { _, it ->
+
+        val playerStateListener: PlayerStateListener = { _, it ->
             pauseButton.isSelected = it is PauseState
 
             enqueuer.text = it.entry?.let { entry ->
@@ -82,6 +85,9 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             }
             albumArtView.image = it.entry?.song?.albumArtUrl?.let { url -> Image(url) }
         }
+        player.addUiListener(playerStateListener)
+        playerStateListener(StopState, player.state)
+
         pauseButton.selectedProperty().addListener { _, _, isSelected ->
             val path = if (isSelected) "/net/bjoernpetersen/deskbot/view/icons/play.png"
             else "/net/bjoernpetersen/deskbot/view/icons/pause.png"
