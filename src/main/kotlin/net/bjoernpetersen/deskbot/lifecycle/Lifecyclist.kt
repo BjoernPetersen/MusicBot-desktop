@@ -309,8 +309,8 @@ private class Initializer(private val finder: PluginFinder) {
                 }
 
                 Platform.runLater {
-                    window.close()
                     result(exception)
+                    window.close()
                 }
             }
         }
