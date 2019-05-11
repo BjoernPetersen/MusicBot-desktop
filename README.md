@@ -12,3 +12,7 @@ Branch | MusicBot-desktop only | bundle
 ------ | --------------------- | ------
 master | [download](https://felixgail.github.io/CircleCIArtifactProvider/index.html?vcs-type=github&user=BjoernPetersen&project=MusicBot-desktop&build=latest&branch=master&filter=successful&path=dist/musicbot-desktop.zip&token=0efcaa535b29bafaf9c9ca5f09ca4e1cd4b6f65f) | [download](https://felixgail.github.io/CircleCIArtifactProvider/index.html?vcs-type=github&user=BjoernPetersen&project=MusicBot-desktop&build=latest&branch=master&filter=successful&path=bundle/musicbot-desktop-bundle.zip&token=0efcaa535b29bafaf9c9ca5f09ca4e1cd4b6f65f)
 develop| [download](https://felixgail.github.io/CircleCIArtifactProvider/index.html?vcs-type=github&user=BjoernPetersen&project=MusicBot-desktop&build=latest&branch=develop&filter=successful&path=dist/musicbot-desktop.zip&token=0efcaa535b29bafaf9c9ca5f09ca4e1cd4b6f65f) | [download](https://felixgail.github.io/CircleCIArtifactProvider/index.html?vcs-type=github&user=BjoernPetersen&project=MusicBot-desktop&build=latest&branch=develop&filter=successful&path=bundle/musicbot-desktop-bundle.zip&token=0efcaa535b29bafaf9c9ca5f09ca4e1cd4b6f65f)
+
+## Command-line arguments
+
+- `--start` skips configuration and instantly loads player
