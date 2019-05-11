@@ -133,12 +133,12 @@ jobs:
           branch: $CIRCLE_BRANCH
           path: dist/musicbot-spotify.jar
           token: $CIRCLE_TOKEN_SPOTIFY
-      - download_artifact:
-          user: FelixGail
-          project: MusicBot-gplaymusic
-          branch: $CIRCLE_BRANCH
-          path: dist/musicbot-gplaymusic.jar
-          token: $CIRCLE_TOKEN_PLAY_MUSIC
+#      - download_artifact:
+#          user: FelixGail
+#          project: MusicBot-gplaymusic
+#          branch: $CIRCLE_BRANCH
+#          path: dist/musicbot-gplaymusic.jar
+#          token: $CIRCLE_TOKEN_PLAY_MUSIC
       - run:
           name: Zipping bundle
           working_directory: bundle
