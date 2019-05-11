@@ -9,12 +9,14 @@ import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.FileChooser
 import net.bjoernpetersen.musicbot.api.config.NumberBox
 import net.bjoernpetersen.musicbot.api.config.PasswordBox
+import net.bjoernpetersen.musicbot.api.config.PathChooser
 import net.bjoernpetersen.musicbot.api.config.TextBox
 import org.controlsfx.control.PropertySheet
 import org.controlsfx.property.editor.DefaultPropertyEditorFactory
 import org.controlsfx.property.editor.PropertyEditor
 import org.controlsfx.validation.ValidationSupport
 import java.io.File
+import java.nio.file.Path
 
 class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
     private val logger = KotlinLogging.logger { }
@@ -48,6 +50,9 @@ class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
                 uiNode as ActionButton<Any>)
             is FileChooser -> FileChooserPropertyEditor(
                 item as ConfigEntryItem<File>,
+                uiNode)
+            is PathChooser -> PathChooserPropertyEditor(
+                item as ConfigEntryItem<Path>,
                 uiNode)
             is ChoiceBox<*> -> ChoiceBoxPropertyEditor(
                 item as ConfigEntryItem<Any>,
