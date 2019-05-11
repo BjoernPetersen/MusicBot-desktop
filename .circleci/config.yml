@@ -133,6 +133,11 @@ jobs:
           branch: $CIRCLE_BRANCH
           path: dist/musicbot-spotify.jar
           token: $CIRCLE_TOKEN_SPOTIFY
+      - download_artifact:
+          project: MusicBot-Mp3Provider
+          branch: $CIRCLE_BRANCH
+          path: dist/musicbot-mp3provider.jar
+          token: $CIRCLE_TOKEN_MP3
 #      - download_artifact:
 #          user: FelixGail
 #          project: MusicBot-gplaymusic
