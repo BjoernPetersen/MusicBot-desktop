@@ -2,8 +2,6 @@ package net.bjoernpetersen.deskbot.view
 
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
-import net.bjoernpetersen.deskbot.localization.YamlResourceBundle
-import java.util.ResourceBundle
 
 inline fun <reified T : Controller> load(controller: T? = null): T {
     val loader = FXMLLoader(Charsets.UTF_8).apply {

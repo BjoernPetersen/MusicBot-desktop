@@ -10,7 +10,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
+import java.util.Properties
 
 class FileConfigStorage(private val configDir: File) : ConfigStorageAdapter {
     private val logger = KotlinLogging.logger { }
