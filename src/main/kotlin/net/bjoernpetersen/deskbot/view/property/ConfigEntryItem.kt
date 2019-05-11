@@ -9,7 +9,8 @@ import kotlin.reflect.KClass
 @Suppress("UNCHECKED_CAST")
 sealed class ConfigEntryItem<T : Any>(
     private val type: KClass<T>,
-    private val isSecret: Boolean) : PropertySheet.Item {
+    private val isSecret: Boolean
+) : PropertySheet.Item {
 
     abstract val entry: Config.Entry<T>
 
@@ -36,7 +37,8 @@ sealed class ConfigEntryItem<T : Any>(
 
 private class StringItem(
     override val entry: Config.StringEntry,
-    isSecret: Boolean) : ConfigEntryItem<String>(String::class, isSecret) {
+    isSecret: Boolean
+) : ConfigEntryItem<String>(String::class, isSecret) {
 
     override fun setValue(value: Any?) {
         entry.set(value as String?)
@@ -45,7 +47,8 @@ private class StringItem(
 
 private class BooleanItem(
     override val entry: Config.BooleanEntry,
-    isSecret: Boolean) : ConfigEntryItem<Boolean>(Boolean::class, isSecret) {
+    isSecret: Boolean
+) : ConfigEntryItem<Boolean>(Boolean::class, isSecret) {
 
     override fun setValue(value: Any?) {
         entry.set(value as? Boolean)
@@ -59,10 +62,10 @@ private class BooleanItem(
 @Suppress("UNCHECKED_CAST")
 private class SerializedItem(
     override val entry: Config.SerializedEntry<Any>,
-    isSecret: Boolean) : ConfigEntryItem<Any>(Any::class, isSecret) {
+    isSecret: Boolean
+) : ConfigEntryItem<Any>(Any::class, isSecret) {
 
     override fun setValue(value: Any?) {
         entry.set(value)
     }
 }
-

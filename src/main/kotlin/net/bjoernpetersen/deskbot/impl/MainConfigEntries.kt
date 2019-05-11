@@ -30,7 +30,8 @@ class MainConfigEntries @Inject constructor(
     configManager: ConfigManager,
     pluginFinder: PluginFinder,
     @Named("PluginClassLoader")
-    classLoader: ClassLoader) {
+    classLoader: ClassLoader
+) {
 
     private val plain = configManager[MainConfigScope].plain
     private val secret = configManager[MainConfigScope].secrets
@@ -82,15 +83,15 @@ class MainConfigEntries @Inject constructor(
         storageDir,
         defaultPermissions
     )
-    val allSecret: List<Config.Entry<*>> = listOf(
-    )
+    val allSecret: List<Config.Entry<*>> = listOf()
 
     private fun defaultPermissions() = defaultPermissions
 }
 
 private class SuggesterSerializer(
     private val classLoader: ClassLoader,
-    private val pluginFinder: PluginFinder) : ConfigSerializer<Suggester> {
+    private val pluginFinder: PluginFinder
+) : ConfigSerializer<Suggester> {
 
     override fun serialize(obj: Suggester): String {
         return obj.id.qualifiedName!!
@@ -128,5 +129,4 @@ private object PermissionSetSerializer : ConfigSerializer<Set<Permission>> {
         return if (obj.isEmpty()) "NONE"
         else obj.joinToString(",") { it.label }
     }
-
 }

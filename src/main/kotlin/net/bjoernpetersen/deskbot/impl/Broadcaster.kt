@@ -40,10 +40,10 @@ class Broadcaster @Throws(IOException::class) constructor() : Closeable {
 
     private fun findNetworkInterfaces(): List<NetworkInterface> {
         return NetworkInterface.getNetworkInterfaces().asSequence().filter {
-            !it.isLoopback
-                && !it.isVirtual
-                && it.isUp
-                && it.supportsMulticast()
+            !it.isLoopback &&
+                !it.isVirtual &&
+                it.isUp &&
+                it.supportsMulticast()
         }.toList()
     }
 

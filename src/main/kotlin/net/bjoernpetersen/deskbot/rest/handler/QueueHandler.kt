@@ -61,8 +61,8 @@ class QueueHandler @Inject private constructor(
             throw StatusException(Status.BAD_REQUEST, "providerId and songId are required")
         }
 
-        val hasPermission = ctx.authUser.permissions.contains(Permission.SKIP)
-            || queue.toList().firstOrNull { it.song.id == songId }?.let { it.user == ctx.authUser }
+        val hasPermission = ctx.authUser.permissions.contains(Permission.SKIP) ||
+            queue.toList().firstOrNull { it.song.id == songId }?.let { it.user == ctx.authUser }
             ?: return ctx.response().end(queue.toModel())
 
         if (!hasPermission) {

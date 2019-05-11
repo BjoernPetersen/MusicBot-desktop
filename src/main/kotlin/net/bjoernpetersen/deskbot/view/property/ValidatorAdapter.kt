@@ -7,7 +7,8 @@ import org.controlsfx.validation.ValidationResult
 import org.controlsfx.validation.Validator
 
 class ValidatorAdapter<T>(
-    private val entry: Config.Entry<T>) : Validator<T> {
+    private val entry: Config.Entry<T>
+) : Validator<T> {
 
     private val logger = KotlinLogging.logger {}
 
@@ -16,5 +17,4 @@ class ValidatorAdapter<T>(
         val message = entry.checkError()
         return message?.let { ValidationResult.fromError(t, it) } ?: ValidationResult()
     }
-
 }

@@ -262,7 +262,7 @@ class Lifecyclist : CoroutineScope {
     }
 
     private companion object {
-        val stateDir = File("state");
+        val stateDir = File("state")
         val configDir = File("config")
         val secretDir = File(configDir, "secret")
     }
@@ -427,7 +427,6 @@ private class QueueDumper @Inject private constructor(
                     }
                 }
             }
-
         }
     }
 }

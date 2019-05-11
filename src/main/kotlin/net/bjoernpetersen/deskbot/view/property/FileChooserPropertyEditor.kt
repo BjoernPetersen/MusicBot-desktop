@@ -22,7 +22,8 @@ private typealias FxFileChooser = javafx.stage.FileChooser
 
 class FileChooserPropertyEditor(
     private val item: ConfigEntryItem<File>,
-    fileChooser: FileChooser) : PropertyEditor<File>, Validatable<File> {
+    fileChooser: FileChooser
+) : PropertyEditor<File>, Validatable<File> {
 
     private val fileProperty: ObjectProperty<File> = SimpleObjectProperty(item.entry.get())
     private var file by property(fileProperty)

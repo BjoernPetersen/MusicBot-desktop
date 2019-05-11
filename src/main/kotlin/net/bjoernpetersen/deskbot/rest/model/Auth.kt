@@ -20,7 +20,8 @@ enum class UserType {
 data class AuthExpectation(
     val format: AuthType,
     val type: UserType? = null,
-    val permissions: List<Permission>? = null)
+    val permissions: List<Permission>? = null
+)
 
 fun tokenExpect(permissions: List<Permission>): AuthExpectation =
     AuthExpectation(AuthType.Token, permissions = permissions)

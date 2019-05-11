@@ -19,7 +19,8 @@ interface FailureAsyncBuilder<T> {
 
 private class AsyncBuilderImpl<T>(
     private val vertx: Vertx,
-    private val run: () -> T) : AsyncBuilder<T> {
+    private val run: () -> T
+) : AsyncBuilder<T> {
 
     override fun success(handler: (T) -> Unit): SuccessAsyncBuilder<T> =
         SuccessAsyncBuilderImpl(vertx, run, handler)
@@ -31,30 +32,31 @@ private class AsyncBuilderImpl<T>(
 private class SuccessAsyncBuilderImpl<T>(
     private val vertx: Vertx,
     private val run: () -> T,
-    private val success: (T) -> Unit) : SuccessAsyncBuilder<T> {
+    private val success: (T) -> Unit
+) : SuccessAsyncBuilder<T> {
 
     override fun failure(failure: (Throwable) -> Unit) {
         FullAsyncBuilder(vertx, run, success, failure).start()
     }
-
 }
 
 private class FailureAsyncBuilderImpl<T>(
     private val vertx: Vertx,
     private val run: () -> T,
-    private val failure: (Throwable) -> Unit) : FailureAsyncBuilder<T> {
+    private val failure: (Throwable) -> Unit
+) : FailureAsyncBuilder<T> {
 
     override fun success(success: (T) -> Unit) {
         FullAsyncBuilder(vertx, run, success, failure).start()
     }
-
 }
 
 private data class FullAsyncBuilder<T>(
     private val vertx: Vertx,
     private val run: () -> T,
     private val success: (T) -> Unit,
-    private val failure: (Throwable) -> Unit) {
+    private val failure: (Throwable) -> Unit
+) {
 
     fun start() {
         vertx.executeBlocking({ future: Future<T> ->

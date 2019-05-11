@@ -13,7 +13,6 @@ private typealias CoreSongEntry = net.bjoernpetersen.musicbot.api.player.SongEnt
 
 fun CoreSongEntry.toModel() = SongEntry(song, user?.name)
 
-
 /**
  * @param song a Song
  * @param userName The user who put the song in the queue.

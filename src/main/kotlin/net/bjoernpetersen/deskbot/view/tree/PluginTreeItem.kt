@@ -15,7 +15,8 @@ class PluginTreeItem(
     val base: KClass<out Plugin>,
     plugin: Plugin? = null,
     private val itemsByBase: Multimap<KClass<out Plugin>, PluginTreeItem> =
-        MultimapBuilder.hashKeys().arrayListValues().build<KClass<out Plugin>, PluginTreeItem>()) :
+        MultimapBuilder.hashKeys().arrayListValues().build<KClass<out Plugin>, PluginTreeItem>()
+) :
     TreeItem<Plugin>(plugin) {
 
     private var firstChildren = true

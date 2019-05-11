@@ -91,4 +91,3 @@ private fun <T> node(actionButton: ActionButton<T>): Node = ToolBar(
     orientation = Orientation.HORIZONTAL
     background = Background.EMPTY
 }
-

@@ -33,5 +33,4 @@ object ClassSerializer : ConfigSerializer<Class<*>> {
     override fun serialize(obj: Class<*>): String {
         return obj.name
     }
-
 }

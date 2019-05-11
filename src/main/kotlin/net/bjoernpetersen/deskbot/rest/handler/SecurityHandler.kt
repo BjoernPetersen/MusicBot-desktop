@@ -27,7 +27,8 @@ import java.util.Base64
 import javax.inject.Inject
 
 class BasicSecurityHandler @Inject constructor(
-    private val userManager: UserManager) : Handler<RoutingContext> {
+    private val userManager: UserManager
+) : Handler<RoutingContext> {
 
     private val logger = KotlinLogging.logger {}
     override fun handle(ctx: RoutingContext) {
@@ -78,7 +79,8 @@ class BasicSecurityHandler @Inject constructor(
 }
 
 class BearerSecurityHandler @Inject constructor(
-    private val userManager: UserManager) : Handler<RoutingContext> {
+    private val userManager: UserManager
+) : Handler<RoutingContext> {
 
     private val logger = KotlinLogging.logger {}
 
@@ -115,7 +117,8 @@ data class WrappedUser(val user: User) : VertxUser {
 
     override fun isAuthorized(
         authority: String,
-        resultHandler: Handler<AsyncResult<Boolean>>): VertxUser {
+        resultHandler: Handler<AsyncResult<Boolean>>
+    ): VertxUser {
         val future: Future<Boolean> = Future.future()
         resultHandler.handle(future)
 
@@ -138,4 +141,3 @@ data class WrappedUser(val user: User) : VertxUser {
 
 val RoutingContext.authUser: User
     get() = (user() as WrappedUser).user
-

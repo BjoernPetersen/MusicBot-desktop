@@ -95,7 +95,8 @@ class IdActivation : Controller {
     }
 
     private fun Plugin.satisfiedDependencies(
-        visited: MutableSet<Plugin> = HashSet(64)): Boolean {
+        visited: MutableSet<Plugin> = HashSet(64)
+    ): Boolean {
         val dependencies = findDependencies()
             .map { dependencyManager.getDefault(it) }
         visited.add(this)

@@ -15,7 +15,8 @@ import javax.inject.Inject
 import kotlin.reflect.full.isSubclassOf
 
 class SongPlayedNotifierImpl @Inject private constructor(
-    finder: PluginFinder) : SongPlayedNotifier {
+    finder: PluginFinder
+) : SongPlayedNotifier {
 
     private val suggestersByProviderId: Multimap<String, Suggester> = MultimapBuilder
         .hashKeys()

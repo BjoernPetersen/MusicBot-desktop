@@ -22,7 +22,8 @@ class YamlResourceBundle(inputStream: InputStream) : ResourceBundle() {
     @Suppress("UNCHECKED_CAST")
     private fun Map<String, Any>.flatten(
         target: MutableMap<String, Any> = HashMap(size * 4),
-        base: String = ""): Map<String, Any> {
+        base: String = ""
+    ): Map<String, Any> {
         this.forEach { key, value ->
             val newKey = "$base$key"
             when (value) {
@@ -49,7 +50,8 @@ class YamlResourceBundle(inputStream: InputStream) : ResourceBundle() {
             locale: Locale,
             format: String,
             loader: ClassLoader,
-            reload: Boolean): ResourceBundle {
+            reload: Boolean
+        ): ResourceBundle {
             val bundleName = toBundleName(baseName, locale)
             val resourceName = toResourceName(bundleName, format)
 

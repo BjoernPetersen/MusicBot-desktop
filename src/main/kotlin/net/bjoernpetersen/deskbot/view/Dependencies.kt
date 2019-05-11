@@ -29,7 +29,6 @@ class Dependencies : Controller {
         pluginProperty.addListener { _, _, plugin ->
             tree.root = if (plugin == null) null
             else PluginTreeItem(dependencyManager, plugin.id, plugin).apply { isExpanded = true }
-
         }
         tree.setCellFactory {
             // TODO i18n
