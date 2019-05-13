@@ -49,7 +49,8 @@ class UserHandler @Inject constructor(
         } success {
             ctx.response().end(it)
         } failure {
-            ctx.fail(it)
+            if (it is DuplicateUserException) ctx.response().setStatus(Status.CONFLICT).end()
+            else ctx.fail(it)
         }
     }
 
