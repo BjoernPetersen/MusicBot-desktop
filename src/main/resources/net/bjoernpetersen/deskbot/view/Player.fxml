@@ -18,7 +18,7 @@
   fx:id="root"
   prefWidth="800.0" prefHeight="600.0">
   <left>
-    <ListView fx:id="queueList"/>
+    <ListView fx:id="queueList" editable="true"/>
   </left>
   <bottom>
     <ButtonBar>

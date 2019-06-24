@@ -7,7 +7,6 @@ import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.scene.control.ToggleButton
-import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Region
@@ -17,6 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.api.player.PauseState
@@ -78,11 +78,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             }
             title.text = it.entry?.song?.title
             description.text = it.entry?.song?.description
-            duration.text = it.entry?.song?.duration?.let { total ->
-                val minutes = total / 60
-                val seconds = total % 60
-                "%d:%02d".format(minutes, seconds)
-            }
+            duration.text = it.entry?.song?.duration?.let { it.toDurationString() }
             albumArtView.image = it.entry?.song?.albumArtUrl?.let { url -> Image(url) }
         }
         player.addUiListener(playerStateListener)
@@ -97,7 +93,17 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
 
     private fun setupQueue() {
         queueList.setCellFactory {
-            TextFieldListCell(stringConverter { it?.song?.title })
+            load<QueueEntryListCell>().apply {
+                dragHandler = { fromIndex, toIndex ->
+                    val entry = queueList.items[fromIndex]
+                    queue.move(entry.song, toIndex)
+                    Platform.runLater {
+                        // We defer the selection so the QueueChangeListener will get called first
+                        queueList.selectionModel.select(entry)
+                    }
+                    true
+                }
+            }
         }
         queue.addUiListener(object : QueueChangeListener {
             override fun onAdd(entry: QueueEntry) {

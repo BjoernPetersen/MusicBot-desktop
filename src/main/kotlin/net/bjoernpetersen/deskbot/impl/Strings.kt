@@ -11,3 +11,9 @@ fun randomString(length: Int): String {
         .forEach { sb.append(it) }
     return sb.toString()
 }
+
+fun Int.toDurationString(): String {
+    val minutes = this / 60
+    val seconds = this % 60
+    return "%d:%02d".format(minutes, seconds)
+}

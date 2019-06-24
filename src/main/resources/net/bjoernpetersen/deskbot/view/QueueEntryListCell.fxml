@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:id="root"
+          prefWidth="-Infinity"
+          fx:controller="net.bjoernpetersen.deskbot.view.QueueEntryListCell">
+    <Separator fx:id="topLine" GridPane.rowIndex="0" visible="false"/>
+    <Label fx:id="title" GridPane.rowIndex="1" GridPane.columnSpan="2"
+           style="-fx-font-weight: bold;"/>
+    <Label fx:id="description" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+    <Label fx:id="user" GridPane.rowIndex="3" GridPane.hgrow="ALWAYS"/>
+    <Label fx:id="duration" GridPane.rowIndex="3" GridPane.columnIndex="1" GridPane.hgrow="NEVER"/>
+    <Separator fx:id="bottomLine" GridPane.rowIndex="4" visible="false"/>
+</GridPane>
