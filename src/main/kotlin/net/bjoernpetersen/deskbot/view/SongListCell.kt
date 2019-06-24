@@ -23,7 +23,6 @@ class SongListCell : ListCell<Song>(), Controller {
     @FXML
     private lateinit var duration: Label
 
-
     override fun initialize() {
         text = null
         graphic = null
