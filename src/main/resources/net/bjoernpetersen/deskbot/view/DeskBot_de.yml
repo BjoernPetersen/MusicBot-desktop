@@ -1,0 +1,52 @@
+category:
+  main: Hauptprogramm
+
+action:
+  start: Start
+  configure: Konfigurieren
+  exit: Beenden
+  enable: Aktivieren
+  disable: Deaktivieren
+  refresh: Aktualisieren
+  close: Schließen
+  userManagement: Nutzer verwalten
+  reset: Zurücksetzen
+  edit: Anpassen
+
+window:
+  overview: DeskBot
+  dependencies: Abhängigkeiten
+  config: DeskBot Konfiguration
+  initialization: Initialisiere...
+  player: DeskBot-Player
+  userManagement: Nutzerverwaltung
+  defaultPermission: Rechte für neue Nutzer
+
+dependency:
+  dependencies: Abhängigkeiten
+
+choose:
+  file: Datei auswählen
+  dir: Ordner auswählen
+
+description:
+  mainConfig: >
+    Einstellungen, die den Bot betreffen, kein Plugin.
+  permission: >
+    Wähle die Rechte aus, die ein Nutzer haben soll.
+    Nutzer müssen ihre Rechte eventuell manuell aktualisieren, ehe sie im Client wirksam sind.
+  defaultPermissionConfig: >
+    Wähle die Rechte aus, die neue Nutzer und Gäste haben sollen.
+
+player:
+  unknownDuration: unbekannt
+  suggested: Vorgeschlagen
+  search: Suche nach Songs...
+
+task:
+  parent:
+    title: Initialisiere Plugins
+    description: Dies könnte eine Weile dauern...
+  plugin:
+    title: 'Lade %s: %s'
+    waiting: 'Warte auf anderes Plugin: %s %s'
