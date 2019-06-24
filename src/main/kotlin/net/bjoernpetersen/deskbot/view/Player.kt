@@ -8,10 +8,12 @@ import javafx.scene.control.ContextMenu
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.scene.control.MenuItem
+import javafx.scene.control.TextField
 import javafx.scene.control.ToggleButton
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Region
+import javafx.scene.layout.StackPane
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,6 +26,7 @@ import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.api.player.PauseState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.StopState
+import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
@@ -41,11 +44,14 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
 
     private val player: LibPlayer = lifecycle.getInjector().getInstance(LibPlayer::class.java)
     private val queue: SongQueue = lifecycle.getInjector().getInstance(SongQueue::class.java)
+    private val finder: PluginFinder = lifecycle.getPluginFinder()
 
     @FXML
     override lateinit var root: Region
         private set
 
+    @FXML
+    private lateinit var leftSpace: StackPane
     @FXML
     private lateinit var queueList: ListView<QueueEntry>
     @FXML
@@ -65,6 +71,9 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     private lateinit var duration: Label
     @FXML
     private lateinit var enqueuer: Label
+
+    @FXML
+    private lateinit var searchField: TextField
 
     @FXML
     override fun initialize() {
@@ -91,6 +100,8 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             else "/net/bjoernpetersen/deskbot/view/icons/pause.png"
             playPauseImage.image = Image(path)
         }
+
+        setupSearch()
     }
 
     private fun setupQueue() {
@@ -134,6 +145,21 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             }
         })
         queue.toList().forEach { queueList.items.add(it) }
+    }
+
+    private fun setupSearch() {
+        val searchResults = load(SearchResults(finder, queue))
+        leftSpace.children.add(searchResults.root)
+        searchResults.root.isVisible = false
+        searchField.textProperty().addListener { _, _, new ->
+            if (new.isBlank()) {
+                searchResults.query = ""
+                searchResults.root.isVisible = false
+            } else {
+                searchResults.query = new
+                searchResults.root.isVisible = true
+            }
+        }
     }
 
     @Suppress("UNUSED_PARAMETER", "unused")

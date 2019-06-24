@@ -13,12 +13,18 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
 <BorderPane xmlns="http://javafx.com/javafx"
-  xmlns:fx="http://javafx.com/fxml"
-  fx:id="root"
-  prefWidth="800.0" prefHeight="600.0">
-  <left>
-    <ListView fx:id="queueList" editable="true"/>
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="root"
+            prefWidth="800.0" prefHeight="600.0">
+    <left>
+      <VBox>
+        <StackPane fx:id="leftSpace" VBox.vgrow="ALWAYS" >
+          <ListView fx:id="queueList" editable="true"/>
+        </StackPane>
+          <TextField fx:id="searchField" promptText="Search for songs..."/>
+      </VBox>
   </left>
   <bottom>
     <ButtonBar>

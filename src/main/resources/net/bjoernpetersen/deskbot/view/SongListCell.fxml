@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<GridPane xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:id="root"
+          hgap="5"
+          prefWidth="-Infinity"
+          fx:controller="net.bjoernpetersen.deskbot.view.SongListCell">
+    <ImageView fx:id="albumArt" GridPane.rowSpan="3" GridPane.valignment="CENTER"
+               fitWidth="40" fitHeight="40"/>
+    <Label fx:id="title" GridPane.rowIndex="0" GridPane.columnIndex="1"
+           style="-fx-font-weight: bold;"/>
+    <Label fx:id="description" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    <Label fx:id="duration" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+</GridPane>

@@ -4,6 +4,8 @@ import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.control.Separator
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.input.ClipboardContent
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.Region
@@ -20,6 +22,8 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
     @FXML
     private lateinit var bottomLine: Separator
 
+    @FXML
+    private lateinit var albumArt: ImageView
     @FXML
     private lateinit var title: Label
     @FXML
@@ -97,6 +101,7 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
 
     private fun applyInfo(entry: QueueEntry) {
         val song = entry.song
+        albumArt.image = song.albumArtUrl?.let { Image(it, true) }
         title.text = song.title
         description.text = song.description
         duration.text = song.duration?.toDurationString()
