@@ -103,7 +103,7 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
         val song = entry.song
         albumArt.image = song.albumArtUrl?.let { Image(it, true) }
         title.text = song.title
-        description.text = song.description
+        description.text = song.description.substringBefore('\n')
         duration.text = song.duration?.toDurationString()
         user.text = entry.user.name
     }
