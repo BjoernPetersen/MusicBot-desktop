@@ -1,15 +1,15 @@
 object Lib {
     const val KOTLIN = Plugin.KOTLIN
-    const val KOTLIN_COROUTINES = "1.2.1"
+    const val KOTLIN_COROUTINES = "1.2.2"
     const val SLF4J = "1.8.0-beta4"
 
     const val MUSICBOT = "0.22.0"
 
-    const val CONTROLS_FX = "8.40.14"
+    const val CONTROLS_FX = "8.40.15"
 
-    const val VERTX = "3.7.0"
+    const val VERTX = "3.7.1"
 
-    const val JACKSON = "2.9.8"
+    const val JACKSON = "2.9.9"
 
     const val JUNIT = "5.4.2"
     const val JUNIT_GUICE = "1.1.1"
