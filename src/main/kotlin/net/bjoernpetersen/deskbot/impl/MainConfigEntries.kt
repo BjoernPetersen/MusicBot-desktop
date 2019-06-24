@@ -3,6 +3,8 @@ package net.bjoernpetersen.deskbot.impl
 import javafx.application.Platform
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.view.DefaultPermissionConfig
+import net.bjoernpetersen.deskbot.view.DeskBot
+import net.bjoernpetersen.deskbot.view.get
 import net.bjoernpetersen.deskbot.view.load
 import net.bjoernpetersen.deskbot.view.show
 import net.bjoernpetersen.musicbot.api.auth.Permission
@@ -41,14 +43,15 @@ class MainConfigEntries @Inject constructor(
         description = "The suggester providing songs if the queue is empty",
         serializer = SuggesterSerializer(classLoader, pluginFinder),
         configChecker = { null },
-        uiNode = ChoiceBox({ it.name }, { pluginFinder.suggesters }))
+        uiNode = ChoiceBox({ it.name }, { pluginFinder.suggesters })
+    )
 
     val defaultPermissions: Config.SerializedEntry<Set<Permission>> = plain.SerializedEntry(
         key = "defaultPermissions",
         description = "Permissions for new users and guests",
         serializer = PermissionSetSerializer,
         configChecker = NonnullConfigChecker,
-        uiNode = ActionButton("Edit", { it.sorted().joinToString() }) {
+        uiNode = ActionButton(DeskBot.resources["action.edit"], { it.sorted().joinToString() }) {
             val lock: Lock = ReentrantLock()
             val cond = lock.newCondition()
             lock.withLock {
@@ -64,7 +67,8 @@ class MainConfigEntries @Inject constructor(
             }
             true
         },
-        default = Permission.getDefaults())
+        default = Permission.getDefaults()
+    )
 
     val storageDir: Config.SerializedEntry<File> = plain.SerializedEntry(
         key = "storageDir",
@@ -76,7 +80,8 @@ class MainConfigEntries @Inject constructor(
             else "Must be an existing directory"
         },
         uiNode = FileChooser(),
-        default = File("storage"))
+        default = File("storage")
+    )
 
     val allPlain: List<Config.Entry<*>> = listOf(
         defaultSuggester,

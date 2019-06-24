@@ -15,6 +15,7 @@ action:
   close: Close
   userManagement: Manage users
   reset: Reset
+  edit: Edit
 
 window:
   overview: DeskBot
