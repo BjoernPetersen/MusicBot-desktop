@@ -35,12 +35,16 @@ choose:
 description:
   mainConfig: >
     Configuration affecting the bot itself, not any plugin.
-  suggested: Suggested
   permission: >
     Check the permissions a user should have.
     Users may need to refresh their permissions before they are applied in the client.
   defaultPermissionConfig: >
     Select the permissions new users and guest users should have.
+
+player:
+  unknownDuration: unknown
+  suggested: Suggested
+  search: Search for songs...
 
 task:
   parent:

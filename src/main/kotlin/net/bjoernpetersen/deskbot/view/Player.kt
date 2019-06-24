@@ -17,6 +17,8 @@ import javafx.scene.layout.StackPane
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -24,7 +26,9 @@ import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.api.player.PauseState
+import net.bjoernpetersen.musicbot.api.player.ProgressTracker
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
+import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.player.StopState
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
@@ -45,6 +49,8 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     private val player: LibPlayer = lifecycle.getInjector().getInstance(LibPlayer::class.java)
     private val queue: SongQueue = lifecycle.getInjector().getInstance(SongQueue::class.java)
     private val finder: PluginFinder = lifecycle.getPluginFinder()
+    private val timeTracker: ProgressTracker =
+        lifecycle.getInjector().getInstance(ProgressTracker::class.java)
 
     @FXML
     override lateinit var root: Region
@@ -78,19 +84,32 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     @FXML
     override fun initialize() {
         job = Job()
-        Platform.runLater { stage.title = DeskBot.resources.getString("window.player") }
+        Platform.runLater { stage.title = res.getString("window.player") }
         setupQueue()
+
+        var song: Song? = null
+        launch(Dispatchers.Main) {
+            while (isActive) {
+                val fullDuration = song?.duration?.toDurationString()
+                    ?: res.getString("player.unknownDuration")
+                val progress = timeTracker.getCurrentProgress().duration.seconds
+                    .toInt().toDurationString()
+                duration.text = "$progress / $fullDuration"
+                delay(50)
+            }
+        }
 
         val playerStateListener: PlayerStateListener = { _, it ->
             pauseButton.isSelected = it is PauseState
 
             enqueuer.text = it.entry?.let { entry ->
-                entry.user?.name ?: res["description.suggested"]
+                entry.user?.name ?: res["player.suggested"]
             }
-            title.text = it.entry?.song?.title
-            description.text = it.entry?.song?.description
-            duration.text = it.entry?.song?.duration?.let { it.toDurationString() }
-            albumArtView.image = it.entry?.song?.albumArtUrl?.let { url -> Image(url) }
+            song = it.entry?.song
+            title.text = song?.title
+            description.text = song?.description
+            duration.text = null
+            albumArtView.image = song?.albumArtUrl?.let { url -> Image(url) }
         }
         player.addUiListener(playerStateListener)
         playerStateListener(StopState, player.state)
