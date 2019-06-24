@@ -35,7 +35,7 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
         text = null
         graphic = null
         setOnDragDetected {
-            if (dragHandler != null) {
+            if (item != null && dragHandler != null) {
                 val dragboard = startDragAndDrop(TransferMode.MOVE)
                 dragboard.setContent(ClipboardContent().apply {
                     putString(index.toString())

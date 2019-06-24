@@ -4,8 +4,10 @@ import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.control.Button
+import javafx.scene.control.ContextMenu
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
+import javafx.scene.control.MenuItem
 import javafx.scene.control.ToggleButton
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -102,6 +104,18 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
                         queueList.selectionModel.select(entry)
                     }
                     true
+                }
+                val removeItem = MenuItem("Remove").apply {
+                    setOnAction { event ->
+                        item?.song?.let { queue.remove(it) }
+                        event.consume()
+                    }
+                }
+                contextMenu = ContextMenu(removeItem).apply {
+                    setOnShown {
+                        if (item == null) Platform.runLater { hide() }
+                        it.consume()
+                    }
                 }
             }
         }
