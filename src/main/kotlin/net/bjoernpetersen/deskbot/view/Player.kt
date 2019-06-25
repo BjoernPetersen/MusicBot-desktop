@@ -25,7 +25,7 @@ import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.api.auth.UserManager
-import net.bjoernpetersen.musicbot.api.player.PauseState
+import net.bjoernpetersen.musicbot.api.player.PlayState
 import net.bjoernpetersen.musicbot.api.player.ProgressTracker
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.Song
@@ -100,7 +100,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
         }
 
         val playerStateListener: PlayerStateListener = { _, it ->
-            pauseButton.isSelected = it is PauseState
+            pauseButton.isSelected = it !is PlayState
 
             enqueuer.text = it.entry?.let { entry ->
                 entry.user?.name ?: res["player.suggested"]
