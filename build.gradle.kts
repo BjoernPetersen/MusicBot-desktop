@@ -70,11 +70,7 @@ tasks {
         outputDirectory = "$buildDir/javadoc"
     }
 
-    "compileKotlin"(KotlinCompile::class) {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
-    "compileTestKotlin"(KotlinCompile::class) {
+    withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
 
@@ -86,11 +82,11 @@ tasks {
         }
     }
 
-    "test"(Test::class) {
+    withType<Test> {
         useJUnitPlatform()
     }
 
-    withType(Jar::class) {
+    withType<Jar> {
         from(project.projectDir) {
             include("LICENSE")
         }
@@ -144,7 +140,7 @@ dependencies {
         version = Lib.JACKSON
     )
 
-    testRuntime(
+    testRuntimeOnly(
         group = "org.junit.jupiter",
         name = "junit-jupiter-engine",
         version = Lib.JUNIT
