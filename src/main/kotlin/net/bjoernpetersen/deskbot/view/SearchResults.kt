@@ -9,7 +9,8 @@ import net.bjoernpetersen.musicbot.spi.plugin.Provider
 
 class SearchResults(
     private val finder: PluginFinder,
-    private val queue: SongQueue
+    private val queue: SongQueue,
+    private val showAlbumArt: Boolean
 ) : Controller {
     @FXML
     override lateinit var root: TabPane
@@ -42,7 +43,7 @@ class SearchResults(
     }
 
     private fun createTab(provider: Provider): Tab = Tab(provider.subject).apply {
-        val controller = load(SearchResult(provider, queue))
+        val controller = load(SearchResult(provider, queue, showAlbumArt))
         controllers.add(controller)
         content = controller.root
     }

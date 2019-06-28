@@ -18,7 +18,8 @@ import net.bjoernpetersen.musicbot.spi.plugin.Provider
 
 class SearchResult(
     private val provider: Provider,
-    private val queue: SongQueue
+    private val queue: SongQueue,
+    private val showAlbumArt: Boolean
 ) : Controller, CoroutineScope by MainScope() {
 
     @FXML
@@ -59,6 +60,8 @@ class SearchResult(
     override fun initialize() {
         resultList.setCellFactory {
             load<SongListCell>().apply {
+                if (!showAlbumArt)
+                    removeAlbumArt()
                 root.setOnMouseClicked {
                     val song = item
                     if (song != null && it.clickCount > 1) {

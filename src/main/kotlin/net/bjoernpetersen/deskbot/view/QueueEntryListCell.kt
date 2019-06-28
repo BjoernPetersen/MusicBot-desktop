@@ -8,13 +8,13 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.ClipboardContent
 import javafx.scene.input.TransferMode
-import javafx.scene.layout.Region
+import javafx.scene.layout.GridPane
 import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 
 class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
     @FXML
-    override lateinit var root: Region
+    override lateinit var root: GridPane
         private set
 
     @FXML
@@ -33,6 +33,7 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
     @FXML
     private lateinit var duration: Label
 
+    private var showImages: Boolean = true
     var dragHandler: ((fromIndex: Int, toIndex: Int) -> Boolean)? = null
 
     override fun initialize() {
@@ -99,9 +100,14 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
         }
     }
 
+    fun removeAlbumArt() {
+        showImages = false
+        root.children.remove(albumArt)
+    }
+
     private fun applyInfo(entry: QueueEntry) {
         val song = entry.song
-        albumArt.image = song.albumArtUrl?.let { Image(it, true) }
+        if (showImages) albumArt.image = song.albumArtUrl?.let { Image(it, true) }
         title.text = song.title
         description.text = song.description.substringBefore('\n')
         duration.text = song.duration?.toDurationString()

@@ -83,9 +83,19 @@ class MainConfigEntries @Inject constructor(
         default = File("storage")
     )
 
+    val loadAlbumArt = plain.SerializedEntry(
+        key = "loadAlbumArt",
+        description = "Which album art images to load. Disable to save bandwidth.",
+        serializer = AlbumArtMode,
+        configChecker = NonnullConfigChecker,
+        uiNode = ChoiceBox({ it.friendlyName }, { AlbumArtMode.values().asList() }),
+        default = AlbumArtMode.ALL
+    )
+
     val allPlain: List<Config.Entry<*>> = listOf(
         defaultSuggester,
         storageDir,
+        loadAlbumArt,
         defaultPermissions
     )
     val allSecret: List<Config.Entry<*>> = listOf()

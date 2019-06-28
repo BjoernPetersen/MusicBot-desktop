@@ -32,7 +32,7 @@
             <padding>
                 <Insets topRightBottomLeft="50"/>
             </padding>
-            <VBox spacing="10" alignment="CENTER">
+            <VBox fx:id="currentSongBox" spacing="10" alignment="CENTER">
                 <ImageView fx:id="albumArtView" fitWidth="300" fitHeight="300"
                            preserveRatio="true"/>
 

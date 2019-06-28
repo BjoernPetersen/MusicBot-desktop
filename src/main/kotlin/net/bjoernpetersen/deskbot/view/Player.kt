@@ -14,6 +14,7 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,6 +52,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     private val finder: PluginFinder = lifecycle.getPluginFinder()
     private val timeTracker: ProgressTracker =
         lifecycle.getInjector().getInstance(ProgressTracker::class.java)
+    private val albumArtMode = lifecycle.getMainConfig().loadAlbumArt.get()!!
 
     @FXML
     override lateinit var root: Region
@@ -60,6 +62,9 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     private lateinit var leftSpace: StackPane
     @FXML
     private lateinit var queueList: ListView<QueueEntry>
+
+    @FXML
+    private lateinit var currentSongBox: VBox
     @FXML
     private lateinit var albumArtView: ImageView
     @FXML
@@ -68,7 +73,6 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     private lateinit var playPauseImage: ImageView
     @FXML
     private lateinit var skipButton: Button
-
     @FXML
     private lateinit var title: Label
     @FXML
@@ -99,6 +103,9 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             }
         }
 
+        if (!albumArtMode.showCurrent)
+            currentSongBox.children.remove(albumArtView)
+
         val playerStateListener: PlayerStateListener = { _, it ->
             pauseButton.isSelected = it !is PlayState
 
@@ -109,7 +116,8 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             title.text = song?.title
             description.text = song?.description
             duration.text = null
-            albumArtView.image = song?.albumArtUrl?.let { url -> Image(url) }
+            if (albumArtMode.showCurrent)
+                albumArtView.image = song?.albumArtUrl?.let { url -> Image(url) }
         }
         player.addUiListener(playerStateListener)
         playerStateListener(StopState, player.state)
@@ -126,6 +134,9 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     private fun setupQueue() {
         queueList.setCellFactory {
             load<QueueEntryListCell>().apply {
+                if (!albumArtMode.showListItem) {
+                    removeAlbumArt()
+                }
                 dragHandler = { fromIndex, toIndex ->
                     val entry = queueList.items[fromIndex]
                     queue.move(entry.song, toIndex)
@@ -167,7 +178,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     }
 
     private fun setupSearch() {
-        val searchResults = load(SearchResults(finder, queue))
+        val searchResults = load(SearchResults(finder, queue, albumArtMode.showListItem))
         leftSpace.children.add(searchResults.root)
         searchResults.root.isVisible = false
         searchField.textProperty().addListener { _, _, new ->

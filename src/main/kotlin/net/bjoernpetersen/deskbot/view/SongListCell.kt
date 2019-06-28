@@ -5,13 +5,13 @@ import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.layout.Region
+import javafx.scene.layout.GridPane
 import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.musicbot.api.player.Song
 
 class SongListCell : ListCell<Song>(), Controller {
     @FXML
-    override lateinit var root: Region
+    override lateinit var root: GridPane
         private set
 
     @FXML
@@ -22,6 +22,8 @@ class SongListCell : ListCell<Song>(), Controller {
     private lateinit var description: Label
     @FXML
     private lateinit var duration: Label
+
+    private var showImages = true
 
     override fun initialize() {
         text = null
@@ -39,8 +41,13 @@ class SongListCell : ListCell<Song>(), Controller {
         }
     }
 
+    fun removeAlbumArt() {
+        showImages = false
+        root.children.remove(albumArt)
+    }
+
     private fun applyInfo(song: Song) {
-        albumArt.image = song.albumArtUrl?.let { Image(it, true) }
+        if (showImages) albumArt.image = song.albumArtUrl?.let { Image(it, true) }
         title.text = song.title
         description.text = song.description.substringBefore('\n')
         duration.text = song.duration?.toDurationString()
