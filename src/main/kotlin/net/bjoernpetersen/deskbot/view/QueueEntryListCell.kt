@@ -9,6 +9,7 @@ import javafx.scene.image.ImageView
 import javafx.scene.input.ClipboardContent
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.GridPane
+import net.bjoernpetersen.deskbot.impl.effectiveAlbumArtUrl
 import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 
@@ -107,7 +108,7 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
 
     private fun applyInfo(entry: QueueEntry) {
         val song = entry.song
-        if (showImages) albumArt.image = song.albumArtUrl?.let { Image(it, true) }
+        if (showImages) albumArt.image = song.effectiveAlbumArtUrl?.let { Image(it, true) }
         title.text = song.title
         description.text = song.description.substringBefore('\n')
         duration.text = song.duration?.toDurationString()

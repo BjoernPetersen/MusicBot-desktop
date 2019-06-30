@@ -6,6 +6,7 @@ import javafx.scene.control.ListCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.GridPane
+import net.bjoernpetersen.deskbot.impl.effectiveAlbumArtUrl
 import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.musicbot.api.player.Song
 
@@ -47,7 +48,7 @@ class SongListCell : ListCell<Song>(), Controller {
     }
 
     private fun applyInfo(song: Song) {
-        if (showImages) albumArt.image = song.albumArtUrl?.let { Image(it, true) }
+        if (showImages) albumArt.image = song.effectiveAlbumArtUrl?.let { Image(it, true) }
         title.text = song.title
         description.text = song.description.substringBefore('\n')
         duration.text = song.duration?.toDurationString()

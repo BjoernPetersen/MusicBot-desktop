@@ -23,6 +23,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import net.bjoernpetersen.deskbot.impl.effectiveAlbumArtUrl
 import net.bjoernpetersen.deskbot.impl.toDurationString
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.api.auth.UserManager
@@ -117,7 +118,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             description.text = song?.description
             duration.text = null
             if (albumArtMode.showCurrent)
-                albumArtView.image = song?.albumArtUrl?.let { url -> Image(url) }
+                albumArtView.image = song?.effectiveAlbumArtUrl?.let { url -> Image(url) }
         }
         player.addUiListener(playerStateListener)
         playerStateListener(StopState, player.state)
