@@ -14,6 +14,7 @@ import net.bjoernpetersen.deskbot.rest.handler.BasicSecurityHandler
 import net.bjoernpetersen.deskbot.rest.handler.BearerSecurityHandler
 import net.bjoernpetersen.deskbot.rest.handler.ExitHandler
 import net.bjoernpetersen.deskbot.rest.handler.FailureHandler
+import net.bjoernpetersen.deskbot.rest.handler.ImageHandler
 import net.bjoernpetersen.deskbot.rest.handler.PlayerHandler
 import net.bjoernpetersen.deskbot.rest.handler.ProviderHandler
 import net.bjoernpetersen.deskbot.rest.handler.QueueHandler
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class RestServer @Inject constructor(
     private val bearerSecurityHandler: BearerSecurityHandler,
     private val basicSecurityHandler: BasicSecurityHandler,
+    private val imageHandler: ImageHandler,
     private val versionHandler: VersionHandler,
     private val userHandler: UserHandler,
     private val playerHandler: PlayerHandler,
@@ -71,6 +73,8 @@ class RestServer @Inject constructor(
             }
         }
         router.route().failureHandler(FailureHandler())
+
+        imageHandler.register(router)
 
         val serverOptions = httpServerOptionsOf(
             port = ServerConstraints.port

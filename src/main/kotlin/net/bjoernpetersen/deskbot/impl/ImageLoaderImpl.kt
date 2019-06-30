@@ -1,4 +1,4 @@
-package net.bjoernpetersen.deskbot.impl.image
+package net.bjoernpetersen.deskbot.impl
 
 import com.google.inject.AbstractModule
 import io.ktor.client.HttpClient

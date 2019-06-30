@@ -1,4 +1,4 @@
-package net.bjoernpetersen.deskbot.impl.image
+package net.bjoernpetersen.deskbot.impl
 
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer

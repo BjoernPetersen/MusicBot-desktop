@@ -21,10 +21,9 @@ import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
 import net.bjoernpetersen.deskbot.impl.Broadcaster
 import net.bjoernpetersen.deskbot.impl.FileConfigStorage
 import net.bjoernpetersen.deskbot.impl.FileStorageImpl
+import net.bjoernpetersen.deskbot.impl.ImageLoaderImpl
 import net.bjoernpetersen.deskbot.impl.MainConfigEntries
 import net.bjoernpetersen.deskbot.impl.SongPlayedNotifierModule
-import net.bjoernpetersen.deskbot.impl.image.ImageLoaderImpl
-import net.bjoernpetersen.deskbot.impl.image.ImageServer
 import net.bjoernpetersen.deskbot.rest.RestModule
 import net.bjoernpetersen.deskbot.rest.RestServer
 import net.bjoernpetersen.deskbot.view.DeskBot
@@ -210,9 +209,6 @@ class Lifecyclist : CoroutineScope {
                 val rest = injector.getInstance(RestServer::class.java)
                 vertx.deployVerticle(rest)
 
-                val imageServer = injector.getInstance(ImageServer::class.java)
-                imageServer.start()
-
                 broadcaster = Broadcaster().apply { start() }
 
                 GlobalScope.launch {
@@ -254,9 +250,6 @@ class Lifecyclist : CoroutineScope {
                     val stopper = InstanceStopper(injector).apply {
                         register(Vertx::class.java) { vertx ->
                             vertx.closeAwait()
-                        }
-                        register(ImageServer::class.java) {
-                            it.close()
                         }
                     }
                     stopper.stop()

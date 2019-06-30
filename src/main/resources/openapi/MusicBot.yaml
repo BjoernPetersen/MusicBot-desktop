@@ -3,7 +3,7 @@ info:
   title: MusicBot
   description: >
     HTTP API for the MusicBot project.
-  version: 0.12.0
+  version: 0.13.0
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
@@ -632,9 +632,17 @@ components:
           description: Duration of the song in seconds.
           minimum: 0
           example: 180
-        albumArtUrl:
+        albumArtPath:
           type: string
-          description: The URL pointing to an album art for this song.
+          description: >
+            The path relative to the bot API's base URL at which the album art can be found.
+          example: /image/remote/abcdef
+        albumArtUrl:
+          deprecated: true
+          type: string
+          description: >
+            The URL pointing to an album art for this song.
+            This property is deprecated and should be ignored if albumArtPath is present.
           example: 'http://example.com/image.png'
     PlayerState:
       type: object

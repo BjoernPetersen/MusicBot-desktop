@@ -2,7 +2,6 @@ package net.bjoernpetersen.deskbot.impl
 
 import javafx.application.Platform
 import mu.KotlinLogging
-import net.bjoernpetersen.deskbot.impl.image.AlbumArtMode
 import net.bjoernpetersen.deskbot.view.DefaultPermissionConfig
 import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.get
