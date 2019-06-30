@@ -12,9 +12,9 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.util.pipeline.PipelineContext
+import net.bjoernpetersen.musicbot.api.image.ImageServerConstraints
 import net.bjoernpetersen.musicbot.spi.image.ImageCache
 import net.bjoernpetersen.musicbot.spi.image.ImageData
-import net.bjoernpetersen.musicbot.spi.image.ImageServerConstraints
 import java.util.Base64
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -26,7 +26,7 @@ class ImageServer @Inject private constructor(
 ) {
     private lateinit var application: ApplicationEngine
     fun start() {
-        application = embeddedServer(CIO, port = ImageServerConstraints.PORT) {
+        application = embeddedServer(CIO, port = 42946) {
             routing {
                 get("${ImageServerConstraints.LOCAL_PATH}/{providerId}/{songId}") {
                     val providerId = call.parameters["providerId"]!!.decode()
