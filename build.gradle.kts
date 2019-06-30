@@ -121,6 +121,18 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin")
     }
 
+    // Ktor
+    implementation(
+        group = "io.ktor",
+        name = "ktor-client-okhttp",
+        version = Lib.KTOR
+    )
+    implementation(
+        group = "io.ktor",
+        name = "ktor-server-cio",
+        version = Lib.KTOR
+    )
+
     // JavaFX
     implementation("org.controlsfx:controlsfx:${Lib.CONTROLS_FX}")
 
