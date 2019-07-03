@@ -34,13 +34,16 @@ class SongPlayedNotifierImpl @Inject private constructor(
     }
 
     override suspend fun notifyPlayed(songEntry: SongEntry) {
-        val permissions = songEntry.user?.permissions ?: return
-
-        if (Permission.ALTER_SUGGESTIONS !in permissions) {
-            return
-        }
-        suggestersByProviderId[songEntry.song.provider.id].forEach {
-            it.notifyPlayed(songEntry)
+        val permissions = songEntry.user?.permissions
+        val suggesters = suggestersByProviderId[songEntry.song.provider.id]
+        if (permissions == null || Permission.ALTER_SUGGESTIONS in permissions) {
+            suggesters.forEach {
+                it.notifyPlayed(songEntry)
+            }
+        } else {
+            suggesters.forEach {
+                it.removeSuggestion(songEntry.song)
+            }
         }
     }
 }
