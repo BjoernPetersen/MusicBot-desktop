@@ -1,6 +1,6 @@
 package net.bjoernpetersen.deskbot.rest
 
-import io.vertx.core.Future
+import io.vertx.core.Promise
 import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
 
@@ -59,7 +59,7 @@ private data class FullAsyncBuilder<T>(
 ) {
 
     fun start() {
-        vertx.executeBlocking({ future: Future<T> ->
+        vertx.executeBlocking({ future: Promise<T> ->
             try {
                 future.complete(run())
             } catch (e: Throwable) {
@@ -79,7 +79,7 @@ fun <T> RoutingContext.async(run: () -> T, success: (T) -> Unit, failure: (Throw
     vertx().async(run, success, failure)
 
 fun <T> Vertx.async(run: () -> T, success: (T) -> Unit, failure: (Throwable) -> Unit) {
-    executeBlocking({ future: Future<T> ->
+    executeBlocking({ future: Promise<T> ->
         try {
             future.complete(run())
         } catch (e: Throwable) {

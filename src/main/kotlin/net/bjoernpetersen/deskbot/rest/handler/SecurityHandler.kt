@@ -1,8 +1,8 @@
 package net.bjoernpetersen.deskbot.rest.handler
 
 import io.vertx.core.AsyncResult
-import io.vertx.core.Future
 import io.vertx.core.Handler
+import io.vertx.core.Promise
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.AuthProvider
 import io.vertx.ext.web.RoutingContext
@@ -63,8 +63,12 @@ class BasicSecurityHandler @Inject constructor(
                     is FullUser, BotUser -> UserType.Full
                     is GuestUser -> UserType.Guest
                 }
-                return ctx.fail(AuthException(Status.UNAUTHORIZED,
-                    AuthExpectation(AuthType.Basic, userType)))
+                return ctx.fail(
+                    AuthException(
+                        Status.UNAUTHORIZED,
+                        AuthExpectation(AuthType.Basic, userType)
+                    )
+                )
             }
 
             ctx.setUser(WrappedUser(dbUser))
@@ -119,14 +123,14 @@ data class WrappedUser(val user: User) : VertxUser {
         authority: String,
         resultHandler: Handler<AsyncResult<Boolean>>
     ): VertxUser {
-        val future: Future<Boolean> = Future.future()
-        resultHandler.handle(future)
+        val promise: Promise<Boolean> = Promise.promise()
+        resultHandler.handle(promise.future())
 
         try {
             val permission = Permission.matchByLabel(authority)
-            future.complete(permission in user.permissions)
+            promise.complete(permission in user.permissions)
         } catch (e: IllegalArgumentException) {
-            future.fail(e)
+            promise.fail(e)
         }
 
         return this
