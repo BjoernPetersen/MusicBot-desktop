@@ -15,5 +15,5 @@ object Lib {
     const val JUNIT = "5.5.1"
     const val JUNIT_GUICE = "1.1.1"
     const val MOCK_K = "1.9.3"
-    const val ASSERT_J = "3.12.2"
+    const val ASSERT_J = "3.13.2"
 }
