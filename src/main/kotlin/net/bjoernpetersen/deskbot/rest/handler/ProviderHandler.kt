@@ -8,8 +8,10 @@ import net.bjoernpetersen.deskbot.rest.findProvider
 import net.bjoernpetersen.deskbot.rest.model.NamedPlugin
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
+import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.id
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 class ProviderHandler @Inject constructor(
     private val pluginFinder: PluginFinder,
@@ -22,9 +24,10 @@ class ProviderHandler @Inject constructor(
         routerFactory.addHandlerByOperationId("lookupSong", ::lookupSong)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun getProviders(ctx: RoutingContext) {
         ctx.response().end(pluginFinder.providers.map {
-            NamedPlugin(it.id, it.subject)
+            NamedPlugin(it.id as KClass<out Provider>, it.subject)
         })
     }
 

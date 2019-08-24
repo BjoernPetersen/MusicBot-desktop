@@ -12,8 +12,10 @@ import net.bjoernpetersen.deskbot.rest.setStatus
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
+import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.id
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 class SuggesterHandler @Inject constructor(
     private val pluginFinder: PluginFinder,
@@ -26,9 +28,10 @@ class SuggesterHandler @Inject constructor(
         routerFactory.addHandlerByOperationId("removeSuggestion", ::removeSuggestion)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun getSuggesters(ctx: RoutingContext) {
         ctx.response().end(pluginFinder.suggesters.map {
-            NamedPlugin(it.id, it.subject)
+            NamedPlugin(it.id as KClass<out Suggester>, it.subject)
         })
     }
 
