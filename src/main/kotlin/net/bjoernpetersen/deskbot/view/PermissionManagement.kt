@@ -34,7 +34,7 @@ class PermissionManagement : Controller {
                 user?.let { user ->
                     val newPermissions = if (value) user.permissions + permission
                     else user.permissions - permission
-                    val newUser = userManager.updateUser(user, newPermissions)
+                    val newUser = userManager.updatePermissions(user, newPermissions)
                     this.user = newUser
                     update(newUser)
                 }
