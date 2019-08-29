@@ -23,6 +23,11 @@ class PermissionManagement : Controller {
 
     @FXML
     override fun initialize() {
+        initializePermissionList()
+        initializeUserProperty()
+    }
+
+    private fun initializePermissionList() {
         permissionList.items.addAll(Permission.values())
         Permission.values().forEach { permission ->
             permissionList.getItemBooleanProperty(permission).addListener { _, _, value ->
@@ -35,6 +40,9 @@ class PermissionManagement : Controller {
                 }
             }
         }
+    }
+
+    private fun initializeUserProperty() {
         userProperty.addListener { _, _, user ->
             if (user == null) {
                 permissionList.isDisable = true

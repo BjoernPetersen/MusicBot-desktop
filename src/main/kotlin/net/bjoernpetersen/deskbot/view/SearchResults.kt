@@ -24,7 +24,7 @@ class SearchResults(
             updateActiveTab()
         }
 
-    private var controllers = ArrayList<SearchResult>(20)
+    private var controllers = ArrayList<SearchResult>(CONTROLLER_CAPACITY)
 
     override fun initialize() {
         finder.providers.forEach {
@@ -46,5 +46,9 @@ class SearchResults(
         val controller = load(SearchResult(provider, queue, showAlbumArt))
         controllers.add(controller)
         content = controller.root
+    }
+
+    private companion object {
+        const val CONTROLLER_CAPACITY = 20
     }
 }

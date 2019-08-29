@@ -72,6 +72,7 @@ class DeskBot : Application() {
         val resources: ResourceBundle
             get() = ResourceBundle.getBundle(DeskBot::class.java.name, YamlResourceBundle.Control)
 
+        @Suppress("SpreadOperator")
         @JvmStatic
         fun main(args: Array<String>) {
             Application.launch(DeskBot::class.java, *args)

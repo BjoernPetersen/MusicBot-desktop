@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 import javax.inject.Inject
 
+@Suppress("TooManyReturns")
 class BasicSecurityHandler @Inject constructor(
     private val userManager: UserManager
 ) : Handler<RoutingContext> {
@@ -117,7 +118,7 @@ private typealias VertxUser = io.vertx.ext.auth.User
 data class WrappedUser(val user: User) : VertxUser {
     override fun clearCache(): VertxUser = this
 
-    override fun setAuthProvider(authProvider: AuthProvider) {}
+    override fun setAuthProvider(authProvider: AuthProvider) = Unit
 
     override fun isAuthorized(
         authority: String,

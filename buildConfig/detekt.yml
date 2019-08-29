@@ -1,3 +1,5 @@
 style:
   ForbiddenComment:
     values: 'FIXME:,STOPSHIP:'
+build:
+  maxIssues: 20

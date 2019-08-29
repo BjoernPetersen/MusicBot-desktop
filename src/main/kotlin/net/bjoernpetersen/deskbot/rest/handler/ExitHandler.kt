@@ -26,9 +26,13 @@ class ExitHandler @Inject private constructor() : HandlerController {
         ctx.require(Permission.EXIT)
         ctx.response().setStatus(Status.NO_CONTENT).end()
         GlobalScope.launch(Dispatchers.Main) {
-            delay(500)
+            delay(RESPONSE_DELAY_MILLIS)
             logger.info { "Closing due to remote user request" }
             Platform.exit()
         }
+    }
+
+    private companion object {
+        const val RESPONSE_DELAY_MILLIS: Long = 500
     }
 }

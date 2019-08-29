@@ -16,6 +16,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.io.errors.IOException
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
 import net.bjoernpetersen.deskbot.impl.Broadcaster
@@ -72,6 +73,7 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 import kotlin.coroutines.CoroutineContext
 
+@Suppress("TooManyFunctions")
 class Lifecyclist : CoroutineScope {
     private val logger = KotlinLogging.logger {}
 
@@ -97,9 +99,9 @@ class Lifecyclist : CoroutineScope {
 
     private fun <T> stagedBlock(stage: Stage, exact: Boolean = true, action: () -> T): T {
         if (exact) {
-            if (this.stage != stage) throw IllegalStateException()
+            check(this.stage == stage)
         } else {
-            if (this.stage < stage) throw IllegalStateException()
+            check(this.stage >= stage)
         }
         return action()
     }
@@ -110,9 +112,9 @@ class Lifecyclist : CoroutineScope {
         action: suspend () -> T
     ): T {
         if (exact) {
-            if (this.stage != stage) throw IllegalStateException()
+            check(this.stage == stage)
         } else {
-            if (this.stage < stage) throw IllegalStateException()
+            check(this.stage >= stage)
         }
         return action()
     }
@@ -240,7 +242,7 @@ class Lifecyclist : CoroutineScope {
     fun stop() = stagedBlock(Stage.Running) {
         try {
             broadcaster.close()
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             logger.error(e) { "Could not close broadcaster" }
         }
 
@@ -272,6 +274,7 @@ class Lifecyclist : CoroutineScope {
     }
 }
 
+@Suppress("MagicNumber")
 private class Initializer(private val finder: PluginFinder) {
 
     private val logger = KotlinLogging.logger {}
@@ -281,7 +284,7 @@ private class Initializer(private val finder: PluginFinder) {
         val tasks = view.tasks
 
         val lock: Lock = ReentrantLock()
-        val done = lock.newCondition()!!
+        val done = lock.newCondition()
         val finished: MutableSet<Plugin> = HashSet(64)
         val errors: MutableList<Throwable> = ArrayList()
 
@@ -348,6 +351,7 @@ private class Initializer(private val finder: PluginFinder) {
                     writer.state("Starting...")
 
                     runBlocking {
+                        @Suppress("TooGenericExceptionCaught")
                         try {
                             plugin.initialize(writer)
                         } catch (e: Throwable) {

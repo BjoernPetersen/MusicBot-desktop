@@ -7,6 +7,7 @@ import net.bjoernpetersen.deskbot.rest.model.AuthExpectation
  * An HTTP response status code.
  * @param code the actual HTTP code
  */
+@Suppress("MagicNumber")
 enum class Status(val code: Int) {
 
     // Success

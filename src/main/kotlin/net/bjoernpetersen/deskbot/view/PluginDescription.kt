@@ -34,6 +34,7 @@ class PluginDescription : Controller {
     override fun initialize() {
         BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)
             .let { root.border = Border(it, it, it, it) }
+        @Suppress("MagicNumber")
         root.padding = Insets(5.0)
 
         nameLabel.textProperty()

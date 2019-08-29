@@ -66,7 +66,7 @@ class RestServer @Inject constructor(
         routerFactory.addSecurityHandler("Basic", basicSecurityHandler)
 
         val router: Router = routerFactory.router
-        router.errorHandler(500) {
+        router.errorHandler(Status.INTERNAL_SERVER_ERROR.code) {
             val error = it.failure()
             if (error !is StatusException) {
                 logger.error(error) { "An unknown error occurred." }

@@ -100,6 +100,8 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
                 val progress = timeTracker.getCurrentProgress().duration.seconds
                     .toInt().toDurationString()
                 duration.text = "$progress / $fullDuration"
+                // Don't spam these calls too much
+                @Suppress("MagicNumber")
                 delay(50)
             }
         }
