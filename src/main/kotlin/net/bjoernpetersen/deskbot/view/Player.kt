@@ -117,7 +117,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
             }
             song = it.entry?.song
             title.text = song?.title
-            description.text = song?.description
+            description.text = song?.description?.substringBefore('\n')
             duration.text = null
             if (albumArtMode.showCurrent)
                 albumArtView.image = song?.localAlbumArtUrl?.let { url -> Image(url) }
