@@ -47,6 +47,7 @@ import net.bjoernpetersen.musicbot.api.module.FileStorageModule
 import net.bjoernpetersen.musicbot.api.module.InstanceStopper
 import net.bjoernpetersen.musicbot.api.module.PluginClassLoaderModule
 import net.bjoernpetersen.musicbot.api.module.PluginModule
+import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
@@ -216,6 +217,8 @@ class Lifecyclist : CoroutineScope {
                 GlobalScope.launch {
                     val dumper = injector.getInstance(QueueDumper::class.java)
                     dumper.restoreQueue()
+                    injector.getInstance(Player::class.java)
+                        .addListener { _, newState -> dumper.dumpQueue(newState) }
                     injector.getInstance(SongQueue::class.java)
                         .addListener(object : QueueChangeListener {
                             override fun onAdd(entry: QueueEntry) {
@@ -384,23 +387,39 @@ private class QueueDumper @Inject private constructor(
 
     private fun Song.toDumpString() = "${provider.id}|$id\n"
 
-    fun dumpQueue() {
+    private var lastQueue: List<QueueEntry> = emptyList()
+
+    private fun buildDumpQueue(
+        playerState: PlayerState,
+        queue: List<QueueEntry>
+    ): List<QueueEntry> {
+        val result = ArrayList<QueueEntry>(queue.size)
+        val currentEntry = playerState.entry
+        if (currentEntry is QueueEntry) {
+            // If there is a current song which has not been auto-suggested, prepend it
+            logger.debug { "Dumping current song first" }
+            result.add(currentEntry)
+        } else {
+            logger.debug { "Not dumping current song. State: ${player.state}" }
+        }
+        result.addAll(queue)
+        return result
+    }
+
+    fun dumpQueue(playerState: PlayerState = player.state) {
         logger.debug { "Dumping queue" }
+        val dumpQueue = buildDumpQueue(playerState, queue.toList())
+        if (dumpQueue == lastQueue) {
+            logger.debug { "Not dumping unchanged queue." }
+            return
+        } else {
+            lastQueue = dumpQueue
+        }
         val file = File("queue.dump")
         file.bufferedWriter().use { writer ->
-            val currentEntry = player.state.entry
-            // Assert that there is a current song and that it wasn't suggested
-            if (currentEntry != null && currentEntry.user != null) {
-                logger.debug { "Dumping current song first" }
-                writer.write(currentEntry.song.toDumpString())
-            } else {
-                logger.debug { "Not dumping current song. State: ${player.state}" }
+            dumpQueue.forEach {
+                writer.write(it.song.toDumpString())
             }
-
-            queue.toList().asSequence()
-                .map { it.song }
-                .map { it.toDumpString() }
-                .forEach { writer.write(it) }
         }
     }
 
