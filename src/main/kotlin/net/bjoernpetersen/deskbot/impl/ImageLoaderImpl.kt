@@ -20,15 +20,16 @@ class ImageLoaderImpl @Inject private constructor() : ImageLoader {
     override fun get(url: String): ImageData? {
         return runBlocking {
             HttpClient(OkHttp).use { client ->
-                val response: HttpResponse = client.get(url)
-                if (!response.status.isSuccess()) null
-                else {
-                    val bytes = response.readBytes()
-                    val type = response.contentType()?.toString()
-                    if (type == null) {
-                        logger.warn { "Didn't get content type for image!" }
-                        null
-                    } else ImageData(type, bytes)
+                client.get<HttpResponse>(url).use { response ->
+                    if (!response.status.isSuccess()) null
+                    else {
+                        val bytes = response.readBytes()
+                        val type = response.contentType()?.toString()
+                        if (type == null) {
+                            logger.warn { "Didn't get content type for image!" }
+                            null
+                        } else ImageData(type, bytes)
+                    }
                 }
             }
         }
