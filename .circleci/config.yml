@@ -164,11 +164,11 @@ workflows:
       - build:
           requires:
             - compile
-      - bundle:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - master
-                - develop
+#      - bundle:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only:
+#                - master
+#                - develop
