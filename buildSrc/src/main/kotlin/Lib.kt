@@ -4,6 +4,7 @@ object Lib {
     const val SLF4J = "1.8.0-beta4"
 
     const val MUSICBOT = "0.24.0-SNAPSHOT"
+    const val SQLITE = "3.28.0"
 
     const val CONTROLS_FX = "8.40.15"
 

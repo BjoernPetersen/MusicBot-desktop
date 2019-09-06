@@ -113,6 +113,8 @@ dependencies {
     ) {
         isChanging = Lib.MUSICBOT.contains("SNAPSHOT")
     }
+
+    implementation(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
     implementation(
         group = "org.jetbrains.kotlinx",
         name = "kotlinx-coroutines-javafx",
