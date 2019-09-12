@@ -50,7 +50,7 @@ import net.bjoernpetersen.musicbot.api.module.PluginModule
 import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.Song
-import net.bjoernpetersen.musicbot.api.plugin.PluginLoader
+import net.bjoernpetersen.musicbot.api.plugin.PluginLoaderImpl
 import net.bjoernpetersen.musicbot.api.plugin.management.DefaultDependencyManager
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
@@ -140,7 +140,7 @@ class Lifecyclist : CoroutineScope {
     }
 
     private fun createPlugins(pluginDir: File) {
-        val loader = PluginLoader(pluginDir)
+        val loader = PluginLoaderImpl(pluginDir)
         dependencyManager = DefaultDependencyManager(configManager[MainConfigScope].state, loader)
         classLoader = loader.loader
     }
