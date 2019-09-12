@@ -25,7 +25,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.id
 import javax.inject.Inject
-import kotlin.math.min
 import kotlin.reflect.KClass
 
 private val logger = KotlinLogging.logger {}
@@ -90,7 +89,7 @@ fun Route.routeSuggester(injector: Injector) {
                     throw UnavailableException()
                 }
 
-                val limited = suggestions.subList(0, min(suggestions.size, max))
+                val limited = suggestions.subList(0, minOf(suggestions.size, max))
                 call.respond(limited)
             }
             delete<DislikeRequest> {
