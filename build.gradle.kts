@@ -78,7 +78,13 @@ tasks {
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf(
+                "-Xuse-experimental=kotlin.Experimental",
+                "-Xnew-inference"
+            )
+        }
     }
 
     "processResources"(ProcessResources::class) {
@@ -121,24 +127,26 @@ dependencies {
         version = Lib.KOTLIN_COROUTINES
     )
 
-    // Vertx
-    implementation(group = "io.vertx", name = "vertx-web-api-contract", version = Lib.VERTX)
-    implementation(group = "io.vertx", name = "vertx-lang-kotlin", version = Lib.VERTX) {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-    implementation(group = "io.vertx", name = "vertx-lang-kotlin-coroutines", version = Lib.VERTX) {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-
     // Ktor
     implementation(
         group = "io.ktor",
         name = "ktor-client-okhttp",
         version = Lib.KTOR
     )
+
     implementation(
         group = "io.ktor",
         name = "ktor-server-cio",
+        version = Lib.KTOR
+    )
+    implementation(
+        group = "io.ktor",
+        name = "ktor-locations",
+        version = Lib.KTOR
+    )
+    implementation(
+        group = "io.ktor",
+        name = "ktor-jackson",
         version = Lib.KTOR
     )
 
