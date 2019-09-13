@@ -107,11 +107,12 @@ tasks {
 }
 
 dependencies {
-    runtime(
+    runtimeOnly(
         group = "org.slf4j",
         name = "slf4j-simple",
         version = Lib.SLF4J
     )
+    runtimeOnly(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
     implementation(
         group = "com.github.bjoernpetersen",
         name = "musicbot",
@@ -120,7 +121,6 @@ dependencies {
         isChanging = Lib.MUSICBOT.contains("SNAPSHOT")
     }
 
-    implementation(group = "org.xerial", name = "sqlite-jdbc", version = Lib.SQLITE)
     implementation(
         group = "org.jetbrains.kotlinx",
         name = "kotlinx-coroutines-javafx",
