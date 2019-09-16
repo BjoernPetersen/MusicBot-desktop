@@ -16,6 +16,11 @@ group = "com.github.bjoernpetersen"
 version = "0.19.0-SNAPSHOT"
 
 repositories {
+    mavenLocal {
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
     jcenter()
     maven("https://oss.sonatype.org/content/repositories/snapshots") {
         mavenContent {
