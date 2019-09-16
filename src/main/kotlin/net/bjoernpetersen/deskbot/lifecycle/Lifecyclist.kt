@@ -64,6 +64,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import net.bjoernpetersen.musicbot.spi.util.BrowserOpener
 import org.controlsfx.control.TaskProgressView
 import java.io.File
+import java.nio.file.Paths
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
@@ -156,7 +157,7 @@ class Lifecyclist : CoroutineScope {
         DefaultPlayerModule(suggester),
         DefaultQueueModule(),
         DefaultSongLoaderModule(),
-        DefaultUserDatabaseModule("jdbc:sqlite:UserDatabase.db"),
+        DefaultUserDatabaseModule(Paths.get("UserDatabase.db")),
         PluginClassLoaderModule(classLoader),
         PluginModule(pluginFinder),
         BrowserOpenerModule(browserOpener),
