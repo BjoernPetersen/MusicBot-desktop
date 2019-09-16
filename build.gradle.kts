@@ -1,5 +1,4 @@
 import com.diffplug.spotless.LineEnding
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -11,8 +10,6 @@ plugins {
     kotlin("jvm") version Plugin.KOTLIN
     application
     idea
-
-    id("org.jetbrains.dokka") version Plugin.DOKKA
 }
 
 group = "com.github.bjoernpetersen"
@@ -66,17 +63,6 @@ configurations.all {
 }
 
 tasks {
-    "dokka"(DokkaTask::class) {
-        outputFormat = "html"
-        outputDirectory = "$buildDir/kdoc"
-    }
-
-    @Suppress("UNUSED_VARIABLE")
-    val dokkaJavadoc by creating(DokkaTask::class) {
-        outputFormat = "javadoc"
-        outputDirectory = "$buildDir/javadoc"
-    }
-
     withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
@@ -102,6 +88,12 @@ tasks {
     withType<Jar> {
         from(project.projectDir) {
             include("LICENSE")
+        }
+    }
+
+    dependencyUpdates {
+        rejectVersionIf {
+            isUnstable(candidate.version, currentVersion)
         }
     }
 }
