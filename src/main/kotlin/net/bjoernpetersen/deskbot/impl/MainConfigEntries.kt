@@ -20,8 +20,8 @@ import net.bjoernpetersen.musicbot.api.config.PathSerializer
 import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.config.actionButton
 import net.bjoernpetersen.musicbot.api.config.openDirectory
-import net.bjoernpetersen.musicbot.api.config.serialization
 import net.bjoernpetersen.musicbot.api.config.serialized
+import net.bjoernpetersen.musicbot.api.config.setSerializer
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.id
@@ -50,7 +50,7 @@ class MainConfigEntries @Inject constructor(
 
     val defaultPermissions by plain.serialized<Set<Permission>> {
         description = "Permissions for new users and guests"
-        serializer = PermissionSetSerializer
+        serializer = Permission.setSerializer()
         check(NonnullConfigChecker)
         actionButton {
             label = DeskBot.resources["action.edit"]
@@ -117,25 +117,5 @@ private class SuggesterSerializer(
             throw SerializationException()
         } as Class<out Suggester>
         return pluginFinder[type.kotlin] ?: throw SerializationException()
-    }
-}
-
-private val PermissionSetSerializer = serialization<Set<Permission>> {
-    serialize { permissions ->
-        if (permissions.isEmpty()) "NONE"
-        else permissions.joinToString(",") { it.label }
-    }
-    deserialize {
-        if (it == "NONE") emptySet()
-        else it
-            .split(',')
-            .mapNotNull {
-                try {
-                    Permission.matchByLabel(it)
-                } catch (e: IllegalArgumentException) {
-                    null
-                }
-            }
-            .toSet()
     }
 }
