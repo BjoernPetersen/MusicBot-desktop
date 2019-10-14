@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.view.DefaultPermissionConfig
 import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.get
@@ -15,7 +14,6 @@ import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
-import net.bjoernpetersen.musicbot.api.config.ExperimentalConfigDsl
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.PathSerializer
@@ -33,7 +31,6 @@ import java.nio.file.Paths
 import javax.inject.Inject
 import javax.inject.Named
 
-@UseExperimental(ExperimentalConfigDsl::class)
 class MainConfigEntries @Inject constructor(
     configManager: ConfigManager,
     pluginFinder: PluginFinder,
@@ -123,7 +120,6 @@ private class SuggesterSerializer(
     }
 }
 
-@UseExperimental(ExperimentalConfigDsl::class)
 private val PermissionSetSerializer = serialization<Set<Permission>> {
     serialize { permissions ->
         if (permissions.isEmpty()) "NONE"
