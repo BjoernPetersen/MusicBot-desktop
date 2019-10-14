@@ -1,6 +1,9 @@
 package net.bjoernpetersen.deskbot.impl
 
-import javafx.application.Platform
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.view.DefaultPermissionConfig
 import net.bjoernpetersen.deskbot.view.DeskBot
@@ -8,26 +11,29 @@ import net.bjoernpetersen.deskbot.view.get
 import net.bjoernpetersen.deskbot.view.load
 import net.bjoernpetersen.deskbot.view.show
 import net.bjoernpetersen.musicbot.api.auth.Permission
-import net.bjoernpetersen.musicbot.api.config.ActionButton
 import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
-import net.bjoernpetersen.musicbot.api.config.FileChooser
-import net.bjoernpetersen.musicbot.api.config.FileSerializer
+import net.bjoernpetersen.musicbot.api.config.ExperimentalConfigDsl
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
+import net.bjoernpetersen.musicbot.api.config.PathSerializer
 import net.bjoernpetersen.musicbot.api.config.SerializationException
+import net.bjoernpetersen.musicbot.api.config.actionButton
+import net.bjoernpetersen.musicbot.api.config.openDirectory
+import net.bjoernpetersen.musicbot.api.config.serialization
+import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.id
-import java.io.File
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.concurrent.withLock
 
+@UseExperimental(ExperimentalConfigDsl::class)
 class MainConfigEntries @Inject constructor(
     configManager: ConfigManager,
     pluginFinder: PluginFinder,
@@ -38,59 +44,55 @@ class MainConfigEntries @Inject constructor(
     private val plain = configManager[MainConfigScope].plain
     private val secret = configManager[MainConfigScope].secrets
 
-    val defaultSuggester = configManager[MainConfigScope].plain.SerializedEntry(
-        key = "defaultSuggester",
-        description = "The suggester providing songs if the queue is empty",
-        serializer = SuggesterSerializer(classLoader, pluginFinder),
-        configChecker = { null },
+    val defaultSuggester by plain.serialized<Suggester> {
+        description = "The suggester providing songs if the queue is empty"
+        serializer = SuggesterSerializer(classLoader, pluginFinder)
+        check { null }
         uiNode = ChoiceBox({ it.name }, { pluginFinder.suggesters })
-    )
+    }
 
-    val defaultPermissions: Config.SerializedEntry<Set<Permission>> = plain.SerializedEntry(
-        key = "defaultPermissions",
-        description = "Permissions for new users and guests",
-        serializer = PermissionSetSerializer,
-        configChecker = NonnullConfigChecker,
-        uiNode = ActionButton(DeskBot.resources["action.edit"], { it.sorted().joinToString() }) {
-            val lock: Lock = ReentrantLock()
-            val cond = lock.newCondition()
-            lock.withLock {
-                Platform.runLater {
-                    load<DefaultPermissionConfig>().apply {
-                        configEntry = defaultPermissions()
-                        root.show(modal = true, wait = true)
+    val defaultPermissions by plain.serialized<Set<Permission>> {
+        description = "Permissions for new users and guests"
+        serializer = PermissionSetSerializer
+        check(NonnullConfigChecker)
+        actionButton {
+            label = DeskBot.resources["action.edit"]
+            describe { it.sorted().joinToString() }
+            val mutex = Mutex()
+            action {
+                mutex.withLock {
+                    withContext(Dispatchers.Main) {
+                        load<DefaultPermissionConfig>().apply {
+                            configEntry = defaultPermissions
+                            root.show(modal = true, wait = true)
+                        }
                     }
-                    lock.withLock { cond.signal() }
                 }
-
-                cond.await()
+                true
             }
-            true
-        },
-        default = Permission.getDefaults()
-    )
+        }
+        default(Permission.getDefaults())
+    }
 
-    val storageDir: Config.SerializedEntry<File> = plain.SerializedEntry(
-        key = "storageDir",
+    val storageDir by plain.serialized<Path> {
         description = "Directory to store plugin files in." +
-            " This should preferably be somewhere with a lot of free space.",
-        serializer = FileSerializer,
-        configChecker = {
-            if (it != null && it.isDirectory) null
+            " This should preferably be somewhere with a lot of free space."
+        serializer = PathSerializer
+        check {
+            if (it != null && Files.isDirectory(it)) null
             else "Must be an existing directory"
-        },
-        uiNode = FileChooser(),
-        default = File("storage")
-    )
+        }
+        openDirectory()
+        default(Paths.get("storage"))
+    }
 
-    val loadAlbumArt = plain.SerializedEntry(
-        key = "loadAlbumArt",
-        description = "Which album art images to load. Disable to save bandwidth.",
-        serializer = AlbumArtMode,
-        configChecker = NonnullConfigChecker,
-        uiNode = ChoiceBox({ it.friendlyName }, { AlbumArtMode.values().asList() }),
-        default = AlbumArtMode.ALL
-    )
+    val loadAlbumArt by plain.serialized<AlbumArtMode> {
+        description = "Which album art images to load. Disable to save bandwidth."
+        serializer = AlbumArtMode
+        check(NonnullConfigChecker)
+        uiNode = ChoiceBox({ it.friendlyName }, { AlbumArtMode.values().asList() })
+        default(AlbumArtMode.ALL)
+    }
 
     val allPlain: List<Config.Entry<*>> = listOf(
         defaultSuggester,
@@ -99,8 +101,6 @@ class MainConfigEntries @Inject constructor(
         defaultPermissions
     )
     val allSecret: List<Config.Entry<*>> = listOf()
-
-    private fun defaultPermissions() = defaultPermissions
 }
 
 private class SuggesterSerializer(
@@ -123,25 +123,23 @@ private class SuggesterSerializer(
     }
 }
 
-private object PermissionSetSerializer : ConfigSerializer<Set<Permission>> {
-    private val logger = KotlinLogging.logger { }
-    override fun deserialize(string: String): Set<Permission> {
-        return if (string == "NONE") emptySet()
-        else string
+@UseExperimental(ExperimentalConfigDsl::class)
+private val PermissionSetSerializer = serialization<Set<Permission>> {
+    serialize { permissions ->
+        if (permissions.isEmpty()) "NONE"
+        else permissions.joinToString(",") { it.label }
+    }
+    deserialize {
+        if (it == "NONE") emptySet()
+        else it
             .split(',')
             .mapNotNull {
                 try {
                     Permission.matchByLabel(it)
                 } catch (e: IllegalArgumentException) {
-                    logger.warn { "Unknown default permission: $it" }
                     null
                 }
             }
             .toSet()
-    }
-
-    override fun serialize(obj: Set<Permission>): String {
-        return if (obj.isEmpty()) "NONE"
-        else obj.joinToString(",") { it.label }
     }
 }

@@ -6,7 +6,7 @@ import java.io.File
 import javax.inject.Inject
 
 class FileStorageImpl @Inject private constructor(mainConfig: MainConfigEntries) : FileStorage {
-    private val root: File = mainConfig.storageDir.get()!!
+    private val root: File = mainConfig.storageDir.get()!!.toFile()
     override fun forPlugin(plugin: Plugin, clean: Boolean): File {
         val dir = File(root, plugin::class.qualifiedName)
         if (dir.isDirectory && clean) {
