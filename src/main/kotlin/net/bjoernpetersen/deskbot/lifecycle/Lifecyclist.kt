@@ -169,7 +169,8 @@ class Lifecyclist : CoroutineScope {
     )
 
     fun inject(browserOpener: BrowserOpener) = stagedBlock(Stage.Created) {
-        pluginFinder = dependencyManager.finish()
+        // FIXME: pass actual order
+        pluginFinder = dependencyManager.finish(listOf(), listOf())
 
         mainConfig = MainConfigEntries(configManager, pluginFinder, classLoader)
 
