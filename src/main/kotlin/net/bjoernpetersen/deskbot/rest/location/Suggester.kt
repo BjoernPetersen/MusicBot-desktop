@@ -17,13 +17,13 @@ import net.bjoernpetersen.deskbot.rest.model.NamedPlugin
 import net.bjoernpetersen.deskbot.rest.require
 import net.bjoernpetersen.deskbot.rest.respondEmpty
 import net.bjoernpetersen.musicbot.api.auth.Permission
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.BrokenSuggesterException
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
@@ -59,7 +59,7 @@ private class SuggesterAccess @Inject private constructor(
     @Suppress("UNCHECKED_CAST")
     fun getSuggesters(): List<NamedPlugin<*>> {
         return pluginFinder.suggesters.map {
-            NamedPlugin(it.id as KClass<Suggester>, it.subject)
+            NamedPlugin(it.id.type as KClass<out Suggester>, it.subject)
         }
     }
 

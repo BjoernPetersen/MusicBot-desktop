@@ -120,7 +120,7 @@ class IdActivation : Controller {
         enabled?.let {
             load<Dependencies>().apply {
                 setPlugin(dependencyManager, it)
-                root.show(modal = true, title = DeskBot.resources.getString("window.dependencies"))
+                show(modal = true)
             }
         }
     }

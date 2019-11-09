@@ -48,6 +48,7 @@ import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
 import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.PluginLoaderImpl
+import net.bjoernpetersen.musicbot.api.plugin.category
 import net.bjoernpetersen.musicbot.api.plugin.management.DefaultDependencyManager
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
@@ -59,7 +60,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.category
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import net.bjoernpetersen.musicbot.spi.util.BrowserOpener
 import org.controlsfx.control.TaskProgressView
@@ -169,10 +169,13 @@ class Lifecyclist : CoroutineScope {
     )
 
     fun inject(browserOpener: BrowserOpener) = stagedBlock(Stage.Created) {
-        // FIXME: pass actual order
-        pluginFinder = dependencyManager.finish(listOf(), listOf())
-
+        pluginFinder = dependencyManager.finish(emptyList(), emptyList())
         mainConfig = MainConfigEntries(configManager, pluginFinder, classLoader)
+        // TODO calling finish twice is terrible.
+        pluginFinder = dependencyManager.finish(
+            mainConfig.providerOrder.get() ?: emptyList(),
+            mainConfig.suggesterOrder.get() ?: emptyList()
+        )
 
         val suggester = mainConfig.defaultSuggester.get()
         logger.info { "Default suggester: ${suggester?.name}" }

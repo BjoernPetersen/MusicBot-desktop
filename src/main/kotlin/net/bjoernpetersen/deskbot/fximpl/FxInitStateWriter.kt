@@ -4,8 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.api.plugin.category
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
-import net.bjoernpetersen.musicbot.spi.plugin.category
 import net.bjoernpetersen.musicbot.spi.plugin.management.InitStateWriter
 import kotlin.coroutines.CoroutineContext
 

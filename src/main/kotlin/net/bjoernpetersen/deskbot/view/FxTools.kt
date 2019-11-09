@@ -15,11 +15,25 @@ fun Controller.closeWindow() {
     stage.close()
 }
 
+fun Controller.show(wait: Boolean = false, modal: Boolean = false): Stage {
+    return root.show(wait, modal, getWindowTitle() ?: "", this)
+}
+
 fun Parent.show(wait: Boolean = false, modal: Boolean = false, title: String = ""): Stage {
+    return show(wait, modal, title, null)
+}
+
+private fun Parent.show(
+    wait: Boolean = false,
+    modal: Boolean = false,
+    title: String = "",
+    controller: Controller? = null
+): Stage {
     return Stage().also {
         it.scene = Scene(this)
         if (title.isNotBlank()) it.title = title
         if (modal) it.initModality(Modality.APPLICATION_MODAL)
+        controller?.onStageAttach(it)
         if (wait) it.showAndWait()
         else it.show()
     }

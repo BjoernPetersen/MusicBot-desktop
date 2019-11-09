@@ -12,11 +12,11 @@ import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.NotFoundException
 import net.bjoernpetersen.deskbot.rest.model.NamedPlugin
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.reflect.KClass
@@ -47,7 +47,7 @@ private class ProviderAccess @Inject private constructor(
     @Suppress("UNCHECKED_CAST")
     fun getProviders(): List<NamedPlugin<*>> {
         return pluginFinder.providers.map {
-            NamedPlugin(it.id as KClass<Provider>, it.subject)
+            NamedPlugin(it.id.type as KClass<out Provider>, it.subject)
         }
     }
 

@@ -16,6 +16,9 @@ action:
   userManagement: Manage users
   reset: Reset
   edit: Edit
+  save: Save
+  clearUnavailable: Clear unavailable
+  remove: Remove
 
 window:
   overview: DeskBot
@@ -25,6 +28,7 @@ window:
   player: DeskBot player
   userManagement: User management
   defaultPermission: Default permission config
+  pluginOrder: Plugin order
 
 dependency:
   dependencies: Dependencies
@@ -41,6 +45,8 @@ description:
     Users may need to refresh their permissions before they are applied in the client.
   defaultPermissionConfig: >
     Select the permissions new users and guest users should have.
+  pluginOrderConfig: >
+    Drag-and-drop plugins in the order you want them to be visible to users.
 
 player:
   unknownDuration: unknown
@@ -54,3 +60,11 @@ task:
   plugin:
     title: 'Loading %s: %s'
     waiting: 'Waiting for other plugin: %s %s'
+
+pluginOrder:
+  available: Available
+  unavailable: Unavailable
+
+confirmation:
+  quitWithoutSaveTitle: Please confirm
+  quitWithoutSaveHeader: Quit without saving?

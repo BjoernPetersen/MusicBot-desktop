@@ -53,7 +53,7 @@ class Overview : Controller {
     @FXML
     private fun onConfig(event: ActionEvent? = null) {
         logger.debug { "Configure button pressed." }
-        load<Config>().root.show(modal = true)
+        load<Config>().show(modal = true)
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -71,7 +71,7 @@ class Overview : Controller {
                         ExceptionDialog(it).apply {
                             headerText = "An exception occurred while starting the bot"
                         }.showAndWait()
-                        load<Overview>().root.show()
+                        load<Overview>().show()
                     } else {
                         val playerUi = Player(cycle)
                         replaceWindow(load(playerUi).root)

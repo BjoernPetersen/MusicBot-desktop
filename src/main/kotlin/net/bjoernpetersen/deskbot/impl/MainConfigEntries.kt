@@ -6,6 +6,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bjoernpetersen.deskbot.view.DefaultPermissionConfig
 import net.bjoernpetersen.deskbot.view.DeskBot
+import net.bjoernpetersen.deskbot.view.PluginOrderConfig
 import net.bjoernpetersen.deskbot.view.get
 import net.bjoernpetersen.deskbot.view.load
 import net.bjoernpetersen.deskbot.view.show
@@ -19,24 +20,31 @@ import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.PathSerializer
 import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.config.actionButton
+import net.bjoernpetersen.musicbot.api.config.choiceBox
+import net.bjoernpetersen.musicbot.api.config.listSerializer
 import net.bjoernpetersen.musicbot.api.config.openDirectory
 import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.api.config.setSerializer
+import net.bjoernpetersen.musicbot.api.plugin.DeclarationException
+import net.bjoernpetersen.musicbot.api.plugin.PluginId
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import javax.inject.Inject
 import javax.inject.Named
 
+// TODO: make constructor private (force injection)
 class MainConfigEntries @Inject constructor(
     configManager: ConfigManager,
     pluginFinder: PluginFinder,
     @Named("PluginClassLoader")
     classLoader: ClassLoader
 ) {
+    // TODO put in constructor
+    private val pluginIdSerializer = PluginId.Serializer(classLoader)
 
     private val plain = configManager[MainConfigScope].plain
     private val secret = configManager[MainConfigScope].secrets
@@ -61,7 +69,7 @@ class MainConfigEntries @Inject constructor(
                     withContext(Dispatchers.Main) {
                         load<DefaultPermissionConfig>().apply {
                             configEntry = defaultPermissions
-                            root.show(modal = true, wait = true)
+                            show(modal = true, wait = true)
                         }
                     }
                 }
@@ -87,15 +95,84 @@ class MainConfigEntries @Inject constructor(
         description = "Which album art images to load. Disable to save bandwidth."
         serializer = AlbumArtMode
         check(NonnullConfigChecker)
-        uiNode = ChoiceBox({ it.friendlyName }, { AlbumArtMode.values().asList() })
+        choiceBox {
+            describe { it.friendlyName }
+            refresh {
+                AlbumArtMode.values().asList()
+            }
+        }
         default(AlbumArtMode.ALL)
+    }
+
+    val providerOrder by plain.serialized<List<PluginId>> {
+        description = "The order in which providers are shown in clients"
+        serializer = pluginIdSerializer.listSerializer()
+        check { null }
+        default(emptyList())
+        actionButton {
+            label = DeskBot.resources["action.edit"]
+            describe { providerIds ->
+                providerIds.joinToString { it.displayName }
+            }
+            action {
+                withContext(Dispatchers.Main) {
+                    load<PluginOrderConfig>().apply {
+                        configEntry = providerOrder
+                        loadedPlugins = pluginFinder.providers
+                            .mapNotNull {
+                                try {
+                                    it.id
+                                } catch (e: DeclarationException) {
+                                    null
+                                }
+                            }
+                            .distinct()
+                        show(modal = true, wait = true)
+                    }
+                }
+                true
+            }
+        }
+    }
+
+    val suggesterOrder by plain.serialized<List<PluginId>> {
+        description = "The order in which suggesters are shown in clients"
+        serializer = pluginIdSerializer.listSerializer()
+        check { null }
+        default(emptyList())
+        actionButton {
+            label = DeskBot.resources["action.edit"]
+            describe { suggesterIds ->
+                suggesterIds.joinToString { it.displayName }
+            }
+            action {
+                withContext(Dispatchers.Main) {
+                    load<PluginOrderConfig>().apply {
+                        configEntry = suggesterOrder
+                        loadedPlugins = pluginFinder.suggesters
+                            .mapNotNull {
+                                try {
+                                    it.id
+                                } catch (e: DeclarationException) {
+                                    null
+                                }
+                            }
+                            .distinct()
+                        show(modal = true, wait = true)
+                    }
+                }
+                true
+            }
+        }
     }
 
     val allPlain: List<Config.Entry<*>> = listOf(
         defaultSuggester,
         storageDir,
         loadAlbumArt,
-        defaultPermissions
+        defaultPermissions,
+        providerOrder,
+        suggesterOrder
     )
     val allSecret: List<Config.Entry<*>> = listOf()
 }
@@ -106,7 +183,11 @@ private class SuggesterSerializer(
 ) : ConfigSerializer<Suggester> {
 
     override fun serialize(obj: Suggester): String {
-        return obj.id.qualifiedName!!
+        return try {
+            obj.id.qualifiedName
+        } catch (e: DeclarationException) {
+            throw SerializationException()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

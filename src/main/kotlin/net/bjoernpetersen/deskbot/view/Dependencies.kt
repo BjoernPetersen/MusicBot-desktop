@@ -7,9 +7,9 @@ import javafx.scene.control.TreeView
 import javafx.scene.control.cell.ChoiceBoxTreeCell
 import javafx.scene.layout.Region
 import net.bjoernpetersen.deskbot.view.tree.PluginTreeItem
+import net.bjoernpetersen.musicbot.api.plugin.category
+import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
-import net.bjoernpetersen.musicbot.spi.plugin.category
-import net.bjoernpetersen.musicbot.spi.plugin.id
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 
 class Dependencies : Controller {
@@ -28,7 +28,9 @@ class Dependencies : Controller {
     override fun initialize() {
         pluginProperty.addListener { _, _, plugin ->
             tree.root = if (plugin == null) null
-            else PluginTreeItem(dependencyManager, plugin.id, plugin).apply { isExpanded = true }
+            else PluginTreeItem(dependencyManager, plugin.id.type, plugin).apply {
+                isExpanded = true
+            }
         }
         tree.setCellFactory {
             // TODO i18n
@@ -50,6 +52,10 @@ class Dependencies : Controller {
                 }
             }
         }
+    }
+
+    override fun getWindowTitle(): String? {
+        return DeskBot.resources.getString("window.dependencies")
     }
 
     fun setPlugin(dependencyManager: DependencyManager, plugin: Plugin) {

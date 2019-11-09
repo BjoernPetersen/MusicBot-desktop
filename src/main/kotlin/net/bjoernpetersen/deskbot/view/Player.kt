@@ -149,7 +149,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
                     }
                     true
                 }
-                val removeItem = MenuItem("Remove").apply {
+                val removeItem = MenuItem(DeskBot.resources["action.remove"]).apply {
                     setOnAction { event ->
                         item?.song?.let { queue.remove(it) }
                         event.consume()
@@ -224,7 +224,7 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
         val controller = load<UserManagement>()
         val userManager = lifecycle.getInjector().getInstance(UserManager::class.java)
         controller.setUserManager(userManager)
-        controller.root.show(modal = true)
+        controller.show(modal = true)
     }
 
     @Suppress("UNUSED_PARAMETER", "unused")
