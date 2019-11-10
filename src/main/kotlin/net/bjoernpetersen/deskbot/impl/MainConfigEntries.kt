@@ -15,10 +15,10 @@ import net.bjoernpetersen.musicbot.api.config.ChoiceBox
 import net.bjoernpetersen.musicbot.api.config.Config
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
+import net.bjoernpetersen.musicbot.api.config.DeserializationException
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.NonnullConfigChecker
 import net.bjoernpetersen.musicbot.api.config.PathSerializer
-import net.bjoernpetersen.musicbot.api.config.SerializationException
 import net.bjoernpetersen.musicbot.api.config.actionButton
 import net.bjoernpetersen.musicbot.api.config.choiceBox
 import net.bjoernpetersen.musicbot.api.config.listSerializer
@@ -186,7 +186,7 @@ private class SuggesterSerializer(
         return try {
             obj.id.qualifiedName
         } catch (e: DeclarationException) {
-            throw SerializationException()
+            throw DeserializationException()
         }
     }
 
@@ -195,8 +195,8 @@ private class SuggesterSerializer(
         val type = try {
             classLoader.loadClass(string)
         } catch (e: ClassNotFoundException) {
-            throw SerializationException()
+            throw DeserializationException()
         } as Class<out Suggester>
-        return pluginFinder[type.kotlin] ?: throw SerializationException()
+        return pluginFinder[type.kotlin] ?: throw DeserializationException()
     }
 }

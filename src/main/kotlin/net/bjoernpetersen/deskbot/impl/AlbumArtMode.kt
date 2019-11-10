@@ -2,7 +2,7 @@ package net.bjoernpetersen.deskbot.impl
 
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
-import net.bjoernpetersen.musicbot.api.config.SerializationException
+import net.bjoernpetersen.musicbot.api.config.DeserializationException
 
 enum class AlbumArtMode(
     val friendlyName: String,
@@ -25,7 +25,7 @@ enum class AlbumArtMode(
                 valueOf(string)
             } catch (e: IllegalArgumentException) {
                 logger.warn { "Could not deserialize AlbumArtMode $string" }
-                throw SerializationException()
+                throw DeserializationException()
             }
         }
     }

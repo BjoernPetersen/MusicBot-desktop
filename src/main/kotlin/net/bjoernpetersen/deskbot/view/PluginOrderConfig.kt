@@ -106,4 +106,3 @@ class PluginOrderConfig : Controller {
         closeWindow()
     }
 }
-
