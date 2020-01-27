@@ -35,7 +35,7 @@ fun tokenExpect(permissions: List<Permission>?): AuthExpectation =
     AuthExpectation(AuthType.Token, permissions = permissions)
 
 fun basicExpect(type: UserType): AuthExpectation =
-    AuthExpectation(AuthType.Token, type = type)
+    AuthExpectation(AuthType.Basic, type = type)
 
 data class RegisterCredentials(val name: String, val userId: String)
 data class PasswordChange(val newPassword: String)
