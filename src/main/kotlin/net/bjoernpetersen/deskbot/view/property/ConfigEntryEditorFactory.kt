@@ -1,5 +1,7 @@
 package net.bjoernpetersen.deskbot.view.property
 
+import java.io.File
+import java.nio.file.Path
 import javafx.scene.control.PasswordField
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ActionButton
@@ -15,8 +17,6 @@ import org.controlsfx.control.PropertySheet
 import org.controlsfx.property.editor.DefaultPropertyEditorFactory
 import org.controlsfx.property.editor.PropertyEditor
 import org.controlsfx.validation.ValidationSupport
-import java.io.File
-import java.nio.file.Path
 
 class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
     private val logger = KotlinLogging.logger { }

@@ -1,10 +1,10 @@
 package net.bjoernpetersen.deskbot.view.property
 
+import java.util.Optional
 import javafx.beans.value.ObservableValue
+import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.config.Config
 import org.controlsfx.control.PropertySheet
-import java.util.Optional
-import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 sealed class ConfigEntryItem<T : Any>(

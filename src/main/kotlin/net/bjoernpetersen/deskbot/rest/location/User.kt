@@ -12,17 +12,17 @@ import io.ktor.locations.put
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.ConflictException
-import net.bjoernpetersen.deskbot.rest.respondEmpty
-import net.bjoernpetersen.deskbot.rest.user
 import net.bjoernpetersen.deskbot.rest.model.PasswordChange
 import net.bjoernpetersen.deskbot.rest.model.RegisterCredentials
+import net.bjoernpetersen.deskbot.rest.respondEmpty
+import net.bjoernpetersen.deskbot.rest.user
 import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.auth.UserManager
-import javax.inject.Inject
 
 private val logger = KotlinLogging.logger {}
 

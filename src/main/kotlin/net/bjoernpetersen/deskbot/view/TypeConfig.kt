@@ -6,6 +6,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.ListView
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.layout.Region
+import kotlin.reflect.KClass
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.deskbot.view.property.ConfigEntryEditorFactory
 import net.bjoernpetersen.deskbot.view.property.ConfigEntryItem
@@ -18,7 +19,6 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import org.controlsfx.control.PropertySheet
-import kotlin.reflect.KClass
 
 class TypeConfig : Controller {
     @FXML

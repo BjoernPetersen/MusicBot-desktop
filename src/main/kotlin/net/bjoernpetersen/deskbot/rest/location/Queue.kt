@@ -10,15 +10,16 @@ import io.ktor.locations.get
 import io.ktor.locations.put
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.NotFoundException
-import net.bjoernpetersen.deskbot.rest.require
-import net.bjoernpetersen.deskbot.rest.user
 import net.bjoernpetersen.deskbot.rest.model.CoreQueueEntry
 import net.bjoernpetersen.deskbot.rest.model.QueueEntry
 import net.bjoernpetersen.deskbot.rest.model.SongEntry
 import net.bjoernpetersen.deskbot.rest.model.toModel
+import net.bjoernpetersen.deskbot.rest.require
+import net.bjoernpetersen.deskbot.rest.user
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.player.Song
@@ -27,7 +28,6 @@ import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
-import javax.inject.Inject
 
 private val logger = KotlinLogging.logger {}
 

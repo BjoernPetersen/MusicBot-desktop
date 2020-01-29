@@ -1,5 +1,6 @@
 package net.bjoernpetersen.deskbot.view.property
 
+import java.io.File
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Orientation
@@ -16,7 +17,6 @@ import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.property
 import net.bjoernpetersen.musicbot.api.config.FileChooser
 import org.controlsfx.property.editor.PropertyEditor
-import java.io.File
 
 private typealias FxFileChooser = javafx.stage.FileChooser
 

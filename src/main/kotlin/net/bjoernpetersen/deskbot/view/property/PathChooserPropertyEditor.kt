@@ -1,5 +1,8 @@
 package net.bjoernpetersen.deskbot.view.property
 
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Orientation
@@ -17,9 +20,6 @@ import net.bjoernpetersen.deskbot.view.DeskBot
 import net.bjoernpetersen.deskbot.view.property
 import net.bjoernpetersen.musicbot.api.config.PathChooser
 import org.controlsfx.property.editor.PropertyEditor
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 class PathChooserPropertyEditor(
     private val item: ConfigEntryItem<Path>,

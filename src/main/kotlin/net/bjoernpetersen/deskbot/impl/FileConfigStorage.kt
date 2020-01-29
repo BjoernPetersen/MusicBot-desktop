@@ -1,16 +1,16 @@
 package net.bjoernpetersen.deskbot.impl
 
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.Properties
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ConfigScope
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.PluginConfigScope
 import net.bjoernpetersen.musicbot.spi.config.ConfigStorageAdapter
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.Properties
 
 class FileConfigStorage(private val configDir: File) : ConfigStorageAdapter {
     private val logger = KotlinLogging.logger { }
