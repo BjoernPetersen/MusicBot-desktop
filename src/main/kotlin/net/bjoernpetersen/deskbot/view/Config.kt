@@ -29,6 +29,8 @@ class Config : Controller {
     @FXML
     private lateinit var suggesterConfigController: TypeConfig
 
+    override fun getWindowTitle(): String? = DeskBot.resources.getString("window.config")
+
     @FXML
     override fun initialize() {
         thread(name = "ConfigLoader", isDaemon = true) {
@@ -43,9 +45,6 @@ class Config : Controller {
                 providerConfigController.setType(lifecycle, Provider::class)
                 suggesterConfigController.setType(lifecycle, Suggester::class)
             }
-        }
-        Platform.runLater {
-            stage.title = DeskBot.resources.getString("window.config")
         }
     }
 }

@@ -21,9 +21,10 @@ class UserManagement : Controller {
     @FXML
     private lateinit var permissionManagementController: PermissionManagement
 
+    override fun getWindowTitle(): String? = DeskBot.resources["window.userManagement"]
+
     @FXML
     override fun initialize() {
-        Platform.runLater { stage.title = DeskBot.resources["window.userManagement"] }
         userList.setCellFactory {
             TextFieldListCell(stringConverter { it?.name })
         }

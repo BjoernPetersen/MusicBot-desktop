@@ -26,9 +26,10 @@ class DefaultPermissionConfig : Controller {
     @FXML
     private lateinit var permissionList: CheckListView<Permission>
 
+    override fun getWindowTitle(): String? = DeskBot.resources["window.defaultPermission"]
+
     @FXML
     override fun initialize() {
-        Platform.runLater { stage.title = DeskBot.resources["window.defaultPermission"] }
         permissionList.disableProperty().bind(hasNoEntry)
         permissionList.items.addAll(Permission.values())
 

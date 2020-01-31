@@ -35,8 +35,9 @@ class Overview : Controller {
         initActivation()
     }
 
+    override fun getWindowTitle(): String? = DeskBot.resources["window.overview"]
+
     private fun initActivation() {
-        Platform.runLater { stage.title = DeskBot.resources["window.overview"] }
         thread(name = "OverviewLoader", isDaemon = true) {
             val lifecycle = Lifecyclist()
             lifecycle.create(File("plugins"))

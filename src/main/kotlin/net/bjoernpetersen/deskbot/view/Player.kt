@@ -86,10 +86,11 @@ class Player(private val lifecycle: Lifecyclist) : Controller, CoroutineScope {
     @FXML
     private lateinit var searchField: TextField
 
+    override fun getWindowTitle(): String? = res.getString("window.player")
+
     @FXML
     override fun initialize() {
         job = Job()
-        Platform.runLater { stage.title = res.getString("window.player") }
         setupQueue()
 
         var song: Song? = null
