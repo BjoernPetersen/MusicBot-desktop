@@ -1,6 +1,5 @@
 package net.bjoernpetersen.deskbot.view
 
-import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.ListView
 import javafx.scene.control.cell.TextFieldListCell

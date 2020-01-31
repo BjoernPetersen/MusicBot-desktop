@@ -1,6 +1,5 @@
 package net.bjoernpetersen.deskbot.view
 
-import javafx.application.Platform
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.ActionEvent
