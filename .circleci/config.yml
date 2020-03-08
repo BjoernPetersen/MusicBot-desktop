@@ -143,6 +143,7 @@ workflows:
       - bundle:
           requires:
             - build
+            - check
           filters:
             branches:
               only:
