@@ -27,8 +27,6 @@ commands:
         type: string
       branch:
         type: string
-      path:
-        type: string
       token:
         type: string
       user:
@@ -37,7 +35,7 @@ commands:
     steps:
       - run:
           working_directory: bundle/musicbot-desktop/plugins
-          command: python ../../../.circleci/load_artifact.py -p << parameters.project >> -t << parameters.token >> -a << parameters.path >> -b << parameters.branch >> -u << parameters.user >>
+          command: python ../../../.circleci/load_artifact.py -p << parameters.project >> -t << parameters.token >> -b << parameters.branch >> -u << parameters.user >>
 
 jobs:
   compile:
@@ -121,29 +119,7 @@ jobs:
       - download_artifact:
           project: MusicBot-YouTube
           branch: $CIRCLE_BRANCH
-          path: dist/musicbot-youtube.jar
-          token: $CIRCLE_TOKEN_YOUTUBE
-      - download_artifact:
-          project: MusicBot-mpv
-          branch: $CIRCLE_BRANCH
-          path: dist/musicbot-mpv.jar
-          token: $CIRCLE_TOKEN_MPV
-      - download_artifact:
-          project: MusicBot-Spotify
-          branch: $CIRCLE_BRANCH
-          path: dist/musicbot-spotify.jar
-          token: $CIRCLE_TOKEN_SPOTIFY
-      - download_artifact:
-          project: MusicBot-Mp3Provider
-          branch: $CIRCLE_BRANCH
-          path: dist/musicbot-mp3provider.jar
-          token: $CIRCLE_TOKEN_MP3
-      - download_artifact:
-          user: FelixGail
-          project: MusicBot-gplaymusic
-          branch: $CIRCLE_BRANCH
-          path: dist/musicbot-gplaymusic.jar
-          token: $CIRCLE_TOKEN_PLAY_MUSIC
+          token: $CIRCLE_TOKEN
       - run:
           name: Zipping bundle
           working_directory: bundle
@@ -164,11 +140,11 @@ workflows:
       - build:
           requires:
             - compile
-#      - bundle:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              only:
-#                - master
-#                - develop
+      - bundle:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+                - develop
