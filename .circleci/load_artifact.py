@@ -83,6 +83,7 @@ def find_most_recent_workflow(client, slug, branch) -> str:
     for pipeline in client.get_pipelines(slug, branch):
         workflow = client.get_workflows(pipeline['id'])[0]
         if workflow['status'] == "success":
+            print(f"Found successful pipeline: {pipeline['number']}")
             return workflow['id']
     print("Could not find successful workflow")
     exit(1)
