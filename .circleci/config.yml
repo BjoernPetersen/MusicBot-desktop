@@ -117,7 +117,7 @@ jobs:
             cp -r build/install/* bundle/musicbot-desktop
             mkdir bundle/musicbot-desktop/plugins
       - download_artifact:
-          project: MusicBot-YouTube
+          project: MusicBot-plugins
           branch: $CIRCLE_BRANCH
           token: $CIRCLE_TOKEN
       - run:
