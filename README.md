@@ -10,7 +10,7 @@ It's recommended to use the latest build from the [releases page](https://github
 You can download the latest `develop` and `master` CI builds by using one of the following links.
 The `bundle` contains several known plugins.
 
-**Note: these are currently broken until the new CircleCI API supporting workflows is stable.**
+**Note: these links depend on the new CircleCI API, which is still in preview.**
 
 Branch | MusicBot-desktop only | bundle
 ------ | --------------------- | ------
