@@ -102,7 +102,9 @@ def load_artifacts(client: Circle, slug, build_num):
     arts = client.get_artifacts(slug, build_num)
     for artifact in arts:
         path = artifact['path']
-        download(artifact['url'], os.path.basename(path))
+        base_name = os.path.basename(path)
+        print(f"Downloading {base_name}")
+        download(artifact['url'], base_name)
 
 
 def run(params: Params):
