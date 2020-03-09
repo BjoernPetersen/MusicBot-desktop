@@ -1,10 +1,5 @@
 package net.bjoernpetersen.deskbot.impl
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -35,6 +30,11 @@ import net.bjoernpetersen.musicbot.api.plugin.PluginId
 import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import javax.inject.Inject
+import javax.inject.Named
 
 // TODO: make constructor private (force injection)
 class MainConfigEntries @Inject constructor(
@@ -56,7 +56,7 @@ class MainConfigEntries @Inject constructor(
         uiNode = ChoiceBox({ it.name }, { pluginFinder.suggesters })
     }
 
-    val defaultPermissions by plain.serialized<Set<Permission>> {
+    val defaultPermissions: Config.SerializedEntry<Set<Permission>> by plain.serialized {
         description = "Permissions for new users and guests"
         serializer = Permission.setSerializer()
         check(NonnullConfigChecker)
@@ -104,7 +104,7 @@ class MainConfigEntries @Inject constructor(
         default(AlbumArtMode.ALL)
     }
 
-    val providerOrder by plain.serialized<List<PluginId>> {
+    val providerOrder: Config.SerializedEntry<List<PluginId>> by plain.serialized {
         description = "The order in which providers are shown in clients"
         serializer = pluginIdSerializer.listSerializer()
         check { null }
@@ -135,7 +135,7 @@ class MainConfigEntries @Inject constructor(
         }
     }
 
-    val suggesterOrder by plain.serialized<List<PluginId>> {
+    val suggesterOrder: Config.SerializedEntry<List<PluginId>> by plain.serialized {
         description = "The order in which suggesters are shown in clients"
         serializer = pluginIdSerializer.listSerializer()
         check { null }
