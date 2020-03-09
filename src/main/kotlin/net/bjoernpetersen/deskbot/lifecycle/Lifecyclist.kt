@@ -38,8 +38,13 @@ import net.bjoernpetersen.deskbot.view.show
 import net.bjoernpetersen.musicbot.api.auth.BotUser
 import net.bjoernpetersen.musicbot.api.auth.DefaultPermissions
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
+import net.bjoernpetersen.musicbot.api.config.ConfigScope
+import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.PluginConfigScope
+import net.bjoernpetersen.musicbot.api.config.listSerializer
+import net.bjoernpetersen.musicbot.api.config.serialization
+import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.api.module.BrowserOpenerModule
 import net.bjoernpetersen.musicbot.api.module.ConfigModule
 import net.bjoernpetersen.musicbot.api.module.DefaultImageCacheModule
@@ -377,16 +382,25 @@ private class Initializer(private val finder: PluginFinder) {
     }
 }
 
+private val songSerializer = serialization<Pair<String, String>> {
+    serialize { "${it.first}|${it.second}" }
+    deserialize { it.split('|').let { (a, b) -> a to b } }
+}
+
 private class QueueDumper @Inject private constructor(
     private val queue: SongQueue,
     private val player: Player,
-    private val pluginLookup: PluginLookup
+    private val pluginLookup: PluginLookup,
+    configManager: ConfigManager
 ) {
 
     private val logger = KotlinLogging.logger {}
-
-    private fun Song.toDumpString() = "${provider.id}|$id\n"
-
+    private val entry by configManager[GenericConfigScope(QueueDumper::class)].state
+        .serialized<List<Pair<String, String>>> {
+            serializer = songSerializer.listSerializer()
+            description = ""
+            check { null }
+        }
     private var lastQueue: List<QueueEntry> = emptyList()
 
     private fun buildDumpQueue(
@@ -415,43 +429,32 @@ private class QueueDumper @Inject private constructor(
         } else {
             lastQueue = dumpQueue
         }
-        val file = File("queue.dump")
-        file.bufferedWriter().use { writer ->
-            dumpQueue.forEach {
-                writer.write(it.song.toDumpString())
-            }
-        }
+
+        entry.set(dumpQueue.map { it.song.provider.id to it.song.id })
     }
 
     suspend fun restoreQueue() {
-        val file = File("queue.dump")
-        if (!file.isFile) return
-
         logger.info("Restoring queue")
         withContext(Dispatchers.IO) {
-            file.bufferedReader().useLines { lines ->
-                val songs = lines
-                    .map { it.split('|') }
-                    .filter { it.size == 2 }
-                    .map { pluginLookup.lookup<Provider>(it[0]) to it[1] }
-                    .map {
-                        async {
-                            try {
-                                it.first?.lookup(it.second)
-                            } catch (e: NoSuchSongException) {
-                                null
-                            }
+            val pairs = entry.get()
+            if (pairs.isNullOrEmpty()) return@withContext
+            val songs = pairs.asSequence()
+                .map { pluginLookup.lookup<Provider>(it.first) to it.second }
+                .map {
+                    async {
+                        try {
+                            it.first?.lookup(it.second)
+                        } catch (e: NoSuchSongException) {
+                            null
                         }
                     }
-                    .toList()
+                }
+                .toList()
 
-                withContext(Dispatchers.IO) {
-                    songs.forEach {
-                        val song = it.await()
-                        if (song != null) {
-                            queue.insert(QueueEntry(song, BotUser))
-                        }
-                    }
+            songs.forEach {
+                val song = it.await()
+                if (song != null) {
+                    queue.insert(QueueEntry(song, BotUser))
                 }
             }
         }
