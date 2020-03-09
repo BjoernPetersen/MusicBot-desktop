@@ -38,7 +38,6 @@ import net.bjoernpetersen.deskbot.view.show
 import net.bjoernpetersen.musicbot.api.auth.BotUser
 import net.bjoernpetersen.musicbot.api.auth.DefaultPermissions
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
-import net.bjoernpetersen.musicbot.api.config.ConfigScope
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import net.bjoernpetersen.musicbot.api.config.MainConfigScope
 import net.bjoernpetersen.musicbot.api.config.PluginConfigScope
@@ -59,7 +58,6 @@ import net.bjoernpetersen.musicbot.api.module.PluginClassLoaderModule
 import net.bjoernpetersen.musicbot.api.module.PluginModule
 import net.bjoernpetersen.musicbot.api.player.PlayerState
 import net.bjoernpetersen.musicbot.api.player.QueueEntry
-import net.bjoernpetersen.musicbot.api.player.Song
 import net.bjoernpetersen.musicbot.api.plugin.PluginLoaderImpl
 import net.bjoernpetersen.musicbot.api.plugin.category
 import net.bjoernpetersen.musicbot.api.plugin.management.DefaultDependencyManager
