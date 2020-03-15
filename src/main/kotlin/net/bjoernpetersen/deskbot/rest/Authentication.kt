@@ -15,6 +15,7 @@ import io.ktor.response.respond
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.rest.model.tokenExpect
 import net.bjoernpetersen.musicbot.api.auth.InvalidTokenException
+import net.bjoernpetersen.musicbot.api.auth.Tokens
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
@@ -23,6 +24,8 @@ private const val BEARER_KEY = "CustomBearer"
 const val AUTH_REALM = "MusicBot"
 
 class UserPrincipal(val user: User) : Principal
+
+class TokensPrincipal(val tokens: Tokens) : Principal
 
 class BearerAuthentication(
     private val tokenHandler: TokenHandler,
@@ -57,6 +60,43 @@ class BearerAuthentication(
             }
 
             context.principal(UserPrincipal(user))
+        }
+    }
+}
+
+class RefreshTokenAuthentication(
+    private val tokenHandler: TokenHandler,
+    name: String? = null
+) : AuthenticationProvider(name) {
+    private val logger = KotlinLogging.logger { }
+    private val scheme = "Bearer"
+    private val realm = "MusicBot"
+
+    init {
+        pipeline.intercept(AuthenticationPipeline.RequestAuthentication) { context ->
+            val token = call.request.parseAuthorizationHeaderOrNull()
+            if (token == null) {
+                logger.warn { "Missing token" }
+                context.bearerChallenge(AuthenticationFailedCause.NoCredentials, realm, scheme)
+                return@intercept
+            }
+
+            val tokens = try {
+                token.getBlob(scheme)?.let {
+                    tokenHandler.createTokens(it)
+                }
+            } catch (e: InvalidTokenException) {
+                logger.debug(e) { "Invalid token" }
+                null
+            }
+
+            if (tokens == null) {
+                logger.warn { "Invalid token" }
+                context.bearerChallenge(AuthenticationFailedCause.InvalidCredentials, realm, scheme)
+                return@intercept
+            }
+
+            context.principal(TokensPrincipal(tokens))
         }
     }
 }

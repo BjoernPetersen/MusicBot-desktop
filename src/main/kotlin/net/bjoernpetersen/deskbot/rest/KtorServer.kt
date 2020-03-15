@@ -80,6 +80,7 @@ class KtorServer @Inject private constructor(
 
         install(Authentication) {
             register(BearerAuthentication(tokenHandler))
+            register(RefreshTokenAuthentication(tokenHandler, "RefreshToken"))
             basic("Basic") {
                 realm = AUTH_REALM
                 validate {

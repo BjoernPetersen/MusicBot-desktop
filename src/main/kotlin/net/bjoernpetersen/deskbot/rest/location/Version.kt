@@ -22,6 +22,7 @@ class Version {
             val apiVersion = loadApiVersion()
             return VersionInfo(
                 apiVersion,
+                "Nameless bot",
                 ImplementationInfo(
                     PROJECT_PAGE,
                     PROJECT_NAME,
@@ -42,6 +43,6 @@ class Version {
             throw IllegalStateException("Could not read version resource", e)
         }
 
-        private fun loadApiVersion(): String = "0.13.0"
+        private fun loadApiVersion(): String = "0.15.3"
     }
 }

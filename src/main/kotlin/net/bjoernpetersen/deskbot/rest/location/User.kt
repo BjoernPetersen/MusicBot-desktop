@@ -3,6 +3,7 @@ package net.bjoernpetersen.deskbot.rest.location
 import com.google.inject.Injector
 import io.ktor.application.call
 import io.ktor.auth.authenticate
+import io.ktor.auth.authentication
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.delete
@@ -16,6 +17,8 @@ import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.ConflictException
+import net.bjoernpetersen.deskbot.rest.TokensPrincipal
+import net.bjoernpetersen.deskbot.rest.UserPrincipal
 import net.bjoernpetersen.deskbot.rest.model.PasswordChange
 import net.bjoernpetersen.deskbot.rest.model.RegisterCredentials
 import net.bjoernpetersen.deskbot.rest.respondEmpty
@@ -34,7 +37,7 @@ class UserRequest
 
 @KtorExperimentalLocationsAPI
 @Location("/token")
-class LoginRequest
+class TokenRequest
 
 private class UserAccess @Inject private constructor(
     private val userManager: UserManager,
@@ -60,6 +63,10 @@ private class UserAccess @Inject private constructor(
         userManager.deleteUser(user)
     }
 
+    fun invalidateToken(user: User) {
+        tokenHandler.invalidateToken(user)
+    }
+
     fun User.toToken(): Tokens {
         return tokenHandler.createTokens(this)
     }
@@ -73,9 +80,14 @@ fun Route.routeUser(injector: Injector) {
             val credentials: RegisterCredentials = call.receive()
             call.respond(registerUser(credentials).toToken())
         }
-        authenticate("Basic") {
-            get<LoginRequest> {
-                call.respond(call.user.toToken())
+        authenticate("Basic", "RefreshToken") {
+            get<TokenRequest> {
+                val tokens = when (val principal = call.authentication.principal) {
+                    is TokensPrincipal -> principal.tokens
+                    is UserPrincipal -> principal.user.toToken()
+                    else -> throw IllegalStateException()
+                }
+                call.authentication.call.respond(tokens)
             }
         }
         authenticate {
@@ -90,6 +102,11 @@ fun Route.routeUser(injector: Injector) {
 
             delete<UserRequest> {
                 deleteUser(call.user)
+                call.respondEmpty()
+            }
+
+            delete<TokenRequest> {
+                invalidateToken(call.user)
                 call.respondEmpty()
             }
         }
