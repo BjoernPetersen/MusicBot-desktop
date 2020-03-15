@@ -46,11 +46,13 @@ import net.bjoernpetersen.musicbot.api.config.serialization
 import net.bjoernpetersen.musicbot.api.config.serialized
 import net.bjoernpetersen.musicbot.api.module.BrowserOpenerModule
 import net.bjoernpetersen.musicbot.api.module.ConfigModule
+import net.bjoernpetersen.musicbot.api.module.DefaultDatabaseConnectionModule
 import net.bjoernpetersen.musicbot.api.module.DefaultImageCacheModule
 import net.bjoernpetersen.musicbot.api.module.DefaultPlayerModule
 import net.bjoernpetersen.musicbot.api.module.DefaultQueueModule
 import net.bjoernpetersen.musicbot.api.module.DefaultResourceCacheModule
 import net.bjoernpetersen.musicbot.api.module.DefaultSongLoaderModule
+import net.bjoernpetersen.musicbot.api.module.DefaultTokenHandlerModule
 import net.bjoernpetersen.musicbot.api.module.DefaultUserDatabaseModule
 import net.bjoernpetersen.musicbot.api.module.FileStorageModule
 import net.bjoernpetersen.musicbot.api.module.InstanceStopper
@@ -160,7 +162,9 @@ class Lifecyclist : CoroutineScope {
         DefaultPlayerModule(suggester),
         DefaultQueueModule(),
         DefaultSongLoaderModule(),
-        DefaultUserDatabaseModule(Paths.get("UserDatabase.db")),
+        DefaultDatabaseConnectionModule(Paths.get("UserDatabase.db")),
+        DefaultUserDatabaseModule(),
+        DefaultTokenHandlerModule(),
         PluginClassLoaderModule(classLoader),
         PluginModule(pluginFinder),
         BrowserOpenerModule(browserOpener),

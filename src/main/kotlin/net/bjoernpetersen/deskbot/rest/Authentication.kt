@@ -17,6 +17,7 @@ import net.bjoernpetersen.deskbot.rest.model.tokenExpect
 import net.bjoernpetersen.musicbot.api.auth.InvalidTokenException
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.auth.UserManager
+import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 
 private const val BEARER_KEY = "CustomBearer"
 const val AUTH_REALM = "MusicBot"
@@ -24,7 +25,7 @@ const val AUTH_REALM = "MusicBot"
 class UserPrincipal(val user: User) : Principal
 
 class BearerAuthentication(
-    private val userManager: UserManager,
+    private val tokenHandler: TokenHandler,
     name: String? = null
 ) : AuthenticationProvider(name) {
     private val logger = KotlinLogging.logger { }
@@ -42,7 +43,7 @@ class BearerAuthentication(
 
             val user = try {
                 token.getBlob(scheme)?.let {
-                    userManager.fromToken(it)
+                    tokenHandler.decodeAccessToken(it)
                 }
             } catch (e: InvalidTokenException) {
                 logger.debug(e) { "Invalid token" }

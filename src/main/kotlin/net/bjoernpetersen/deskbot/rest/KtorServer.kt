@@ -41,13 +41,15 @@ import net.bjoernpetersen.musicbot.ServerConstraints
 import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.api.auth.UserNotFoundException
 import net.bjoernpetersen.musicbot.api.image.ImageServerConstraints
+import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 import net.bjoernpetersen.musicbot.spi.image.ImageCache
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 
 @Singleton
-@UseExperimental(KtorExperimentalAPI::class, KtorExperimentalLocationsAPI::class)
+@OptIn(KtorExperimentalAPI::class, KtorExperimentalLocationsAPI::class)
 class KtorServer @Inject private constructor(
     private val userManager: UserManager,
+    private val tokenHandler: TokenHandler,
     private val imageCache: ImageCache,
     private val injector: Injector
 ) {
@@ -77,7 +79,7 @@ class KtorServer @Inject private constructor(
         }
 
         install(Authentication) {
-            register(BearerAuthentication(userManager))
+            register(BearerAuthentication(tokenHandler))
             basic("Basic") {
                 realm = AUTH_REALM
                 validate {

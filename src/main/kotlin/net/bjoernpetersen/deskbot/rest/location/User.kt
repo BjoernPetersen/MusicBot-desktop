@@ -21,8 +21,10 @@ import net.bjoernpetersen.deskbot.rest.model.RegisterCredentials
 import net.bjoernpetersen.deskbot.rest.respondEmpty
 import net.bjoernpetersen.deskbot.rest.user
 import net.bjoernpetersen.musicbot.api.auth.DuplicateUserException
+import net.bjoernpetersen.musicbot.api.auth.Tokens
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.auth.UserManager
+import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 
 private val logger = KotlinLogging.logger {}
 
@@ -35,7 +37,8 @@ class UserRequest
 class LoginRequest
 
 private class UserAccess @Inject private constructor(
-    private val userManager: UserManager
+    private val userManager: UserManager,
+    private val tokenHandler: TokenHandler
 ) {
     fun registerUser(credentials: RegisterCredentials): User {
         return try {
@@ -57,8 +60,8 @@ private class UserAccess @Inject private constructor(
         userManager.deleteUser(user)
     }
 
-    fun User.toToken(): String {
-        return userManager.toToken(this)
+    fun User.toToken(): Tokens {
+        return tokenHandler.createTokens(this)
     }
 }
 
