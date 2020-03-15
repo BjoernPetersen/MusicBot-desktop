@@ -17,7 +17,6 @@ import net.bjoernpetersen.deskbot.rest.model.tokenExpect
 import net.bjoernpetersen.musicbot.api.auth.InvalidTokenException
 import net.bjoernpetersen.musicbot.api.auth.Tokens
 import net.bjoernpetersen.musicbot.api.auth.User
-import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 
 private const val BEARER_KEY = "CustomBearer"
