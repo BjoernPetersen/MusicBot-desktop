@@ -6,9 +6,12 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.basic
+import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DataConversion
 import io.ktor.features.StatusPages
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
@@ -55,6 +58,15 @@ class KtorServer @Inject private constructor(
 ) {
     private val logger = KotlinLogging.logger {}
     private val server: ApplicationEngine = embeddedServer(CIO, port = ServerConstraints.port) {
+        install(CORS) {
+            anyHost()
+            allowCredentials = true
+            allowNonSimpleContentTypes = true
+            method(HttpMethod.Put)
+            method(HttpMethod.Delete)
+            header(HttpHeaders.Authorization)
+        }
+
         install(StatusPages) {
             expectAuth()
             exception<AuthExpectationException> {
