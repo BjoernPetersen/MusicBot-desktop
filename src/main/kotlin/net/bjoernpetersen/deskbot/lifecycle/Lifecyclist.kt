@@ -69,6 +69,7 @@ import net.bjoernpetersen.musicbot.spi.player.Player
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
+import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFeedbackChannel
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
@@ -214,7 +215,8 @@ class Lifecyclist : CoroutineScope {
                 }
                 DefaultPermissions.defaultPermissions = mainConfig.defaultPermissions.get()!!
 
-                injector.getInstance(Player::class.java).start()
+                val player = injector.getInstance(Player::class.java)
+                player.start()
 
                 val ktor = injector.getInstance(KtorServer::class.java)
                 ktor.start()
@@ -224,8 +226,7 @@ class Lifecyclist : CoroutineScope {
                 GlobalScope.launch {
                     val dumper = injector.getInstance(QueueDumper::class.java)
                     dumper.restoreQueue()
-                    injector.getInstance(Player::class.java)
-                        .addListener { _, newState -> dumper.dumpQueue(newState) }
+                    player.addListener { _, newState -> dumper.dumpQueue(newState) }
                     injector.getInstance(SongQueue::class.java)
                         .addListener(object : QueueChangeListener {
                             override fun onAdd(entry: QueueEntry) {
