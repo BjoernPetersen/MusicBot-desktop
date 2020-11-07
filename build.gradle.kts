@@ -33,6 +33,12 @@ application {
     mainClassName = "net.bjoernpetersen.deskbot.view.DeskBot"
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
 idea {
     module {
         isDownloadJavadoc = true
