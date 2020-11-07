@@ -16,7 +16,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.io.errors.IOException
 import mu.KotlinLogging
-import net.bjoernpetersen.deskbot.fximpl.FxInitStateWriter
+import net.bjoernpetersen.deskbot.fximpl.FxProgressFeedback
 import net.bjoernpetersen.deskbot.impl.Broadcaster
 import net.bjoernpetersen.deskbot.impl.FileConfigStorage
 import net.bjoernpetersen.deskbot.impl.FileStorageImpl
@@ -336,7 +336,7 @@ private class Initializer(private val finder: PluginFinder) {
 
         finder.allPlugins().forEach { plugin ->
             val task = object : Task<Unit>() {
-                val writer = FxInitStateWriter(::updateMessage)
+                val writer = FxProgressFeedback(::updateMessage)
 
                 override fun call() {
                     updateTitle(
