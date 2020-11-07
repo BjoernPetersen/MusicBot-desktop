@@ -3,7 +3,7 @@ object Lib {
     const val KOTLIN_COROUTINES = "1.3.4"
     const val SLF4J = "1.8.0-beta4"
 
-    const val MUSICBOT = "0.25.0"
+    const val MUSICBOT = "0.26.0-SNAPSHOT"
     const val SQLITE = "3.30.1"
 
     const val CONTROLS_FX = "8.40.15"
