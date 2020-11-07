@@ -1,12 +1,12 @@
 package net.bjoernpetersen.deskbot.view
 
-import java.util.ResourceBundle
 import javafx.concurrent.Task
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.util.StringConverter
+import java.util.ResourceBundle
 
 val Controller.stage: Stage
     get() = this.root.scene.window as Stage

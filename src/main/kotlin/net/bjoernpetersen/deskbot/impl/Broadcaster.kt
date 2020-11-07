@@ -1,6 +1,8 @@
 package net.bjoernpetersen.deskbot.impl
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
+import mu.KotlinLogging
+import net.bjoernpetersen.musicbot.ServerConstraints
 import java.io.Closeable
 import java.io.IOException
 import java.net.DatagramPacket
@@ -10,8 +12,6 @@ import java.net.NetworkInterface
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import mu.KotlinLogging
-import net.bjoernpetersen.musicbot.ServerConstraints
 
 private typealias Constraints = ServerConstraints.Broadcast
 

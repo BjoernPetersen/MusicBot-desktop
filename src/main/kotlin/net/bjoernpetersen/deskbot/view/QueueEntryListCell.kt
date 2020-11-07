@@ -55,9 +55,11 @@ class QueueEntryListCell : ListCell<QueueEntry>(), Controller {
     private fun onDragDetected(it: MouseEvent) {
         if (item != null && dragHandler != null) {
             val dragboard = startDragAndDrop(TransferMode.MOVE)
-            dragboard.setContent(ClipboardContent().apply {
-                putString(index.toString())
-            })
+            dragboard.setContent(
+                ClipboardContent().apply {
+                    putString(index.toString())
+                }
+            )
         }
         it.consume()
     }

@@ -1,11 +1,9 @@
 package net.bjoernpetersen.deskbot.view
 
-import java.io.File
 import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.layout.Region
-import kotlin.concurrent.thread
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.SwingBrowserOpener
@@ -14,6 +12,8 @@ import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import org.controlsfx.dialog.ExceptionDialog
+import java.io.File
+import kotlin.concurrent.thread
 
 class Overview : Controller {
 

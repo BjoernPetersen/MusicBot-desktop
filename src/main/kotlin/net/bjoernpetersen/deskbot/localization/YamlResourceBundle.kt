@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import mu.KotlinLogging
 import java.io.InputStream
 import java.util.Collections
 import java.util.Enumeration
 import java.util.HashMap
 import java.util.Locale
 import java.util.ResourceBundle
-import mu.KotlinLogging
 
 class YamlResourceBundle(inputStream: InputStream) : ResourceBundle() {
     @Suppress("unused")

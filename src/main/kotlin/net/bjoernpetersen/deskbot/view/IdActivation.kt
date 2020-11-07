@@ -11,10 +11,10 @@ import javafx.scene.control.ListView
 import javafx.scene.control.RadioButton
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
-import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
+import kotlin.reflect.KClass
 
 class IdActivation : Controller {
 

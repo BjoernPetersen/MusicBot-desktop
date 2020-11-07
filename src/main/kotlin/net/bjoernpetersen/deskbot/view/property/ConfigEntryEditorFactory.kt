@@ -1,7 +1,5 @@
 package net.bjoernpetersen.deskbot.view.property
 
-import java.io.File
-import java.nio.file.Path
 import javafx.scene.control.PasswordField
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.api.config.ActionButton
@@ -17,6 +15,8 @@ import org.controlsfx.control.PropertySheet
 import org.controlsfx.property.editor.DefaultPropertyEditorFactory
 import org.controlsfx.property.editor.PropertyEditor
 import org.controlsfx.validation.ValidationSupport
+import java.io.File
+import java.nio.file.Path
 
 class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
     private val logger = KotlinLogging.logger { }
@@ -36,27 +36,34 @@ class ConfigEntryEditorFactory : DefaultPropertyEditorFactory() {
         return when (uiNode) {
             is TextBox -> TextFieldPropertyEditor(
                 item as ConfigEntryItem<String>,
-                item.entry as Config.StringEntry)
+                item.entry as Config.StringEntry
+            )
             is PasswordBox -> TextFieldPropertyEditor(
                 item as ConfigEntryItem<String>,
-                item.entry as Config.StringEntry, PasswordField())
+                item.entry as Config.StringEntry, PasswordField()
+            )
             is CheckBox -> ValidatableWrapper(super.call(item))
             is NumberBox -> NumberBoxPropertyEditor(
                 item as ConfigEntryItem<Int>,
                 item.entry as Config.SerializedEntry<Int>,
-                uiNode)
+                uiNode
+            )
             is ActionButton<*> -> ActionButtonPropertyEditor(
                 item as ConfigEntryItem<Any>,
-                uiNode as ActionButton<Any>)
+                uiNode as ActionButton<Any>
+            )
             is FileChooser -> FileChooserPropertyEditor(
                 item as ConfigEntryItem<File>,
-                uiNode)
+                uiNode
+            )
             is PathChooser -> PathChooserPropertyEditor(
                 item as ConfigEntryItem<Path>,
-                uiNode)
+                uiNode
+            )
             is ChoiceBox<*> -> ChoiceBoxPropertyEditor(
                 item as ConfigEntryItem<Any>,
-                uiNode as ChoiceBox<Any>)
+                uiNode as ChoiceBox<Any>
+            )
             else -> {
                 logger.warn { "Not implemented: ${uiNode::class.simpleName}" }
                 null

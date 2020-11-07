@@ -34,9 +34,11 @@ class Dependencies : Controller {
         }
         tree.setCellFactory {
             // TODO i18n
-            ChoiceBoxTreeCell<Plugin>(stringConverter { plugin ->
-                plugin?.let { "${it.name} (${it.category.simpleName})" } ?: "<Please select>"
-            }).apply {
+            ChoiceBoxTreeCell<Plugin>(
+                stringConverter { plugin ->
+                    plugin?.let { "${it.name} (${it.category.simpleName})" } ?: "<Please select>"
+                }
+            ).apply {
                 treeItemProperty().addListener { _, _, treeItem ->
                     if (treeItem is PluginTreeItem) {
                         items.setAll(dependencyManager.findAvailable(treeItem.base))

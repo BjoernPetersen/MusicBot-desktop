@@ -1,17 +1,17 @@
 package net.bjoernpetersen.deskbot.view
 
-import java.io.File
-import java.util.ResourceBundle
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
-import kotlin.system.exitProcess
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.SwingBrowserOpener
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.deskbot.localization.YamlResourceBundle
 import org.controlsfx.dialog.ExceptionDialog
+import java.io.File
+import java.util.ResourceBundle
+import kotlin.system.exitProcess
 
 class DeskBot : Application() {
     private val logger = KotlinLogging.logger {}

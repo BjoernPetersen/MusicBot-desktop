@@ -3,16 +3,8 @@ package net.bjoernpetersen.deskbot.lifecycle
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
-import java.io.File
-import java.nio.file.Paths
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 import javafx.application.Platform
 import javafx.concurrent.Task
-import javax.inject.Inject
-import kotlin.concurrent.thread
-import kotlin.concurrent.withLock
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -76,6 +68,14 @@ import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import net.bjoernpetersen.musicbot.spi.util.BrowserOpener
 import org.controlsfx.control.TaskProgressView
+import java.io.File
+import java.nio.file.Paths
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
+import javax.inject.Inject
+import kotlin.concurrent.thread
+import kotlin.concurrent.withLock
+import kotlin.coroutines.CoroutineContext
 
 @Suppress("TooManyFunctions")
 class Lifecyclist : CoroutineScope {

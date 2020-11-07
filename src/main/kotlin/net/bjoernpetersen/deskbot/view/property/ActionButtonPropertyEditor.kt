@@ -87,7 +87,8 @@ private fun <T> node(actionButton: ActionButton<T>): Node = ToolBar(
         isDisable = true
         prefWidth = 20.0
         HBox.setHgrow(this, Priority.ALWAYS)
-    }).apply {
+    }
+).apply {
     orientation = Orientation.HORIZONTAL
     background = Background.EMPTY
 }

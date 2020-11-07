@@ -1,11 +1,11 @@
 package net.bjoernpetersen.deskbot.impl
 
-import java.io.File
 import net.bjoernpetersen.musicbot.api.config.ConfigManager
 import net.bjoernpetersen.musicbot.api.config.ConfigSerializer
 import net.bjoernpetersen.musicbot.api.config.GenericConfigScope
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.io.File
 
 class FileConfigTest {
     @Test

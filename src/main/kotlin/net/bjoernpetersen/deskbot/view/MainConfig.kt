@@ -28,11 +28,13 @@ class MainConfig : Controller {
             if (lifecycle != null) {
                 propertySheet.items.addAll(
                     lifecycle.getMainConfig().allPlain
-                        .map { ConfigEntryItem.forEntry(it, false) })
+                        .map { ConfigEntryItem.forEntry(it, false) }
+                )
 
                 propertySheet.items.addAll(
                     lifecycle.getMainConfig().allSecret
-                        .map { ConfigEntryItem.forEntry(it, true) })
+                        .map { ConfigEntryItem.forEntry(it, true) }
+                )
             }
         }
     }

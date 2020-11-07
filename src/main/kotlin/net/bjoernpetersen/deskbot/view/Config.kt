@@ -1,16 +1,16 @@
 package net.bjoernpetersen.deskbot.view
 
-import java.io.File
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.layout.Region
-import kotlin.concurrent.thread
 import net.bjoernpetersen.deskbot.fximpl.SwingBrowserOpener
 import net.bjoernpetersen.deskbot.lifecycle.Lifecyclist
 import net.bjoernpetersen.musicbot.spi.plugin.GenericPlugin
 import net.bjoernpetersen.musicbot.spi.plugin.PlaybackFactory
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import java.io.File
+import kotlin.concurrent.thread
 
 class Config : Controller {
 

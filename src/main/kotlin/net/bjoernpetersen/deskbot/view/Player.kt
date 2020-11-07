@@ -15,7 +15,6 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,6 +36,7 @@ import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.player.PlayerStateListener
 import net.bjoernpetersen.musicbot.spi.player.QueueChangeListener
 import net.bjoernpetersen.musicbot.spi.player.SongQueue
+import kotlin.coroutines.CoroutineContext
 
 private typealias LibPlayer = net.bjoernpetersen.musicbot.spi.player.Player
 

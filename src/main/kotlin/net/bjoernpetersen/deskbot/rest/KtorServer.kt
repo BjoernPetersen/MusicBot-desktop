@@ -21,10 +21,6 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.util.KtorExperimentalAPI
-import java.util.Base64
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.rest.location.Version
 import net.bjoernpetersen.deskbot.rest.location.routeExit
@@ -44,6 +40,10 @@ import net.bjoernpetersen.musicbot.api.image.ImageServerConstraints
 import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 import net.bjoernpetersen.musicbot.spi.image.ImageCache
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
+import java.util.Base64
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 @OptIn(KtorExperimentalAPI::class, KtorExperimentalLocationsAPI::class)

@@ -1,10 +1,10 @@
 package net.bjoernpetersen.deskbot.view.property
 
-import java.util.Optional
 import javafx.beans.value.ObservableValue
-import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.config.Config
 import org.controlsfx.control.PropertySheet
+import java.util.Optional
+import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 sealed class ConfigEntryItem<T : Any>(
@@ -27,9 +27,11 @@ sealed class ConfigEntryItem<T : Any>(
                 is Config.StringEntry -> StringItem(entry, secret)
                 is Config.BooleanEntry -> BooleanItem(entry, secret)
                 is Config.SerializedEntry -> SerializedItem(
-                    entry as Config.SerializedEntry<Any>, secret)
+                    entry as Config.SerializedEntry<Any>, secret
+                )
                 else -> throw IllegalArgumentException(
-                    "Unknown Config.Entry type: ${entry::class.qualifiedName}")
+                    "Unknown Config.Entry type: ${entry::class.qualifiedName}"
+                )
             }
         }
     }

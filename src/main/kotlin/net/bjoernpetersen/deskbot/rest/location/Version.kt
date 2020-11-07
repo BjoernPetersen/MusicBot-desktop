@@ -3,10 +3,10 @@ package net.bjoernpetersen.deskbot.rest.location
 import com.github.zafarkhaja.semver.ParseException
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
-import java.io.IOException
-import java.util.Properties
 import net.bjoernpetersen.deskbot.rest.model.ImplementationInfo
 import net.bjoernpetersen.deskbot.rest.model.VersionInfo
+import java.io.IOException
+import java.util.Properties
 
 private const val PROJECT_PAGE = "https://github.com/BjoernPetersen/MusicBot-desktop"
 private const val PROJECT_NAME = "DeskBot"

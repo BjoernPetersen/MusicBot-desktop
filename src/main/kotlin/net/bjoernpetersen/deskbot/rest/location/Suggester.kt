@@ -9,8 +9,6 @@ import io.ktor.locations.delete
 import io.ktor.locations.get
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import javax.inject.Inject
-import kotlin.reflect.KClass
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.NotFoundException
@@ -26,6 +24,8 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.PluginLookup
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import javax.inject.Inject
+import kotlin.reflect.KClass
 
 private val logger = KotlinLogging.logger {}
 

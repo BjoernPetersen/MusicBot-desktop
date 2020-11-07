@@ -9,7 +9,6 @@ import io.ktor.locations.get
 import io.ktor.locations.put
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.BadRequestException
@@ -17,6 +16,7 @@ import net.bjoernpetersen.deskbot.rest.require
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.plugin.volume.Volume
 import net.bjoernpetersen.musicbot.api.plugin.volume.VolumeManager
+import javax.inject.Inject
 
 private val logger = KotlinLogging.logger {}
 

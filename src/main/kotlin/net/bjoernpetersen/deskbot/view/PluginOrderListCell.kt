@@ -32,13 +32,15 @@ class PluginOrderListCell : ListCell<PluginOrderItem>(), Controller {
         text = null
         graphic = root
         displayName.textProperty().bind(createStringBinding(itemProperty()) { item?.displayName })
-        availability.textProperty().bind(createStringBinding(itemProperty()) {
-            when (item?.isAvailable) {
-                null -> null
-                true -> DeskBot.resources["pluginOrder.available"]
-                false -> DeskBot.resources["pluginOrder.unavailable"]
+        availability.textProperty().bind(
+            createStringBinding(itemProperty()) {
+                when (item?.isAvailable) {
+                    null -> null
+                    true -> DeskBot.resources["pluginOrder.available"]
+                    false -> DeskBot.resources["pluginOrder.unavailable"]
+                }
             }
-        })
+        )
 
         initializeDragAndDrop()
     }
@@ -53,9 +55,11 @@ class PluginOrderListCell : ListCell<PluginOrderItem>(), Controller {
     private fun onDragDetected(it: MouseEvent) {
         if (item != null && dragHandler != null) {
             val dragboard = startDragAndDrop(TransferMode.MOVE)
-            dragboard.setContent(ClipboardContent().apply {
-                putString(index.toString())
-            })
+            dragboard.setContent(
+                ClipboardContent().apply {
+                    putString(index.toString())
+                }
+            )
         }
         it.consume()
     }

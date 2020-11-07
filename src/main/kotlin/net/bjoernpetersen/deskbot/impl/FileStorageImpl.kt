@@ -1,9 +1,9 @@
 package net.bjoernpetersen.deskbot.impl
 
-import java.io.File
-import javax.inject.Inject
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.util.FileStorage
+import java.io.File
+import javax.inject.Inject
 
 class FileStorageImpl @Inject private constructor(mainConfig: MainConfigEntries) : FileStorage {
     private val root: File = mainConfig.storageDir.get()!!.toFile()

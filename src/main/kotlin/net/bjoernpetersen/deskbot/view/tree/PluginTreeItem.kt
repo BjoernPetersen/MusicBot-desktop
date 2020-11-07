@@ -4,10 +4,10 @@ import com.google.common.collect.Multimap
 import com.google.common.collect.MultimapBuilder
 import javafx.collections.ObservableList
 import javafx.scene.control.TreeItem
-import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
+import kotlin.reflect.KClass
 
 @Suppress("UnstableApiUsage")
 class PluginTreeItem(

@@ -8,11 +8,11 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readBytes
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.bjoernpetersen.musicbot.spi.image.ImageData
 import net.bjoernpetersen.musicbot.spi.image.ImageLoader
+import javax.inject.Inject
 
 class ImageLoaderImpl @Inject private constructor() : ImageLoader {
     private val logger = KotlinLogging.logger {}

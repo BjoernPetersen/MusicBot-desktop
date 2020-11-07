@@ -95,7 +95,8 @@ private fun <T> node(): Node = ToolBar(
         isDisable = true
         maxWidth = Double.MAX_VALUE
         HBox.setHgrow(this, Priority.ALWAYS)
-    }).apply {
+    }
+).apply {
     orientation = Orientation.HORIZONTAL
     background = Background.EMPTY
 }

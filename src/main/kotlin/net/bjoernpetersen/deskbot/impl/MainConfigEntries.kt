@@ -1,10 +1,5 @@
 package net.bjoernpetersen.deskbot.impl
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import javax.inject.Inject
-import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -35,6 +30,11 @@ import net.bjoernpetersen.musicbot.api.plugin.PluginId
 import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import javax.inject.Inject
+import javax.inject.Named
 
 // TODO: make constructor private (force injection)
 class MainConfigEntries @Inject constructor(

@@ -13,7 +13,6 @@ import io.ktor.locations.put
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.ConflictException
@@ -28,6 +27,7 @@ import net.bjoernpetersen.musicbot.api.auth.Tokens
 import net.bjoernpetersen.musicbot.api.auth.User
 import net.bjoernpetersen.musicbot.api.auth.UserManager
 import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
+import javax.inject.Inject
 
 private val logger = KotlinLogging.logger {}
 

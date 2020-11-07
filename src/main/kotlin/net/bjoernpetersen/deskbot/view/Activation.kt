@@ -7,7 +7,6 @@ import javafx.scene.control.ListView
 import javafx.scene.control.Tooltip
 import javafx.scene.control.cell.TextFieldListCell
 import javafx.scene.layout.Region
-import kotlin.reflect.KClass
 import net.bjoernpetersen.musicbot.api.plugin.DeclarationException
 import net.bjoernpetersen.musicbot.api.plugin.id
 import net.bjoernpetersen.musicbot.api.plugin.pluginId
@@ -17,6 +16,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.Plugin
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
 import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
+import kotlin.reflect.KClass
 
 class Activation : Controller {
     @FXML

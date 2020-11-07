@@ -12,7 +12,6 @@ import io.ktor.locations.put
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import javax.inject.Inject
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.impl.getValue
 import net.bjoernpetersen.deskbot.rest.model.PlayerState
@@ -23,6 +22,7 @@ import net.bjoernpetersen.deskbot.rest.require
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.player.ProgressTracker
 import net.bjoernpetersen.musicbot.spi.player.Player
+import javax.inject.Inject
 
 private val logger = KotlinLogging.logger {}
 

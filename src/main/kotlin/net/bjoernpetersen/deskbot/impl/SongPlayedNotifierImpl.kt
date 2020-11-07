@@ -4,8 +4,6 @@ import com.google.common.collect.Multimap
 import com.google.common.collect.MultimapBuilder
 import com.google.inject.AbstractModule
 import com.google.inject.Scopes
-import javax.inject.Inject
-import kotlin.reflect.full.isSubclassOf
 import net.bjoernpetersen.musicbot.api.auth.Permission
 import net.bjoernpetersen.musicbot.api.player.SongEntry
 import net.bjoernpetersen.musicbot.api.plugin.management.PluginFinder
@@ -13,6 +11,8 @@ import net.bjoernpetersen.musicbot.api.plugin.management.findDependencies
 import net.bjoernpetersen.musicbot.spi.player.SongPlayedNotifier
 import net.bjoernpetersen.musicbot.spi.plugin.Provider
 import net.bjoernpetersen.musicbot.spi.plugin.Suggester
+import javax.inject.Inject
+import kotlin.reflect.full.isSubclassOf
 
 class SongPlayedNotifierImpl @Inject private constructor(
     finder: PluginFinder
