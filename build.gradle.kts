@@ -41,12 +41,12 @@ idea {
 
 spotless {
     kotlin {
-        ktlint()
+        ktlint(Plugin.KTLINT)
         lineEndings = LineEnding.UNIX
         endWithNewline()
     }
     kotlinGradle {
-        ktlint()
+        ktlint(Plugin.KTLINT)
         lineEndings = LineEnding.UNIX
         endWithNewline()
     }
