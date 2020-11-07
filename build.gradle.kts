@@ -2,7 +2,7 @@ import com.diffplug.spotless.LineEnding
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.diffplug.gradle.spotless") version Plugin.SPOTLESS
+    id("com.diffplug.spotless") version Plugin.SPOTLESS
     id("io.gitlab.arturbosch.detekt") version Plugin.DETEKT
 
     id("com.github.ben-manes.versions") version Plugin.VERSIONS
