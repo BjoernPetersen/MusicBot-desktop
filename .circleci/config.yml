@@ -118,7 +118,7 @@ jobs:
             mkdir bundle/musicbot-desktop/plugins
       - download_artifact:
           project: MusicBot-plugins
-          branch: $CIRCLE_BRANCH
+          branch: master
           token: $CIRCLE_TOKEN
       - run:
           name: Zipping bundle
