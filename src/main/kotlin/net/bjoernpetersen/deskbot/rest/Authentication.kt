@@ -26,10 +26,12 @@ class UserPrincipal(val user: User) : Principal
 
 class TokensPrincipal(val tokens: Tokens) : Principal
 
+private class NamedConfiguration(name: String?) : AuthenticationProvider.Configuration(name)
+
 class BearerAuthentication(
     private val tokenHandler: TokenHandler,
     name: String? = null
-) : AuthenticationProvider(name) {
+) : AuthenticationProvider(NamedConfiguration(name)) {
     private val logger = KotlinLogging.logger { }
     private val scheme = "Bearer"
     private val realm = "MusicBot"
@@ -66,7 +68,7 @@ class BearerAuthentication(
 class RefreshTokenAuthentication(
     private val tokenHandler: TokenHandler,
     name: String? = null
-) : AuthenticationProvider(name) {
+) : AuthenticationProvider(NamedConfiguration(name)) {
     private val logger = KotlinLogging.logger { }
     private val scheme = "Bearer"
     private val realm = "MusicBot"

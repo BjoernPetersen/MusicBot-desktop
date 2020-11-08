@@ -8,7 +8,7 @@ object Lib {
 
     const val CONTROLS_FX = "8.40.18"
 
-    const val KTOR = "1.2.5"
+    const val KTOR = "1.4.1"
 
     const val JACKSON = "2.11.3"
 

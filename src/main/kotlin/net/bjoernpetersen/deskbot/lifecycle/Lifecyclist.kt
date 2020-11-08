@@ -14,7 +14,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.io.errors.IOException
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.fximpl.FxProgressFeedback
 import net.bjoernpetersen.deskbot.impl.Broadcaster
@@ -69,6 +68,7 @@ import net.bjoernpetersen.musicbot.spi.plugin.management.DependencyManager
 import net.bjoernpetersen.musicbot.spi.util.BrowserOpener
 import org.controlsfx.control.TaskProgressView
 import java.io.File
+import java.io.IOException
 import java.nio.file.Paths
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock

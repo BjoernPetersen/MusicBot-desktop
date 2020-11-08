@@ -144,12 +144,12 @@ class KtorServer @Inject private constructor(
     }
 
     fun close() {
-        server.stop(GRACE_PERIOD, TIMEOUT, TimeUnit.SECONDS)
+        server.stop(GRACE_PERIOD, TIMEOUT)
     }
 
     private companion object {
-        const val GRACE_PERIOD = 1L
-        const val TIMEOUT = 5L
+        const val GRACE_PERIOD = 1000L
+        const val TIMEOUT = 5000L
 
         private val decoder = Base64.getDecoder()
         fun String.decode(): String {

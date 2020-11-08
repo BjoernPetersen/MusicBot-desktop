@@ -4,8 +4,8 @@ import com.google.inject.AbstractModule
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.request.get
-import io.ktor.client.response.HttpResponse
-import io.ktor.client.response.readBytes
+import io.ktor.client.statement.HttpStatement
+import io.ktor.client.statement.readBytes
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.runBlocking
@@ -20,16 +20,15 @@ class ImageLoaderImpl @Inject private constructor() : ImageLoader {
     override fun get(url: String): ImageData? {
         return runBlocking {
             HttpClient(OkHttp).use { client ->
-                client.get<HttpResponse>(url).use { response ->
-                    if (!response.status.isSuccess()) null
-                    else {
-                        val bytes = response.readBytes()
-                        val type = response.contentType()?.toString()
-                        if (type == null) {
-                            logger.warn { "Didn't get content type for image!" }
-                            null
-                        } else ImageData(type, bytes)
-                    }
+                val response = client.get<HttpStatement>(url).execute()
+                if (!response.status.isSuccess()) null
+                else {
+                    val bytes = response.readBytes()
+                    val type = response.contentType()?.toString()
+                    if (type == null) {
+                        logger.warn { "Didn't get content type for image!" }
+                        null
+                    } else ImageData(type, bytes)
                 }
             }
         }
