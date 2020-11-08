@@ -44,7 +44,6 @@ import net.bjoernpetersen.musicbot.spi.auth.TokenHandler
 import net.bjoernpetersen.musicbot.spi.image.ImageCache
 import net.bjoernpetersen.musicbot.spi.plugin.NoSuchSongException
 import java.util.Base64
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
