@@ -20,9 +20,9 @@ import io.ktor.locations.get
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
-import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import mu.KotlinLogging
 import net.bjoernpetersen.deskbot.rest.location.Version
@@ -57,7 +57,7 @@ class KtorServer @Inject private constructor(
     private val injector: Injector
 ) {
     private val logger = KotlinLogging.logger {}
-    private val server: ApplicationEngine = embeddedServer(CIO, port = ServerConstraints.port) {
+    private val server: ApplicationEngine = embeddedServer(Netty, port = ServerConstraints.port) {
         install(CORS) {
             anyHost()
             allowCredentials = true
