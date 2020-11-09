@@ -63,7 +63,7 @@ class FileConfigStorage(private val configDir: File) : ConfigStorageAdapter {
                     throw IOException("Could not create file")
                 }
             } catch (e: IOException) {
-                logger.error(e) { "Could not create config file '${file}'" }
+                logger.error(e) { "Could not create config file '$file'" }
                 return
             }
         }
